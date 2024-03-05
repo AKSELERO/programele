@@ -64,3 +64,45 @@ yarn-error.log
 
 # testing
 /coverage
+
+# React Native specific ignores
+
+## React Native - General
+yarn.lock
+package-lock.json
+*.bundle
+*.map
+!src/**/*.map
+metro.config.js
+babel.config.js
+
+## React Native - iOS
+**/ios/Pods/
+**/ios/*.xcworkspace
+**/ios/*.xcodeproj/project.xcworkspace
+**/ios/*.xcodeproj/xcuserdata
+**/ios/RnDiffApp.xcodeproj/*
+**/ios/*.xcworkspace/*
+!**/ios/*.xcodeproj/project.pbxproj
+
+## React Native - Android
+**/android/.gradle
+**/android/captures
+**/android/gradlew
+**/android/gradlew.bat
+**/android/key.properties
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.*
+**/android/app/build
+
+## Expo (if using Expo)
+.expo/
+web-build/
+
+## Miscellaneous
+.env
+.env.local
+.env.*.local
+*.log
+*.tmp
+*.temp
