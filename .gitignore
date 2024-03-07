@@ -1,0 +1,99 @@
+# Dependencies
+node_modules/
+yarn-error.log
+
+# Ignite
+ignite/Sparks
+ignite/ignite.json
+ignite/plugins
+
+# Detox
+e2e/reports/
+e2e/ios/
+e2e/android/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Miscellaneous
+*.log
+*.pid
+*.pid.lock
+*.seed
+*.pid.lock
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+
+# Keystore files
+*.jks
+*.keystore
+
+# Bundle artifact
+android/app/build/
+
+# Temporary files
+tmp/
+*.tmp
+*.temp
+
+# Yarn
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+
+# Expo (if using Expo in some parts of the project)
+.expo/
+web-build/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# iOS specific
+ios/.generated/
+ios/build/
+ios/Pods/
+*.xcworkspace
+*.xcuserstate
+
+# Android specific
+android/.gradle
+android/captures/
+android/build/
+android/app/src/main/assets/crystax_stdlibs/
+android/keystores/
+
+# Fastlane specific
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Coverage directory used by tools like Istanbul
+coverage/
+
+# Jest
+jest/
