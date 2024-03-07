@@ -9,6 +9,7 @@ import { DemoCommunityScreen, DemoShowroomScreen, DemoDebugScreen } from "../scr
 import { DemoPodcastListScreen } from "../screens/DemoPodcastListScreen"
 import { colors, spacing, typography } from "../theme"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
+import DataDisplay from '../screens/StateHistory';
 
 export type DemoTabParamList = {
   DemoCommunity: undefined
@@ -87,7 +88,7 @@ export function DemoNavigator() {
 
       <Tab.Screen
         name="DemoDebug"
-        component={DemoDebugScreen}
+        component={DataDisplay}
         options={{
           tabBarLabel: translate("demoNavigator.debugTab"),
           tabBarIcon: ({ focused }) => (
@@ -95,6 +96,16 @@ export function DemoNavigator() {
           ),
         }}
       />
+      {/* <Tab.Screen
+        name="DemoDebug"
+        component={DataDisplay}
+        options={{
+          tabBarLabel: translate("demoNavigator.debugTab"),
+          tabBarIcon: ({ focused }) => (
+            <Icon icon="debug" color={focused ? colors.tint : undefined} size={30} />
+          ),
+        }}
+      /> */}
     </Tab.Navigator>
   )
 }
