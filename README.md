@@ -1,3 +1,11 @@
+# Setup'as
+Netestavau setupo nuo nulio, gali būt kad reikės kažką pasidaryt papildomai.
+1. git clone https://github.com/AKSELERO/programele.git
+2. npm install (turbūt)
+3. npm start / npm run android
+
+Ignite naudoja expo, todėl galbūt nereikės viso to android studio instaliacijos proceso. Man prijungus telefoną su laidu prie kompo su `npm start` instaliavo viską ko reikėjo (į telefoną).
+
 # Welcome to your new ignited app!
 
 [![CircleCI](https://circleci.com/gh/infinitered/ignite.svg?style=svg)](https://circleci.com/gh/infinitered/ignite)
