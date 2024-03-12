@@ -16,6 +16,7 @@ export type DemoTabParamList = {
   DemoShowroom: { queryIndex?: string; itemIndex?: string }
   DemoDebug: undefined
   DemoPodcastList: undefined
+  DataDisplay: undefined
 }
 
 /**
@@ -88,6 +89,16 @@ export function DemoNavigator() {
 
       <Tab.Screen
         name="DemoDebug"
+        component={DemoDebugScreen}
+        options={{
+          tabBarLabel: translate("demoNavigator.debugTab"),
+          tabBarIcon: ({ focused }) => (
+            <Icon icon="debug" color={focused ? colors.tint : undefined} size={30} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="DataDisplay"
         component={DataDisplay}
         options={{
           tabBarLabel: translate("demoNavigator.debugTab"),
@@ -96,16 +107,6 @@ export function DemoNavigator() {
           ),
         }}
       />
-      {/* <Tab.Screen
-        name="DemoDebug"
-        component={DataDisplay}
-        options={{
-          tabBarLabel: translate("demoNavigator.debugTab"),
-          tabBarIcon: ({ focused }) => (
-            <Icon icon="debug" color={focused ? colors.tint : undefined} size={30} />
-          ),
-        }}
-      /> */}
     </Tab.Navigator>
   )
 }

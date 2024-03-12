@@ -26,11 +26,16 @@ const AsyncStorageUpdater: React.FC = () => {
   
           // Create the key dynamically based on the count
           const key = `dataKey${count + 1}`;
-  
+          
+          const randomNum = Math.floor(Math.random() * 2);
+
+          // Determine content based on the random number
+          const content = randomNum === 0 ? 'test0' : 'test1';
+
           // Create the new entry
           const newDataEntry = {
             date: formattedDate,
-            content: 'test',
+            content: content,
           };
   
           // Save data to AsyncStorage using the dynamically generated key
@@ -50,7 +55,7 @@ const AsyncStorageUpdater: React.FC = () => {
       };
   
       // Set up an interval to write data every minute (60,000 milliseconds)
-      const intervalId = setInterval(writeData, 10000);
+      const intervalId = setInterval(writeData, 15000);
   
       // Clean up the interval on component unmount
       return () => clearInterval(intervalId);
