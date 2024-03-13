@@ -31,6 +31,7 @@ import Config from "./config"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { ViewStyle } from "react-native"
 import AsyncStorageUpdater from './utils/StoreState'; // 
+import SensorDataRecorder from './utils/ReadSensors'
 
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
 
@@ -102,12 +103,14 @@ function App(props: AppProps) {
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ErrorBoundary catchErrors={Config.catchErrors}>
         <GestureHandlerRootView style={$container}>
+        <SensorDataRecorder />
           <AppNavigator
             linking={linking}
             initialState={initialNavigationState}
             onStateChange={onNavigationStateChange}
           />
-          <AsyncStorageUpdater />
+          {/* Write the output of ML model in initialContent */}
+          {/* <AsyncStorageUpdater initialContent="Test" /> */}
         </GestureHandlerRootView>
       </ErrorBoundary>
     </SafeAreaProvider>

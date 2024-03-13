@@ -2,7 +2,11 @@
 import React, { useEffect } from 'react';
 import { load, save } from './storage/storage';
 
-const AsyncStorageUpdater: React.FC = () => {
+interface AsyncStorageUpdaterProps {
+  initialContent: string; // Define the type for the initial content parameter
+}
+
+const AsyncStorageUpdater: React.FC<AsyncStorageUpdaterProps> = ({ initialContent }) => {
     useEffect(() => {
       const writeData = async () => {
         try {
@@ -27,15 +31,12 @@ const AsyncStorageUpdater: React.FC = () => {
           // Create the key dynamically based on the count
           const key = `dataKey${count + 1}`;
           
-          const randomNum = Math.floor(Math.random() * 2);
-
-          // Determine content based on the random number
-          const content = randomNum === 0 ? 'test0' : 'test1';
+          
 
           // Create the new entry
           const newDataEntry = {
             date: formattedDate,
-            content: content,
+            content: initialContent,
           };
   
           // Save data to AsyncStorage using the dynamically generated key

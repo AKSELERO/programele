@@ -6,6 +6,7 @@
     "slug": "AkselerometroProgramele",
     "scheme": "akselerometroprogramele",
     "version": "1.0.0",
+    "permissions": ["accelerometer"],
     "orientation": "portrait",
     "icon": "./assets/images/app-icon-all.png",
     "splash": {
