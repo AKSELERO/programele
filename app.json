@@ -19,7 +19,8 @@
     },
     "jsEngine": "hermes",
     "assetBundlePatterns": [
-      "**/*"
+      "**/*",
+      "assets/*"
     ],
     "android": {
       "icon": "./assets/images/app-icon-android-legacy.png",
@@ -68,7 +69,9 @@
           }
         }
       ],
+      ["react-native-fast-tflite", { "enableCoreMLDelegate": true }],
       "expo-font"
+      
     ],
     "experiments": {
       "tsconfigPaths": true
