@@ -9,6 +9,9 @@ config.transformer.getTransformOptions = async () => ({
     experimentalImportSupport: false,
     inlineRequires: true,
   },
+  resolver: {
+    assetExts: ['tflite']
+  }
 });
 
 module.exports = config;
