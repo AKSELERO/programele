@@ -1,3 +1,55 @@
+import { InferenceSession } from 'onnxruntime-react-native';
+import RNFS from 'react-native-fs';
+import { Buffer } from 'buffer';
+
+import loadModelFromBinaryData from './loadModel';
+
+const modelPath: string = 'random_forest.onnx';
+
+// Call the function, ensuring to handle the Promise properly
+loadModelFromBinaryData(modelPath)
+  .then((session) => {
+    if (session) {
+      console.log('Model session is ready for inference.');
+      // You can now use the session for inference
+    }
+  })
+  .catch((error) => console.error(error));
+
+export default loadModelFromBinaryData;
+
+
+
+
+
+
+
+
+
+
+
+// import * as onnx from 'onnxjs';
+
+// const runInference = async (combinedData: number[]) => {
+//   try {
+//     // Assuming combinedData is processed and ready for model input
+//     const model = new onnx.InferenceSession();
+//     await model.loadModel('./path/to/your/model.onnx');
+
+//     // Create a typed array from combinedData to match the model input
+//     const inputTensor = new onnx.Tensor(new Float32Array(combinedData), 'float32', [1, combinedData.length]);
+
+//     // Run the model
+//     const outputMap = await model.run([inputTensor]);
+//     const outputTensor = outputMap.values().next().value;
+//     const prediction = outputTensor.data;
+
+//     console.log('Prediction:', prediction);
+//   } catch (error) {
+//     console.error('Error during inference:', error);
+//   }
+// };
+
 // // model.ts
 // // model.ts
 // import * as tfLite from 'react-native-tflite';
