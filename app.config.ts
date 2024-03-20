@@ -27,6 +27,7 @@ module.exports = ({ config }: ConfigContext): Partial<ExpoConfig> => {
           "enableCoreMLDelegate": true
         }
       ],
+      "./plugins/withOnnxRuntime",
     ],
   }
 }

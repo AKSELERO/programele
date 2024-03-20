@@ -1,10 +1,7 @@
 import * as FileSystem from 'expo-file-system';
 import React, { useEffect, useState, useRef } from 'react';
-import { bundleResourceIO } from '@tensorflow/tfjs-react-native';
 import { Accelerometer, Gyroscope } from 'expo-sensors';
 import { gyroscope } from 'react-native-sensors';
-import * as tf from '@tensorflow/tfjs';
-import * as tfjsRN from '@tensorflow/tfjs-react-native';
 import { Asset } from 'expo-asset';
 import {
     Tensor,
@@ -12,11 +9,11 @@ import {
     useTensorflowModel,
     loadTensorflowModel
   } from 'react-native-fast-tflite'
-  import { loadTFLiteModel } from '@tensorflow/tfjs-tflite';
-  import { fetch } from '@tensorflow/tfjs-react-native';
   import AsyncStorageUpdater from './StoreState';
   import { load, save } from './storage/storage';
 import { write } from 'react-native-fs';
+import loadModel from './loadModel'
+import RNFS from 'react-native-fs';
 
 const SensorDataRecorder: React.FC = () => {
     class MockAsset {
@@ -229,27 +226,27 @@ const calculateCombinedData = (accelerometerData: { x: number; y: number; z: num
     //const model = await rntf.loadTensorflowModel(require('../ML_Models/model.tflite'))
     //console.log(combinedData)
     //make prediction with combinedData
-  //   try {
-  //     const modelAsset = Asset.fromModule(require('app/ML_Models/model.tflite'));
-  //     await modelAsset.downloadAsync();
-  //     const modelPath: string = modelAsset.localUri || modelAsset.uri;
-  //     console.log(1)
-  //     const model = await tf.loadGraphModel(modelPath);
-  //     console.log(2)
-  //     // Prepare input data
-  //     const inputDataTensor = tf.tensor2d([combinedData], [1, combinedData.length]);
+    // try {
+    //   const modelAsset = Asset.fromModule(require('app/ML_Models/model.tflite'));
+    //   //await modelAsset.downloadAsync();
+    //   const modelPath: string = modelAsset.localUri || modelAsset.uri;
+    //   console.log(1)
+    //   const model = await tf.loadGraphModel(modelPath);
+    //   console.log(2)
+    //   // Prepare input data
+    //   const inputDataTensor = tf.tensor2d([combinedData], [1, combinedData.length]);
 
-  //     // Run inference
-  //     const outputTensor = model.predict(inputDataTensor) as tf.Tensor;
-  //     const prediction = await outputTensor.data();
-  //     console.log('Prediction:', prediction);
+    //   // Run inference
+    //   const outputTensor = model.predict(inputDataTensor) as tf.Tensor;
+    //   const prediction = await outputTensor.data();
+    //   console.log('Prediction:', prediction);
 
-  //     // Dispose tensors
-  //     inputDataTensor.dispose();
-  //     outputTensor.dispose();
-  //     } catch (error) {
-  //         console.error('Error during prediction:', error);
-  //     }
+    //   // Dispose tensors
+    //   inputDataTensor.dispose();
+    //   outputTensor.dispose();
+    //   } catch (error) {
+    //       console.error('Error during prediction:', error);
+    //   }
     
     // Perform prediction using combinedData
      //console.log(combinedData);
@@ -270,6 +267,19 @@ const calculateCombinedData = (accelerometerData: { x: number; y: number; z: num
 
     // Pass prediction to the parent component
     // onCombinedDataProcessed(prediction);
+
+    const assetPath = require('../../assets/ML_Models/random_forest.onnx');
+    console.log(assetPath);
+    // Call the function
+    loadModel()
+      .then((session) => {
+        if (session) {
+          console.log('Model session is ready for inference.');
+          // Perform further operations with the session
+        }
+      })
+    .catch((error) => console.error(error));
+
     return combinedData;
 };
 
