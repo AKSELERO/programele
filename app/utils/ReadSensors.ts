@@ -178,9 +178,12 @@ const writeData = async (initialContent : string) => {
   };
 
 const calculateCombinedData = (accelerometerData: { x: number; y: number; z: number; }[], gyroscopeData: { x: number; y: number; z: number; }[]) => {
-    //console.log("Calculating combined data...");
+    console.log("Calculating combined data...");
     const combinedData: number[] = [];
-    //console.log(accelerometerData)
+    // console.log("Accelerometer data: ")
+    // accelerometerData.forEach((ob) => {
+    //   console.log(`X: ${ob.x}, Y: ${ob.y}, Z: ${ob.z}`)
+    // })
 
     // Calculate statistics for accelerometer data
     if (accelerometerData.length > 0) {
@@ -201,6 +204,10 @@ const calculateCombinedData = (accelerometerData: { x: number; y: number; z: num
     }
 
     // Calculate statistics for gyroscope data
+    gyroscopeData = accelerometerData
+    // gyroscopeData.forEach((ob) => {
+    //   console.log(`X: ${ob.x}, Y: ${ob.y}, Z: ${ob.z}`)
+    // })
     if (gyroscopeData.length > 0) {
         const gyroX = gyroscopeData.map(data => data.x);
         const gyroY = gyroscopeData.map(data => data.y);
@@ -278,9 +285,15 @@ const calculateCombinedData = (accelerometerData: { x: number; y: number; z: num
 
           const feeds = {"X": inputTensor };
           console.log(session.outputNames);
-          const result = session.run(feeds, ["output_label", "output_probability"]);
+          const result = session.run(feeds, ["output_label"]);
         
-          console.log(result);
+          result.then(output => {
+            // Access and log the actual inference results here
+            console.log("Prediction result: " + output.output_label.data);
+          }).catch(error => {
+            console.error('Error during inference:', error);
+          });
+          
         }
       })
       .catch((error) => console.error(error));
