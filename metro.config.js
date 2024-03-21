@@ -10,7 +10,7 @@ config.transformer.getTransformOptions = async () => ({
     inlineRequires: true,
   },
   resolver: {
-    assetExts: ['tflite', 'onnx'],
+    assetExts: ['tflite', 'onnx', 'ort'],
   }
 });
 

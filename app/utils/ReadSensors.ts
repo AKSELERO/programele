@@ -3,17 +3,13 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Accelerometer, Gyroscope } from 'expo-sensors';
 import { gyroscope } from 'react-native-sensors';
 import { Asset } from 'expo-asset';
-import {
-    Tensor,
-    TensorflowModel,
-    useTensorflowModel,
-    loadTensorflowModel
-  } from 'react-native-fast-tflite'
+
   import AsyncStorageUpdater from './StoreState';
   import { load, save } from './storage/storage';
 import { write } from 'react-native-fs';
-import loadModel from './loadModel'
+import loadModelFromCloud from './loadModel'
 import RNFS from 'react-native-fs';
+import { Tensor } from 'onnxruntime-react-native';
 
 const SensorDataRecorder: React.FC = () => {
     class MockAsset {
@@ -268,17 +264,26 @@ const calculateCombinedData = (accelerometerData: { x: number; y: number; z: num
     // Pass prediction to the parent component
     // onCombinedDataProcessed(prediction);
 
-    const assetPath = require('../../assets/ML_Models/random_forest.onnx');
-    console.log(assetPath);
-    // Call the function
-    loadModel()
+    const modelUrl = 'https://drive.google.com/uc?export=download&id=1j8t-4VPG4s-ow4TvWzo5zr1CYVxRrJF8'; //onnx
+    //const modelUrl = 'https://drive.google.com/uc?export=download&id=1_pTQnQgPkpj89kH9HePESt1ansr7HsPV'; //ort
+
+    loadModelFromCloud(modelUrl)
       .then((session) => {
         if (session) {
           console.log('Model session is ready for inference.');
-          // Perform further operations with the session
+          const input = new Float32Array(combinedData.length);
+          const inputData = new Float32Array(combinedData); // Populate with your actual data
+
+          const inputTensor = new Tensor("float32", inputData, [1, 48]); // Assuming input shape is [1, 48]
+
+          const feeds = {"X": inputTensor };
+          console.log(session.outputNames);
+          const result = session.run(feeds, ["output_label", "output_probability"]);
+        
+          console.log(result);
         }
       })
-    .catch((error) => console.error(error));
+      .catch((error) => console.error(error));
 
     return combinedData;
 };
