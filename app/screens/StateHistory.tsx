@@ -100,12 +100,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    paddingTop: 40
+    paddingTop: 40,
+    backgroundColor: '#fff', // Ensure a light background
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#fff', // Ensure a light background
   },
   row: {
     flexDirection: 'row',
@@ -115,6 +117,7 @@ const styles = StyleSheet.create({
   cell: {
     flex: 1,
     textAlign: 'center',
+    color: '#000', // Set text color to black for visibility against a light background
   },
   header: {
     flexDirection: 'row',
@@ -127,8 +130,10 @@ const styles = StyleSheet.create({
     flex: 1,
     fontWeight: 'bold',
     textAlign: 'center',
+    color: '#000', // Set header text color to black for visibility
   },
 });
+
 
 export default DataDisplay;
 
