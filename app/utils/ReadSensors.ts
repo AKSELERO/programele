@@ -10,31 +10,90 @@ import { write } from 'react-native-fs';
 import loadModelFromCloud from './loadModel'
 import RNFS from 'react-native-fs';
 import { Tensor } from 'onnxruntime-react-native';
+import { InferenceSession } from 'onnxruntime-react-native';
 
-const SensorDataRecorder: React.FC = () => {
-    class MockAsset {
-  // Define a static method to mock Asset.fromModule
-  static fromModule(module: any) {
-    // Return an object with a mock downloadAsync method
-    return {
-      downloadAsync: async () => {
-        console.log('Mock asset downloaded:', module);
+class ModelManager {
+  private static instance: ModelManager;
+  private modelSession: InferenceSession | null = null;
+
+  private constructor() { }
+
+  public static getInstance(): ModelManager {
+    if (!ModelManager.instance) {
+      ModelManager.instance = new ModelManager();
+    }
+    return ModelManager.instance;
+  }
+
+  public async loadModel(modelUrl: string): Promise<void> {
+    if (this.modelSession === null) {
+      try {
+        const session = await loadModelFromCloud(modelUrl) ?? null;
+        if (session === null) {
+          throw new Error('Failed to load the model from the cloud.');
+        }
+        console.log('Model session is ready for inference.');
+        this.modelSession = session;
+      } catch (error) {
+        console.error('Failed to load model:', error);
+        this.modelSession = null;
       }
-    };
+    }
+  }
+
+  // Modified getPrediction to return prediction result
+  public async getPrediction(inputData: Float32Array): Promise<any> { // Use a more specific type than any if possible
+    if (!this.modelSession) {
+      console.error('Model session is not initialized. Please load the model first.');
+      return null; // Indicate failure or invalid session
+    }
+
+    const inputTensor = new Tensor("float32", inputData, [1, 48]); // Adjust shape as necessary
+    const feeds = { "X": inputTensor };
+
+    try {
+      const output = await this.modelSession.run(feeds, ["output_label"]);
+      const predictionResult = output["output_label"].data;
+      console.log("Prediction result: ", predictionResult);
+
+      return predictionResult; // Return the prediction result
+    } catch (error) {
+      console.error('Error during inference:', error);
+      return null; // Indicate error condition
+    }
   }
 }
-      
-    
+
+const SensorDataRecorder: React.FC = () => {
     const [accelerometerData, setAccelerometerData] = useState<{ x: number; y: number; z: number; }[]>([]);
     const accelerometerDataRef = useRef(accelerometerData);
     const [gyroscopeData, setGyroscopeData] = useState<{ x: number; y: number; z: number; }[]>([]);
     const gyroscopeDataRef = useRef(accelerometerData);
-  
+    const modelUrl = 'https://drive.google.com/uc?export=download&id=1j8t-4VPG4s-ow4TvWzo5zr1CYVxRrJF8'; //onnx
+    //const modelUrl = 'https://drive.google.com/uc?export=download&id=1_pTQnQgPkpj89kH9HePESt1ansr7HsPV'; //ort
+    const [modelLoaded, setModelLoaded] = useState(false);
+
+    useEffect(() => {
+      // Retrieve the singleton instance of ModelManager here
+      const modelManager = ModelManager.getInstance();
+
+      const loadModelAsync = async () => {
+          if (!modelLoaded) {
+              await modelManager.loadModel(modelUrl);
+              setModelLoaded(true); // Indicate that the model is loaded
+          }
+      };
+
+      loadModelAsync();
+    }, [modelLoaded]);
+
     useEffect(() => {
         let accelerometerSubscription: { remove: () => void };
         let gyroscopeSubscription: { remove: () => void };
   
         const startSubscriptions = () => {
+            Accelerometer.setUpdateInterval(50);
+            Gyroscope.setUpdateInterval(50);
             console.log("Starting accelerometer subscription");
             accelerometerSubscription = Accelerometer.addListener((data) => {
                 setAccelerometerData((prevData) => [...prevData, data]);
@@ -52,7 +111,7 @@ const SensorDataRecorder: React.FC = () => {
   
         startSubscriptions();
 
-        const intervalId = setInterval(() => {
+        const intervalId = setInterval(async () => {
             const combinedData = calculateCombinedData(accelerometerDataRef.current, gyroscopeDataRef.current);
             if (combinedData.length > 0) {
                 runInference(combinedData);
@@ -60,38 +119,6 @@ const SensorDataRecorder: React.FC = () => {
             setAccelerometerData([]);
             setGyroscopeData([]);
         }, 15000);
-        
-        
-
-    //   const runInference = async (combinedData: number[]) => {
-    //     try {
-    //         // Load TensorFlow Lite model
-    //         const model = await tf.loadGraphModel('model.tflite');
-    
-    //         // Convert combinedData array to Float32Array
-            
-    
-    //         // Prepare input tensor
-    //         const inputTensor = tf.tensor2d([combinedData], [1, combinedData.length]);
-    
-    //         // Run inference
-    //         const outputTensor = model.predict(inputTensor) as tf.Tensor;
-    //         const prediction = await outputTensor.data();
-    
-    //         // Dispose tensors
-    //         inputTensor.dispose();
-    //         outputTensor.dispose();
-    
-    //         // Handle prediction
-    //         console.log('Prediction:', prediction);
-    
-    //         // Unload the model to free up memory
-    //         model.dispose();
-    //     } catch (error) {
-    //         console.error('Error during inference:', error);
-    //     }
-    // };
-
       
 
         return () => {
@@ -109,21 +136,28 @@ const SensorDataRecorder: React.FC = () => {
   const runInference = async (combinedData: number[]) => {
     try {
 
-        console.log(combinedData)
-        const randomDecimal = Math.random();
 
-  
-        const randomNumber = Math.floor(randomDecimal * 4) + 1;
+        const modelManager = ModelManager.getInstance();
+        const inputData = new Float32Array(combinedData);
+        const predictionResult = await modelManager.getPrediction(inputData);
+        const valueMap: Record<string, string> = {
+          'D': 'sėdėjimas',
+          'B': 'bėgimas',
+          'A': 'ėjimas',
+          'E': 'stovėjimas',
+        };
+
+        if (predictionResult !== null) {
+          console.log('Received prediction:', predictionResult);
+          const state = valueMap[predictionResult];
+          await writeData(state);
+        } else {
+          console.log('Failed to get prediction.');
+        }
 
         
-        const valueMap: Record<number, string> = {
-            1: 'sėdėjimas',
-            2: 'bėgimas',
-            3: 'ėjimas',
-            4: 'gulėjimas',
-          };
-        const state = valueMap[randomNumber];
-        await writeData(state);
+        
+        
 
         
     } catch (error) {
@@ -204,7 +238,7 @@ const calculateCombinedData = (accelerometerData: { x: number; y: number; z: num
     }
 
     // Calculate statistics for gyroscope data
-    gyroscopeData = accelerometerData
+    //gyroscopeData = accelerometerData
     // gyroscopeData.forEach((ob) => {
     //   console.log(`X: ${ob.x}, Y: ${ob.y}, Z: ${ob.z}`)
     // })
@@ -221,82 +255,31 @@ const calculateCombinedData = (accelerometerData: { x: number; y: number; z: num
         // console.log(2)
         // console.log(combinedData)
     }
-    //give input combineddata
-    
-  //   const modelAsset = Asset.fromModule(require('../assets/ML_Models/model.tflite'));
-  //   await modelAsset.downloadAsync();
-  //   const model = await loadTensorflowModel(modelAsset.localUri);
-    //const model = await rntf.loadTensorflowModel(require('../ML_Models/model.tflite'))
-    //console.log(combinedData)
-    //make prediction with combinedData
-    // try {
-    //   const modelAsset = Asset.fromModule(require('app/ML_Models/model.tflite'));
-    //   //await modelAsset.downloadAsync();
-    //   const modelPath: string = modelAsset.localUri || modelAsset.uri;
-    //   console.log(1)
-    //   const model = await tf.loadGraphModel(modelPath);
-    //   console.log(2)
-    //   // Prepare input data
-    //   const inputDataTensor = tf.tensor2d([combinedData], [1, combinedData.length]);
 
-    //   // Run inference
-    //   const outputTensor = model.predict(inputDataTensor) as tf.Tensor;
-    //   const prediction = await outputTensor.data();
-    //   console.log('Prediction:', prediction);
-
-    //   // Dispose tensors
-    //   inputDataTensor.dispose();
-    //   outputTensor.dispose();
-    //   } catch (error) {
-    //       console.error('Error during prediction:', error);
-    //   }
-    
-    // Perform prediction using combinedData
-     //console.log(combinedData);
-    // console.log(combinedData.length)
-
-
-
-    // const float32Arr = new Float32Array(combinedData.length);
-    //   for (let i = 0; i < combinedData.length; i++) {
-    //       float32Arr[i] = combinedData[i];
-    //   }
-    //   const modelPath: string = "../ML_Models/rrandom_forest.onnx";
-    //   console.log(1)
-    //   const session: InferenceSession = await InferenceSession.create(modelPath);
-    //   console.log(2);
-      
     
 
-    // Pass prediction to the parent component
-    // onCombinedDataProcessed(prediction);
+    // loadModelFromCloud(modelUrl)
+    //   .then((session) => {
+    //     if (session) {
+    //       console.log('Model session is ready for inference.');
+    //       const inputData = new Float32Array(combinedData); // Populate with your actual data
 
-    const modelUrl = 'https://drive.google.com/uc?export=download&id=1j8t-4VPG4s-ow4TvWzo5zr1CYVxRrJF8'; //onnx
-    //const modelUrl = 'https://drive.google.com/uc?export=download&id=1_pTQnQgPkpj89kH9HePESt1ansr7HsPV'; //ort
+    //       const inputTensor = new Tensor("float32", inputData, [1, 48]); // Assuming input shape is [1, 48]
 
-    loadModelFromCloud(modelUrl)
-      .then((session) => {
-        if (session) {
-          console.log('Model session is ready for inference.');
-          const input = new Float32Array(combinedData.length);
-          const inputData = new Float32Array(combinedData); // Populate with your actual data
-
-          const inputTensor = new Tensor("float32", inputData, [1, 48]); // Assuming input shape is [1, 48]
-
-          const feeds = {"X": inputTensor };
-          console.log(session.outputNames);
-          const result = session.run(feeds, ["output_label"]);
+    //       const feeds = {"X": inputTensor };
+    //       console.log(session.outputNames);
+    //       const result = session.run(feeds, ["output_label"]);
         
-          result.then(output => {
-            // Access and log the actual inference results here
-            console.log("Prediction result: " + output.output_label.data);
-          }).catch(error => {
-            console.error('Error during inference:', error);
-          });
+    //       result.then(output => {
+    //         // Access and log the actual inference results here
+    //         console.log("Prediction result: " + output.output_label.data);
+    //       }).catch(error => {
+    //         console.error('Error during inference:', error);
+    //       });
           
-        }
-      })
-      .catch((error) => console.error(error));
+    //     }
+    //   })
+    //   .catch((error) => console.error(error));
 
     return combinedData;
 };
