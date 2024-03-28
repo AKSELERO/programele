@@ -247,7 +247,7 @@ const calculateCombinedData = (accelerometerData: { x: number; y: number; z: num
 
     if (gyroscopeData.length <= 0) {
         gyroscopeData = accelerometerData
-        console.error("No gyroscope found:(")
+        console.log("No gyroscope found:(")
     }
 
     if (gyroscopeData.length > 0) {

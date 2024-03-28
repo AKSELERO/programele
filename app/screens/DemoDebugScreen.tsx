@@ -47,13 +47,8 @@ export const DemoDebugScreen: FC<DemoTabScreenProps<"DemoDebug">> = function Dem
 
   return (
     <Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={$container}>
-      <Text
-        style={$reportBugsLink}
-        tx="demoDebugScreen.reportBugs"
-        onPress={() => openLinkInBrowser("https://github.com/infinitered/ignite/issues")}
-      />
-      <Text style={$title} preset="heading" tx="demoDebugScreen.title" />
-      <View style={$itemsContainer}>
+      <Text style={$title} preset="heading" text="Nustatymai" />
+      {/* <View style={$itemsContainer}>
         <ListItem
           LeftComponent={
             <View style={$item}>
@@ -109,15 +104,14 @@ export const DemoDebugScreen: FC<DemoTabScreenProps<"DemoDebug">> = function Dem
       </View>
       <View style={$buttonContainer}>
         <Button style={$button} tx="common.logOut" onPress={logout} />
-      </View>
+      </View> */}
     </Screen>
   )
 }
 
 const $container: ViewStyle = {
-  paddingTop: spacing.lg + spacing.xl,
-  paddingBottom: spacing.xxl,
-  paddingHorizontal: spacing.lg,
+  padding: spacing.lg,
+
 }
 
 const $title: TextStyle = {

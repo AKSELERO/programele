@@ -10,6 +10,7 @@ import { DemoPodcastListScreen } from "../screens/DemoPodcastListScreen"
 import { colors, spacing, typography } from "../theme"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 import DataDisplay from '../screens/StateHistory';
+import { green } from "react-native-reanimated/lib/typescript/reanimated2/Colors"
 
 export type DemoTabParamList = {
   DemoCommunity: undefined
@@ -59,7 +60,7 @@ export function DemoNavigator() {
         options={{
           tabBarLabel: "Tikslai",
           tabBarIcon: ({ focused }) => (
-            <Icon icon="components" color={focused ? colors.tint : undefined} size={30} />
+            <Icon icon="bullseye" color={focused ? colors.palette.secondary200 : colors.palette.neutral200} size={30} />
           ),
         }}
       />
@@ -68,9 +69,9 @@ export function DemoNavigator() {
         name="DemoCommunity"
         component={DemoCommunityScreen}
         options={{
-          tabBarLabel: translate("demoNavigator.communityTab"),
+          tabBarLabel: "Statistika",
           tabBarIcon: ({ focused }) => (
-            <Icon icon="community" color={focused ? colors.tint : undefined} size={30} />
+            <Icon icon="bargraph" color={focused ? colors.palette.secondary200 : colors.palette.neutral600} size={30} />
           ),
         }}
       />
@@ -80,9 +81,9 @@ export function DemoNavigator() {
         component={DemoPodcastListScreen}
         options={{
           tabBarAccessibilityLabel: translate("demoNavigator.podcastListTab"),
-          tabBarLabel: translate("demoNavigator.podcastListTab"),
+          tabBarLabel: "Rekomendacijos",
           tabBarIcon: ({ focused }) => (
-            <Icon icon="podcast" color={focused ? colors.tint : undefined} size={30} />
+            <Icon icon="podcast" color={focused ? colors.palette.secondary200 : colors.palette.neutral600} size={30} />
           ),
         }}
       />
@@ -91,9 +92,9 @@ export function DemoNavigator() {
         name="DemoDebug"
         component={DemoDebugScreen}
         options={{
-          tabBarLabel: translate("demoNavigator.debugTab"),
+          tabBarLabel: "Nustatymai",
           tabBarIcon: ({ focused }) => (
-            <Icon icon="debug" color={focused ? colors.tint : undefined} size={30} />
+            <Icon icon="settings" color={focused ? colors.palette.secondary200 : colors.palette.neutral600} size={30} />
           ),
         }}
       />
@@ -103,7 +104,7 @@ export function DemoNavigator() {
         options={{
           tabBarLabel: translate("demoNavigator.debugTab"),
           tabBarIcon: ({ focused }) => (
-            <Icon icon="debug" color={focused ? colors.tint : undefined} size={30} />
+            <Icon icon="debug" color={focused ? colors.palette.secondary200 : colors.palette.neutral600} size={30} />
           ),
         }}
       />
@@ -112,8 +113,9 @@ export function DemoNavigator() {
 }
 
 const $tabBar: ViewStyle = {
-  backgroundColor: colors.background,
+  backgroundColor: colors.palette.primary500,
   borderTopColor: colors.transparent,
+  marginBottom: 8,
 }
 
 const $tabBarItem: ViewStyle = {
@@ -124,6 +126,7 @@ const $tabBarLabel: TextStyle = {
   fontSize: 12,
   fontFamily: typography.primary.medium,
   lineHeight: 16,
+  color: colors.palette.neutral200
 }
 
 // @demo remove-file
