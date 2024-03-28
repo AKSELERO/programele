@@ -234,14 +234,21 @@ const calculateCombinedData = (accelerometerData: { x: number; y: number; z: num
 
         // console.log(1)
         // console.log(combinedData)
-
     }
+
+    
 
     // Calculate statistics for gyroscope data
     //gyroscopeData = accelerometerData
     // gyroscopeData.forEach((ob) => {
     //   console.log(`X: ${ob.x}, Y: ${ob.y}, Z: ${ob.z}`)
     // })
+
+    if (gyroscopeData.length <= 0) {
+        gyroscopeData = accelerometerData
+        console.error("No gyroscope found:(")
+    }
+
     if (gyroscopeData.length > 0) {
         const gyroX = gyroscopeData.map(data => data.x);
         const gyroY = gyroscopeData.map(data => data.y);
