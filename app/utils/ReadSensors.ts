@@ -21,6 +21,7 @@ class ModelManager {
   public static getInstance(): ModelManager {
     if (!ModelManager.instance) {
       ModelManager.instance = new ModelManager();
+
     }
     return ModelManager.instance;
   }

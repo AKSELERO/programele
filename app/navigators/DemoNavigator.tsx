@@ -57,7 +57,7 @@ export function DemoNavigator() {
         name="DemoShowroom"
         component={DemoShowroomScreen}
         options={{
-          tabBarLabel: translate("demoNavigator.componentsTab"),
+          tabBarLabel: "Tikslai",
           tabBarIcon: ({ focused }) => (
             <Icon icon="components" color={focused ? colors.tint : undefined} size={30} />
           ),
