@@ -32,14 +32,9 @@ export const NustatymaiScreen: FC<NustatymaiScreenProps> = observer(function Nus
     setSettings(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-
+  // Styling variables
   let toggleColorBgOff = colors.palette.neutral600;
   
-  // Pull in one of our MST stores
-  // const { someStore, anotherStore } = useStores()
-
-  // Pull in navigation via hook
-  // const navigation = useNavigation()
   return (
     <Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={$container}>
       <Text style={$title} preset="heading" text="Nustatymai" />
@@ -51,7 +46,7 @@ export const NustatymaiScreen: FC<NustatymaiScreenProps> = observer(function Nus
             variant="switch"
             label={`Nustatymas ${key.charAt(key.length - 1)}`}
             helper={`Aprašo nustatymą ${key.charAt(key.length - 1)}.`}
-            inputOuterStyle={{ backgroundColor: colors.palette.neutral600 }}
+            inputOuterStyle={{ backgroundColor: toggleColorBgOff }}
             labelPosition="left"
             LabelTextProps={{ size: "md" }}
             containerStyle={{ backgroundColor: colors.palette.neutral100, elevation: 4, padding: spacing.md, borderRadius: 8}}
