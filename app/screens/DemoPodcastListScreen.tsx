@@ -1,3 +1,5 @@
+// Sitas screenas teoriskai nebenaudojamas, bet palieku kaip reference'a
+
 import { observer } from "mobx-react-lite"
 import React, { ComponentType, FC, useEffect, useMemo } from "react"
 import {
@@ -75,7 +77,7 @@ export const DemoPodcastListScreen: FC<DemoTabScreenProps<"DemoPodcastList">> = 
         safeAreaEdges={["top"]}
         contentContainerStyle={$screenContentContainer}
       >
-        <Text preset="heading" text="Rekomendacijos" />
+        <Text preset="heading" text="Rekomendacijos unused" />
         {/* <ListView<Episode>
           contentContainerStyle={$listContentContainer}
           data={episodeStore.episodesForList.slice()}

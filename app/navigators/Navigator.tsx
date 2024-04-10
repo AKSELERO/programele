@@ -4,8 +4,7 @@ import React from "react"
 import { TextStyle, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Icon } from "../components"
-import { DemoCommunityScreen, DemoShowroomScreen, DemoDebugScreen, NustatymaiScreen } from "../screens"
-import { DemoPodcastListScreen } from "../screens/DemoPodcastListScreen"
+import { DemoCommunityScreen, DemoShowroomScreen, NustatymaiScreen, RekomendacijosScreen } from "../screens"
 import { colors, spacing, typography } from "../theme"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 import DataDisplay from '../screens/StateHistory';
@@ -18,6 +17,7 @@ export type DemoTabParamList = {
   DemoPodcastList: undefined
   DataDisplay: undefined
   Nustatymai: undefined
+  Rekomendacijos: undefined
 }
 
 /**
@@ -77,8 +77,8 @@ export function Navigator() {
       />
 
       <Tab.Screen
-        name="DemoPodcastList"
-        component={DemoPodcastListScreen}
+        name="Rekomendacijos"
+        component={RekomendacijosScreen}
         options={{
           tabBarLabel: "Rekomendacijos",
           tabBarIcon: ({ focused }) => (
