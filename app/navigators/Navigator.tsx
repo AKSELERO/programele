@@ -88,17 +88,6 @@ export function Navigator() {
       />
 
       <Tab.Screen
-        name="DemoDebug"
-        component={DemoDebugScreen}
-        options={{
-          tabBarLabel: "NustatymaiRemove",
-          tabBarIcon: ({ focused }) => (
-            <Icon icon="settings" color={focused ? colors.palette.primary400 : colors.palette.primary100} size={30} />
-          ),
-        }}
-      />
-
-      <Tab.Screen
         name="Nustatymai"
         component={NustatymaiScreen}
         options={{

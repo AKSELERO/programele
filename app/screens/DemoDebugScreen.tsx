@@ -1,3 +1,5 @@
+// Sitas screenas teoriskai nebenaudojamas, bet palieku kaip reference'a
+
 import React, { FC } from "react"
 import * as Application from "expo-application"
 import { Linking, Platform, TextStyle, View, ViewStyle } from "react-native"
@@ -118,33 +120,33 @@ const $title: TextStyle = {
   marginBottom: spacing.xxl,
 }
 
-const $reportBugsLink: TextStyle = {
-  color: colors.tint,
-  marginBottom: spacing.lg,
-  alignSelf: isRTL ? "flex-start" : "flex-end",
-}
+// const $reportBugsLink: TextStyle = {
+//   color: colors.tint,
+//   marginBottom: spacing.lg,
+//   alignSelf: isRTL ? "flex-start" : "flex-end",
+// }
 
-const $item: ViewStyle = {
-  marginBottom: spacing.md,
-}
+// const $item: ViewStyle = {
+//   marginBottom: spacing.md,
+// }
 
-const $itemsContainer: ViewStyle = {
-  marginBottom: spacing.xl,
-}
+// const $itemsContainer: ViewStyle = {
+//   marginBottom: spacing.xl,
+// }
 
-const $button: ViewStyle = {
-  marginBottom: spacing.xs,
-}
+// const $button: ViewStyle = {
+//   marginBottom: spacing.xs,
+// }
 
-const $buttonContainer: ViewStyle = {
-  marginBottom: spacing.md,
-}
+// const $buttonContainer: ViewStyle = {
+//   marginBottom: spacing.md,
+// }
 
-const $hint: TextStyle = {
-  color: colors.palette.neutral600,
-  fontSize: 12,
-  lineHeight: 15,
-  paddingBottom: spacing.lg,
-}
+// const $hint: TextStyle = {
+//   color: colors.palette.neutral600,
+//   fontSize: 12,
+//   lineHeight: 15,
+//   paddingBottom: spacing.lg,
+// }
 
 // @demo remove-file
