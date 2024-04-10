@@ -1,5 +1,5 @@
 // Screenui generuoti buvo naudojama "npx ignite-cli generate screen Nustatymai"
-import React, { FC } from "react"
+import React, { useState, FC } from "react"
 import { observer } from "mobx-react-lite"
 import { Linking, Platform, TextStyle, View, ViewStyle } from "react-native"
 import { AppStackScreenProps } from "app/navigators"
@@ -12,12 +12,27 @@ import { DemoDivider } from "./DemoShowroomScreen/DemoDivider"
 interface NustatymaiScreenProps extends AppStackScreenProps<"Nustatymai"> {}
 
 // Toggle button
-function ControlledToggle(props: ToggleProps) {
-  const [value, setValue] = React.useState(props.value || false)
-  return <Toggle {...props} value={value} onPress={() => setValue(!value)} />
+function ControlledToggle({ value, onChange, ...props }: ToggleProps & { value: boolean; onChange: (newValue: boolean) => void }) {
+  return <Toggle {...props} value={value} onPress={() => onChange(!value)} />;
 }
 
 export const NustatymaiScreen: FC<NustatymaiScreenProps> = observer(function NustatymaiScreen() {
+// Centralized state for all toggles
+  const [settings, setSettings] = useState({
+    setting1: false,
+    setting2: false,
+    setting3: false,
+    setting4: false,
+    setting5: false,
+    setting6: false,
+  });
+
+  // Handler to update state
+  const handleToggle = (key: keyof typeof settings) => {
+    setSettings(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+
   let toggleColorBgOff = colors.palette.neutral600;
   
   // Pull in one of our MST stores
@@ -29,60 +44,21 @@ export const NustatymaiScreen: FC<NustatymaiScreenProps> = observer(function Nus
     <Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={$container}>
       <Text style={$title} preset="heading" text="Nustatymai" />
       <View style={$optionsContainer}>
-        <ControlledToggle
+      {/* Kol kas tiesiog sugeneruojam 6 default nustatymo blokus, kai turėsim actual nustatymus reiks juos sudėt manually */}
+      {Object.entries(settings).map(([key, value]) => (
+          <ControlledToggle
+            key={key}
             variant="switch"
-            label="Nustatymas 1"
-            helper="Aprašo nustatymą 1."
-            inputOuterStyle={{ backgroundColor: toggleColorBgOff }}
+            label={`Nustatymas ${key.charAt(key.length - 1)}`}
+            helper={`Aprašo nustatymą ${key.charAt(key.length - 1)}.`}
+            inputOuterStyle={{ backgroundColor: colors.palette.neutral600 }}
             labelPosition="left"
             LabelTextProps={{ size: "md" }}
             containerStyle={{ backgroundColor: colors.palette.neutral100, elevation: 4, padding: spacing.md, borderRadius: 8}}
-        />
-        <ControlledToggle
-            variant="switch"
-            label="Nustatymas 2"
-            helper="Aprašo nustatymą 2."
-            inputOuterStyle={{ backgroundColor: toggleColorBgOff }}
-            labelPosition="left"
-            LabelTextProps={{ size: "md" }}
-            containerStyle={{ backgroundColor: colors.palette.neutral100, elevation: 4, padding: spacing.md, borderRadius: 8}}
-        />
-        <ControlledToggle
-            variant="switch"
-            label="Nustatymas 3"
-            helper="Aprašo nustatymą 3."
-            inputOuterStyle={{ backgroundColor: toggleColorBgOff }}
-            labelPosition="left"
-            LabelTextProps={{ size: "md" }}
-            containerStyle={{ backgroundColor: colors.palette.neutral100, elevation: 4, padding: spacing.md, borderRadius: 8}}
-        />
-        <ControlledToggle
-            variant="switch"
-            label="Nustatymas 4"
-            helper="Aprašo nustatymą 4."
-            inputOuterStyle={{ backgroundColor: toggleColorBgOff }}
-            labelPosition="left"
-            LabelTextProps={{ size: "md" }}
-            containerStyle={{ backgroundColor: colors.palette.neutral100, elevation: 4, padding: spacing.md, borderRadius: 8}}
-        />
-        <ControlledToggle
-            variant="switch"
-            label="Nustatymas 5"
-            helper="Aprašo nustatymą 5."
-            inputOuterStyle={{ backgroundColor: toggleColorBgOff }}
-            labelPosition="left"
-            LabelTextProps={{ size: "md" }}
-            containerStyle={{ backgroundColor: colors.palette.neutral100, elevation: 4, padding: spacing.md, borderRadius: 8}}
-        />
-        <ControlledToggle
-            variant="switch"
-            label="Nustatymas 6"
-            helper="Aprašo nustatymą 6."
-            inputOuterStyle={{ backgroundColor: toggleColorBgOff }}
-            labelPosition="left"
-            LabelTextProps={{ size: "md" }}
-            containerStyle={{ backgroundColor: colors.palette.neutral100, elevation: 4, padding: spacing.md, borderRadius: 8}}
-        />
+            value={value}
+            onChange={() => handleToggle(key as keyof typeof settings)}
+          />
+        ))}
       </View>
     </Screen>
   )
