@@ -30,7 +30,6 @@ export const NustatymaiScreen: FC<NustatymaiScreenProps> = observer(function Nus
   };
 
   // Styling variables
-  // Styling variables
   let toggleColorBgOff = colors.palette.neutral600;
 
   return (
@@ -44,7 +43,6 @@ export const NustatymaiScreen: FC<NustatymaiScreenProps> = observer(function Nus
             variant="switch"
             label={`Nustatymas ${key.charAt(key.length - 1)}`}
             helper={`Aprašo nustatymą ${key.charAt(key.length - 1)}.`}
-            inputOuterStyle={{ backgroundColor: toggleColorBgOff }}
             inputOuterStyle={{ backgroundColor: toggleColorBgOff }}
             labelPosition="left"
             LabelTextProps={{ size: "md" }}
