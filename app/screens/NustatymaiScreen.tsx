@@ -1,13 +1,10 @@
 // Screenui generuoti buvo naudojama "npx ignite-cli generate screen Nustatymai"
 import React, { useState, FC } from "react"
 import { observer } from "mobx-react-lite"
-import { Linking, Platform, TextStyle, View, ViewStyle } from "react-native"
+import { TextStyle, View, ViewStyle } from "react-native"
 import { AppStackScreenProps } from "app/navigators"
-import { Button, ListItem, Screen, Text, Toggle, ToggleProps } from "../components"
+import { Screen, Text, Toggle, ToggleProps } from "../components"
 import { colors, spacing } from "../theme"
-import { DemoDivider } from "./DemoShowroomScreen/DemoDivider"
-// import { useNavigation } from "@react-navigation/native"
-// import { useStores } from "app/models"
 
 interface NustatymaiScreenProps extends AppStackScreenProps<"Nustatymai"> {}
 
@@ -32,14 +29,9 @@ export const NustatymaiScreen: FC<NustatymaiScreenProps> = observer(function Nus
     setSettings(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-
+  // Styling variables
   let toggleColorBgOff = colors.palette.neutral600;
-  
-  // Pull in one of our MST stores
-  // const { someStore, anotherStore } = useStores()
 
-  // Pull in navigation via hook
-  // const navigation = useNavigation()
   return (
     <Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={$container}>
       <Text style={$title} preset="heading" text="Nustatymai" />
@@ -51,7 +43,7 @@ export const NustatymaiScreen: FC<NustatymaiScreenProps> = observer(function Nus
             variant="switch"
             label={`Nustatymas ${key.charAt(key.length - 1)}`}
             helper={`Aprašo nustatymą ${key.charAt(key.length - 1)}.`}
-            inputOuterStyle={{ backgroundColor: colors.palette.neutral600 }}
+            inputOuterStyle={{ backgroundColor: toggleColorBgOff }}
             labelPosition="left"
             LabelTextProps={{ size: "md" }}
             containerStyle={{ backgroundColor: colors.palette.neutral100, elevation: 4, padding: spacing.md, borderRadius: 8}}
