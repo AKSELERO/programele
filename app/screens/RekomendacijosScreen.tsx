@@ -1,16 +1,37 @@
 import React, { FC } from "react"
 import { observer } from "mobx-react-lite"
-import { TextStyle, ViewStyle } from "react-native"
+import { Image, ImageStyle, TextStyle, ViewStyle, View, Pressable, ImageProps } from "react-native"
 import { AppStackScreenProps } from "app/navigators"
-import { Screen, Text } from "app/components"
+import { Button, Card, Screen, Text } from "app/components"
 import { colors, spacing } from "../theme"
+import { red } from "react-native-reanimated/lib/typescript/reanimated2/Colors"
+
+//Image imports
+const Sitting = require("../../assets/images/Rekomendacijos/Sitting.png"); 
 
 interface RekomendacijosScreenProps extends AppStackScreenProps<"Rekomendacijos"> {}
+
+// Styled card component that wraps the Card component and preapplies default values/styles
+const StyledCard: FC<{ label: string, image?: ImageProps }> = ({ label, image }) => (
+  <View style={{ width: '45%', margin: spacing.xs }}>
+    <Button preset="default" style={$buttonCardStyle}>
+      <Text style={$buttonLabel} preset="formLabel">{label}</Text>
+      <Image source={image}></Image>
+    </Button>
+  </View>
+);
 
 export const RekomendacijosScreen: FC<RekomendacijosScreenProps> = observer(function RekomendacijosScreen() {
   return (
     <Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={$container}>
       <Text style={$title} preset="heading" text="Rekomendacijos" />
+      <View style={$cardsContainer}>
+        <StyledCard label="Sėdėjimas" image={Sitting}></StyledCard>
+        <StyledCard label="Vaikščiojimas"></StyledCard>
+        <StyledCard label="Stovėjimas"></StyledCard>
+        <StyledCard label="Bėgimas"></StyledCard>
+        <StyledCard label="Gulėjimas"></StyledCard>
+      </View>
     </Screen>
   )
 })
@@ -21,4 +42,26 @@ const $container: ViewStyle = {
 
 const $title: TextStyle = {
   marginBottom: spacing.lg,
+}
+
+const $cardsContainer: ViewStyle = {
+  display: "flex",
+  flexDirection: "row",
+  flexWrap: "wrap",
+  justifyContent: "space-between",
+  alignItems: "flex-start"
+}
+
+const $buttonCardStyle: ViewStyle = {
+  backgroundColor: colors.palette.neutral100,
+  elevation: 4,
+  padding: null,
+  borderRadius: 8,
+  display: "flex"
+}
+
+const $imageStyle: ImageStyle = {
+}
+
+const $buttonLabel: TextStyle = {
 }
