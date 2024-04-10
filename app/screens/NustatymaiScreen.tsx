@@ -1,16 +1,25 @@
 // Screenui generuoti buvo naudojama "npx ignite-cli generate screen Nustatymai"
 import React, { FC } from "react"
 import { observer } from "mobx-react-lite"
-import { ViewStyle } from "react-native"
+import { Linking, Platform, TextStyle, View, ViewStyle } from "react-native"
 import { AppStackScreenProps } from "app/navigators"
-import { Screen, Text } from "app/components"
+import { Button, ListItem, Screen, Text, Toggle, ToggleProps } from "../components"
 import { colors, spacing } from "../theme"
+import { DemoDivider } from "./DemoShowroomScreen/DemoDivider"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "app/models"
 
 interface NustatymaiScreenProps extends AppStackScreenProps<"Nustatymai"> {}
 
+// Toggle button
+function ControlledToggle(props: ToggleProps) {
+  const [value, setValue] = React.useState(props.value || false)
+  return <Toggle {...props} value={value} onPress={() => setValue(!value)} />
+}
+
 export const NustatymaiScreen: FC<NustatymaiScreenProps> = observer(function NustatymaiScreen() {
+  let toggleColorBgOff = colors.palette.neutral600;
+  
   // Pull in one of our MST stores
   // const { someStore, anotherStore } = useStores()
 
@@ -18,102 +27,76 @@ export const NustatymaiScreen: FC<NustatymaiScreenProps> = observer(function Nus
   // const navigation = useNavigation()
   return (
     <Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={$container}>
-      <Text style={$title} preset="heading" text="Nustatymai for real" />
-      {/* <View style={$itemsContainer}>
-        <ListItem
-          LeftComponent={
-            <View style={$item}>
-              <Text preset="bold">App Id</Text>
-              <Text>{Application.applicationId}</Text>
-            </View>
-          }
+      <Text style={$title} preset="heading" text="Nustatymai" />
+      <View style={$optionsContainer}>
+        <ControlledToggle
+            variant="switch"
+            label="Nustatymas 1"
+            helper="Aprašo nustatymą 1."
+            inputOuterStyle={{ backgroundColor: toggleColorBgOff }}
+            labelPosition="left"
+            LabelTextProps={{ size: "md" }}
+            containerStyle={{ backgroundColor: colors.palette.neutral100, elevation: 4, padding: spacing.md, borderRadius: 8}}
         />
-        <ListItem
-          LeftComponent={
-            <View style={$item}>
-              <Text preset="bold">App Name</Text>
-              <Text>{Application.applicationName}</Text>
-            </View>
-          }
+        <ControlledToggle
+            variant="switch"
+            label="Nustatymas 2"
+            helper="Aprašo nustatymą 2."
+            inputOuterStyle={{ backgroundColor: toggleColorBgOff }}
+            labelPosition="left"
+            LabelTextProps={{ size: "md" }}
+            containerStyle={{ backgroundColor: colors.palette.neutral100, elevation: 4, padding: spacing.md, borderRadius: 8}}
         />
-        <ListItem
-          LeftComponent={
-            <View style={$item}>
-              <Text preset="bold">App Version</Text>
-              <Text>{Application.nativeApplicationVersion}</Text>
-            </View>
-          }
+        <ControlledToggle
+            variant="switch"
+            label="Nustatymas 3"
+            helper="Aprašo nustatymą 3."
+            inputOuterStyle={{ backgroundColor: toggleColorBgOff }}
+            labelPosition="left"
+            LabelTextProps={{ size: "md" }}
+            containerStyle={{ backgroundColor: colors.palette.neutral100, elevation: 4, padding: spacing.md, borderRadius: 8}}
         />
-        <ListItem
-          LeftComponent={
-            <View style={$item}>
-              <Text preset="bold">App Build Version</Text>
-              <Text>{Application.nativeBuildVersion}</Text>
-            </View>
-          }
+        <ControlledToggle
+            variant="switch"
+            label="Nustatymas 4"
+            helper="Aprašo nustatymą 4."
+            inputOuterStyle={{ backgroundColor: toggleColorBgOff }}
+            labelPosition="left"
+            LabelTextProps={{ size: "md" }}
+            containerStyle={{ backgroundColor: colors.palette.neutral100, elevation: 4, padding: spacing.md, borderRadius: 8}}
         />
-        <ListItem
-          LeftComponent={
-            <View style={$item}>
-              <Text preset="bold">Hermes Enabled</Text>
-              <Text>{String(usingHermes)}</Text>
-            </View>
-          }
+        <ControlledToggle
+            variant="switch"
+            label="Nustatymas 5"
+            helper="Aprašo nustatymą 5."
+            inputOuterStyle={{ backgroundColor: toggleColorBgOff }}
+            labelPosition="left"
+            LabelTextProps={{ size: "md" }}
+            containerStyle={{ backgroundColor: colors.palette.neutral100, elevation: 4, padding: spacing.md, borderRadius: 8}}
         />
-        <ListItem
-          LeftComponent={
-            <View style={$item}>
-              <Text preset="bold">Fabric Enabled</Text>
-              <Text>{String(usingFabric)}</Text>
-            </View>
-          }
+        <ControlledToggle
+            variant="switch"
+            label="Nustatymas 6"
+            helper="Aprašo nustatymą 6."
+            inputOuterStyle={{ backgroundColor: toggleColorBgOff }}
+            labelPosition="left"
+            LabelTextProps={{ size: "md" }}
+            containerStyle={{ backgroundColor: colors.palette.neutral100, elevation: 4, padding: spacing.md, borderRadius: 8}}
         />
       </View>
-      <View style={$buttonContainer}>
-        <Button style={$button} tx="demoDebugScreen.reactotron" onPress={demoReactotron} />
-        <Text style={$hint} tx={`demoDebugScreen.${Platform.OS}ReactotronHint` as const} />
-      </View>
-      <View style={$buttonContainer}>
-        <Button style={$button} tx="common.logOut" onPress={logout} />
-      </View> */}
     </Screen>
   )
 })
 
 const $container: ViewStyle = {
   padding: spacing.lg,
-
 }
 
 const $title: TextStyle = {
-  marginBottom: spacing.xxl,
+  marginBottom: spacing.lg,
 }
 
-// const $reportBugsLink: TextStyle = {
-//   color: colors.tint,
-//   marginBottom: spacing.lg,
-//   alignSelf: isRTL ? "flex-start" : "flex-end",
-// }
-
-// const $item: ViewStyle = {
-//   marginBottom: spacing.md,
-// }
-
-// const $itemsContainer: ViewStyle = {
-//   marginBottom: spacing.xl,
-// }
-
-// const $button: ViewStyle = {
-//   marginBottom: spacing.xs,
-// }
-
-// const $buttonContainer: ViewStyle = {
-//   marginBottom: spacing.md,
-// }
-
-// const $hint: TextStyle = {
-//   color: colors.palette.neutral600,
-//   fontSize: 12,
-//   lineHeight: 15,
-//   paddingBottom: spacing.lg,
-// }
+const $optionsContainer: ViewStyle = {
+  display: "flex",
+  gap: spacing.sm
+}
