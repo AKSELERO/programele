@@ -4,13 +4,12 @@ import React from "react"
 import { TextStyle, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Icon } from "../components"
-import { translate } from "../i18n"
 import { DemoCommunityScreen, DemoShowroomScreen, DemoDebugScreen } from "../screens"
 import { DemoPodcastListScreen } from "../screens/DemoPodcastListScreen"
 import { colors, spacing, typography } from "../theme"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 import DataDisplay from '../screens/StateHistory';
-import { green } from "react-native-reanimated/lib/typescript/reanimated2/Colors"
+import { NONE } from "apisauce"
 
 export type DemoTabParamList = {
   DemoCommunity: undefined
@@ -47,7 +46,7 @@ export function DemoNavigator() {
       screenOptions={{
         headerShown: false,
         tabBarHideOnKeyboard: true,
-        tabBarStyle: [$tabBar, { height: bottom + 70 }],
+        tabBarStyle: [$tabBar, { height: bottom + spacing.xxxl }],
         tabBarActiveTintColor: colors.text,
         tabBarInactiveTintColor: colors.text,
         tabBarLabelStyle: $tabBarLabel,
@@ -60,7 +59,7 @@ export function DemoNavigator() {
         options={{
           tabBarLabel: "Tikslai",
           tabBarIcon: ({ focused }) => (
-            <Icon icon="bullseye" color={focused ? colors.palette.secondary200 : colors.palette.neutral200} size={30} />
+            <Icon icon="bullseye" color={focused ? colors.palette.primary400 : colors.palette.primary100} size={30} />
           ),
         }}
       />
@@ -71,7 +70,7 @@ export function DemoNavigator() {
         options={{
           tabBarLabel: "Statistika",
           tabBarIcon: ({ focused }) => (
-            <Icon icon="bargraph" color={focused ? colors.palette.secondary200 : colors.palette.neutral600} size={30} />
+            <Icon icon="bargraph" color={focused ? colors.palette.primary400 : colors.palette.primary100} size={30} />
           ),
         }}
       />
@@ -80,10 +79,9 @@ export function DemoNavigator() {
         name="DemoPodcastList"
         component={DemoPodcastListScreen}
         options={{
-          tabBarAccessibilityLabel: translate("demoNavigator.podcastListTab"),
           tabBarLabel: "Rekomendacijos",
           tabBarIcon: ({ focused }) => (
-            <Icon icon="podcast" color={focused ? colors.palette.secondary200 : colors.palette.neutral600} size={30} />
+            <Icon icon="podcast" color={focused ? colors.palette.primary400 : colors.palette.primary100} size={30} />
           ),
         }}
       />
@@ -94,7 +92,7 @@ export function DemoNavigator() {
         options={{
           tabBarLabel: "Nustatymai",
           tabBarIcon: ({ focused }) => (
-            <Icon icon="settings" color={focused ? colors.palette.secondary200 : colors.palette.neutral600} size={30} />
+            <Icon icon="settings" color={focused ? colors.palette.primary400 : colors.palette.primary100} size={30} />
           ),
         }}
       />
@@ -102,9 +100,9 @@ export function DemoNavigator() {
         name="DataDisplay"
         component={DataDisplay}
         options={{
-          tabBarLabel: translate("demoNavigator.debugTab"),
+          tabBarLabel: "Testavimui",
           tabBarIcon: ({ focused }) => (
-            <Icon icon="debug" color={focused ? colors.palette.secondary200 : colors.palette.neutral600} size={30} />
+            <Icon icon="debug" color={focused ? colors.palette.primary400 : colors.palette.primary100} size={30} />
           ),
         }}
       />
@@ -115,18 +113,19 @@ export function DemoNavigator() {
 const $tabBar: ViewStyle = {
   backgroundColor: colors.palette.primary500,
   borderTopColor: colors.transparent,
-  marginBottom: 8,
+  marginBottom: spacing.xs,
+  paddingTop: spacing.xs
 }
 
 const $tabBarItem: ViewStyle = {
-  paddingTop: spacing.md,
+  paddingTop: NONE
 }
 
 const $tabBarLabel: TextStyle = {
   fontSize: 12,
   fontFamily: typography.primary.medium,
   lineHeight: 16,
-  color: colors.palette.neutral200
+  color: colors.palette.primary100
 }
 
 // @demo remove-file

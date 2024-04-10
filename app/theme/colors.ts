@@ -15,14 +15,14 @@ const palette = {
   primary200: "#99FFBB",
   primary300: "#00F050",
   primary400: "#00D146",
-  primary500: "#006622", // Replaced with your specified color
+  primary500: "#006622",
   primary600: "#005C1F",
 
   secondary100: "#DBFFE7",
   secondary200: "#ADFFC9",
   secondary300: "#00FA53",
   secondary400: "#00E04B",
-  secondary500: "#009933", // Replaced with your specified color
+  secondary500: "#009933",
 
   accent100: "#FFEED4",
   accent200: "#FFE1B2",
