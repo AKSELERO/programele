@@ -4,7 +4,7 @@ import React from "react"
 import { TextStyle, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Icon } from "../components"
-import { DemoCommunityScreen, DemoShowroomScreen, DemoDebugScreen } from "../screens"
+import { DemoCommunityScreen, DemoShowroomScreen, DemoDebugScreen, NustatymaiScreen } from "../screens"
 import { DemoPodcastListScreen } from "../screens/DemoPodcastListScreen"
 import { colors, spacing, typography } from "../theme"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
@@ -17,6 +17,7 @@ export type DemoTabParamList = {
   DemoDebug: undefined
   DemoPodcastList: undefined
   DataDisplay: undefined
+  Nustatymai: undefined
 }
 
 /**
@@ -90,12 +91,24 @@ export function Navigator() {
         name="DemoDebug"
         component={DemoDebugScreen}
         options={{
+          tabBarLabel: "NustatymaiRemove",
+          tabBarIcon: ({ focused }) => (
+            <Icon icon="settings" color={focused ? colors.palette.primary400 : colors.palette.primary100} size={30} />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Nustatymai"
+        component={NustatymaiScreen}
+        options={{
           tabBarLabel: "Nustatymai",
           tabBarIcon: ({ focused }) => (
             <Icon icon="settings" color={focused ? colors.palette.primary400 : colors.palette.primary100} size={30} />
           ),
         }}
       />
+
       <Tab.Screen
         name="DataDisplay"
         component={DataDisplay}
