@@ -19,6 +19,7 @@ const StyledCard: FC<{ label: string, image?: ImageProps }> = ({ label, image })
 
   const handleClick = () => {
     console.log("Button clicked");
+    // Switch to screen ("KonkretiRekomendacija")
   }
 
   return (

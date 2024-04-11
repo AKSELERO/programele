@@ -9,3 +9,4 @@ export * from "./ErrorScreen/ErrorBoundary"
 // export other screens here
 export * from "./NustatymaiScreen"
 export * from "./RekomendacijosScreen"
+export * from "./Rekomendacijos/KonkretiRekomendacijaScreen"
