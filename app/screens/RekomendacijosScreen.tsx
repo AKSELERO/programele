@@ -4,7 +4,6 @@ import { Image, ImageStyle, TextStyle, ViewStyle, View, Pressable, ImageProps } 
 import { AppStackScreenProps } from "app/navigators"
 import { Button, Card, Screen, Text } from "app/components"
 import { colors, spacing } from "../theme"
-import { red } from "react-native-reanimated/lib/typescript/reanimated2/Colors"
 
 //Image imports
 const Sitting = require("../../assets/images/Rekomendacijos/Sitting.png"); 
@@ -15,8 +14,8 @@ interface RekomendacijosScreenProps extends AppStackScreenProps<"Rekomendacijos"
 const StyledCard: FC<{ label: string, image?: ImageProps }> = ({ label, image }) => (
   <View style={{ width: '45%', margin: spacing.xs }}>
     <Button preset="default" style={$buttonCardStyle}>
+      <Image source={image} style={$imageStyle}></Image>
       <Text style={$buttonLabel} preset="formLabel">{label}</Text>
-      <Image source={image}></Image>
     </Button>
   </View>
 );
@@ -57,10 +56,14 @@ const $buttonCardStyle: ViewStyle = {
   elevation: 4,
   padding: null,
   borderRadius: 8,
-  display: "flex"
+  display: "flex",
+  flexDirection: "column",
 }
 
 const $imageStyle: ImageStyle = {
+  resizeMode: 'contain',
+  height: 100,
+  width: 100,
 }
 
 const $buttonLabel: TextStyle = {
