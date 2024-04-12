@@ -4,11 +4,10 @@ import React from "react"
 import { TextStyle, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Icon } from "../components"
-import { DemoCommunityScreen, DemoShowroomScreen, NustatymaiScreen, RekomendacijosScreen } from "../screens"
+import { NustatymaiScreen, RekomendacijosScreen, StatistikaScreen, TikslaiScreen } from "../screens"
 import { colors, spacing, typography } from "../theme"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 import DataDisplay from '../screens/StateHistory';
-import { NONE } from "apisauce"
 
 export type DemoTabParamList = {
   DemoCommunity: undefined
@@ -18,6 +17,8 @@ export type DemoTabParamList = {
   DataDisplay: undefined
   Nustatymai: undefined
   Rekomendacijos: undefined
+  Tikslai: undefined
+  Statistika: undefined
 }
 
 /**
@@ -55,8 +56,8 @@ export function Navigator() {
       }}
     >
       <Tab.Screen
-        name="DemoShowroom"
-        component={DemoShowroomScreen}
+        name="Tikslai"
+        component={TikslaiScreen}
         options={{
           tabBarLabel: "Tikslai",
           tabBarIcon: ({ focused }) => (
@@ -66,8 +67,8 @@ export function Navigator() {
       />
 
       <Tab.Screen
-        name="DemoCommunity"
-        component={DemoCommunityScreen}
+        name="Statistika"
+        component={StatistikaScreen}
         options={{
           tabBarLabel: "Statistika",
           tabBarIcon: ({ focused }) => (
@@ -120,7 +121,7 @@ const $tabBar: ViewStyle = {
 }
 
 const $tabBarItem: ViewStyle = {
-  paddingTop: NONE
+  paddingTop: 0
 }
 
 const $tabBarLabel: TextStyle = {
@@ -129,5 +130,3 @@ const $tabBarLabel: TextStyle = {
   lineHeight: 16,
   color: colors.palette.primary100
 }
-
-// @demo remove-file

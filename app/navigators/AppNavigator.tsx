@@ -42,6 +42,8 @@ export type AppStackParamList = {
   Nustatymai: undefined
   Rekomendacijos: undefined
   KonkretiRekomendacija: undefined
+  Statistika: undefined
+  Tikslai: undefined
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
 
@@ -90,6 +92,8 @@ const AppStack = observer(function AppStack() {
       <Stack.Screen name="Nustatymai" component={Screens.NustatymaiScreen} />
       <Stack.Screen name="Rekomendacijos" component={Screens.RekomendacijosScreen} />
       <Stack.Screen name="KonkretiRekomendacija" component={Screens.KonkretiRekomendacijaScreen} />
+      <Stack.Screen name="Statistika" component={Screens.StatistikaScreen} />
+      <Stack.Screen name="Tikslai" component={Screens.TikslaiScreen} />
       {/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}
     </Stack.Navigator>
   )
