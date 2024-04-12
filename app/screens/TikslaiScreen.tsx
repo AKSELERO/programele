@@ -17,7 +17,7 @@ export const TikslaiScreen: FC<TikslaiScreenProps> = observer(function TikslaiSc
   // const navigation = useNavigation()
   return (
     <Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={$container}>
-      <Text style={$title} preset="heading" text="Tikslai" />
+      <Text style={$title} preset="heading" text="Tikslų redagavimas" />
     </Screen>
   )
 })
