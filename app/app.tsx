@@ -19,7 +19,6 @@ if (__DEV__) {
 import "./i18n"
 import "./utils/ignoreWarnings"
 import { useFonts } from "expo-font"
-import React from "react"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 import * as Linking from "expo-linking"
 import { useInitialRootStore } from "./models"
@@ -30,7 +29,11 @@ import { customFontsToLoad } from "./theme"
 import Config from "./config"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { ViewStyle } from "react-native"
-import SensorDataRecorder from './utils/ReadSensors'
+import startBackgroundService from './utils/BackGroundTask'
+import React, { useEffect } from 'react';
+// import { NativeModules } from 'react-native';
+
+// const { SensorService } = NativeModules;
 
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
 
@@ -65,6 +68,17 @@ interface AppProps {
  * @returns {JSX.Element} The rendered `App` component.
  */
 function App(props: AppProps) {
+  // useEffect(() => {
+  //   SensorService.startService();
+  //   // No cleanup action needed since you want it to run indefinitely
+  // }, []);
+  useEffect(() => {
+    startBackgroundService().then(() => {
+      console.log('Background service has been successfully started.');
+    }).catch((error) => {
+      console.error('Failed to start background service:', error);
+    });
+  }, []);
   const { hideSplashScreen } = props
   const {
     initialNavigationState,
@@ -102,7 +116,7 @@ function App(props: AppProps) {
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ErrorBoundary catchErrors={Config.catchErrors}>
         <GestureHandlerRootView style={$container}>
-        <SensorDataRecorder />
+        {/* <startBackgroundService /> */}
           <AppNavigator
             linking={linking}
             initialState={initialNavigationState}
