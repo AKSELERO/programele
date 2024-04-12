@@ -31,6 +31,7 @@ class ModelManager {
   public static getInstance(): ModelManager {
     if (!ModelManager.instance) {
       ModelManager.instance = new ModelManager();
+
     }
     return ModelManager.instance;
   }
@@ -246,6 +247,7 @@ public writeData = async (initialContent : string) => {
           const accStatsZ = this.calculateAxisStats(accZ);
 
           combinedData.push(...accStatsX, ...accStatsY, ...accStatsZ);
+
 
 
           // console.log(1)
@@ -600,6 +602,7 @@ public writeData = async (initialContent : string) => {
 //         // console.log(2)
 //         // console.log(combinedData)
 //     }
+
 
     
 

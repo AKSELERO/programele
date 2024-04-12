@@ -48,20 +48,21 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
         <Text
           testID="welcome-heading"
           style={$welcomeHeading}
-          tx="welcomeScreen.readyForLaunch"
+          text="Programėlė pasiruošusi."
           preset="heading"
         />
-        <Text tx="welcomeScreen.exciting" preset="subheading" />
+        <Text text="Ar pasiruošei tu?" preset="subheading" />
         <Image style={$welcomeFace} source={welcomeFace} resizeMode="contain" />
       </View>
 
       <View style={[$bottomContainer, $bottomContainerInsets]}>
-        <Text tx="welcomeScreen.postscript" size="md" />
+        <Text text="Tarp tavęs ir naujo gyvenimo tik vienas mygtukas." size="md" />
         {/* @demo remove-block-start */}
         <Button
+          style={$buttonStyle}
           testID="next-screen-button"
           preset="reversed"
-          tx="welcomeScreen.letsGo"
+          text="Važiuojam!"
           onPress={goNext}
         />
         {/* @demo remove-block-end */}
@@ -69,6 +70,11 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
     </View>
   )
 })
+
+const $buttonStyle: ViewStyle = {
+  backgroundColor: "#006622",
+  
+}
 
 const $container: ViewStyle = {
   flex: 1,

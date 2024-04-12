@@ -1,8 +1,10 @@
+// Sitas screenas teoriskai nebenaudojamas, bet palieku kaip reference'a
+
 import React, { FC } from "react"
 import * as Application from "expo-application"
 import { Linking, Platform, TextStyle, View, ViewStyle } from "react-native"
 import { Button, ListItem, Screen, Text } from "../components"
-import { DemoTabScreenProps } from "../navigators/DemoNavigator"
+import { DemoTabScreenProps } from "../navigators/Navigator"
 import { colors, spacing } from "../theme"
 import { isRTL } from "../i18n"
 import { useStores } from "../models"
@@ -47,13 +49,8 @@ export const DemoDebugScreen: FC<DemoTabScreenProps<"DemoDebug">> = function Dem
 
   return (
     <Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={$container}>
-      <Text
-        style={$reportBugsLink}
-        tx="demoDebugScreen.reportBugs"
-        onPress={() => openLinkInBrowser("https://github.com/infinitered/ignite/issues")}
-      />
-      <Text style={$title} preset="heading" tx="demoDebugScreen.title" />
-      <View style={$itemsContainer}>
+      <Text style={$title} preset="heading" text="Nustatymai" />
+      {/* <View style={$itemsContainer}>
         <ListItem
           LeftComponent={
             <View style={$item}>
@@ -109,48 +106,47 @@ export const DemoDebugScreen: FC<DemoTabScreenProps<"DemoDebug">> = function Dem
       </View>
       <View style={$buttonContainer}>
         <Button style={$button} tx="common.logOut" onPress={logout} />
-      </View>
+      </View> */}
     </Screen>
   )
 }
 
 const $container: ViewStyle = {
-  paddingTop: spacing.lg + spacing.xl,
-  paddingBottom: spacing.xxl,
-  paddingHorizontal: spacing.lg,
+  padding: spacing.lg,
+
 }
 
 const $title: TextStyle = {
   marginBottom: spacing.xxl,
 }
 
-const $reportBugsLink: TextStyle = {
-  color: colors.tint,
-  marginBottom: spacing.lg,
-  alignSelf: isRTL ? "flex-start" : "flex-end",
-}
+// const $reportBugsLink: TextStyle = {
+//   color: colors.tint,
+//   marginBottom: spacing.lg,
+//   alignSelf: isRTL ? "flex-start" : "flex-end",
+// }
 
-const $item: ViewStyle = {
-  marginBottom: spacing.md,
-}
+// const $item: ViewStyle = {
+//   marginBottom: spacing.md,
+// }
 
-const $itemsContainer: ViewStyle = {
-  marginBottom: spacing.xl,
-}
+// const $itemsContainer: ViewStyle = {
+//   marginBottom: spacing.xl,
+// }
 
-const $button: ViewStyle = {
-  marginBottom: spacing.xs,
-}
+// const $button: ViewStyle = {
+//   marginBottom: spacing.xs,
+// }
 
-const $buttonContainer: ViewStyle = {
-  marginBottom: spacing.md,
-}
+// const $buttonContainer: ViewStyle = {
+//   marginBottom: spacing.md,
+// }
 
-const $hint: TextStyle = {
-  color: colors.palette.neutral600,
-  fontSize: 12,
-  lineHeight: 15,
-  paddingBottom: spacing.lg,
-}
+// const $hint: TextStyle = {
+//   color: colors.palette.neutral600,
+//   fontSize: 12,
+//   lineHeight: 15,
+//   paddingBottom: spacing.lg,
+// }
 
 // @demo remove-file

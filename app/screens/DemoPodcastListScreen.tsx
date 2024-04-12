@@ -1,3 +1,5 @@
+// Sitas screenas teoriskai nebenaudojamas, bet palieku kaip reference'a
+
 import { observer } from "mobx-react-lite"
 import React, { ComponentType, FC, useEffect, useMemo } from "react"
 import {
@@ -34,7 +36,7 @@ import {
 import { isRTL, translate } from "../i18n"
 import { useStores } from "../models"
 import { Episode } from "../models/Episode"
-import { DemoTabScreenProps } from "../navigators/DemoNavigator"
+import { DemoTabScreenProps } from "../navigators/Navigator"
 import { colors, spacing } from "../theme"
 import { delay } from "../utils/delay"
 import { openLinkInBrowser } from "../utils/openLinkInBrowser"
@@ -75,7 +77,8 @@ export const DemoPodcastListScreen: FC<DemoTabScreenProps<"DemoPodcastList">> = 
         safeAreaEdges={["top"]}
         contentContainerStyle={$screenContentContainer}
       >
-        <ListView<Episode>
+        <Text preset="heading" text="Rekomendacijos unused" />
+        {/* <ListView<Episode>
           contentContainerStyle={$listContentContainer}
           data={episodeStore.episodesForList.slice()}
           extraData={episodeStore.favorites.length + episodeStore.episodes.length}
@@ -133,7 +136,7 @@ export const DemoPodcastListScreen: FC<DemoTabScreenProps<"DemoPodcastList">> = 
               onPressFavorite={() => episodeStore.toggleFavorite(item)}
             />
           )}
-        />
+        /> */}
       </Screen>
     )
   },
@@ -303,82 +306,84 @@ const EpisodeCard = observer(function EpisodeCard({
 // #region Styles
 const $screenContentContainer: ViewStyle = {
   flex: 1,
+  padding: spacing.lg,
+
 }
 
-const $listContentContainer: ContentStyle = {
-  paddingHorizontal: spacing.lg,
-  paddingTop: spacing.lg + spacing.xl,
-  paddingBottom: spacing.lg,
-}
+// const $listContentContainer: ContentStyle = {
+//   paddingHorizontal: spacing.lg,
+//   paddingTop: spacing.lg + spacing.xl,
+//   paddingBottom: spacing.lg,
+// }
 
-const $heading: ViewStyle = {
-  marginBottom: spacing.md,
-}
+// const $heading: ViewStyle = {
+//   marginBottom: spacing.md,
+// }
 
-const $item: ViewStyle = {
-  padding: spacing.md,
-  marginTop: spacing.md,
-  minHeight: 120,
-}
+// const $item: ViewStyle = {
+//   padding: spacing.md,
+//   marginTop: spacing.md,
+//   minHeight: 120,
+// }
 
-const $itemThumbnail: ImageStyle = {
-  marginTop: spacing.sm,
-  borderRadius: 50,
-  alignSelf: "flex-start",
-}
+// const $itemThumbnail: ImageStyle = {
+//   marginTop: spacing.sm,
+//   borderRadius: 50,
+//   alignSelf: "flex-start",
+// }
 
-const $toggle: ViewStyle = {
-  marginTop: spacing.md,
-}
+// const $toggle: ViewStyle = {
+//   marginTop: spacing.md,
+// }
 
-const $labelStyle: TextStyle = {
-  textAlign: "left",
-}
+// const $labelStyle: TextStyle = {
+//   textAlign: "left",
+// }
 
-const $iconContainer: ViewStyle = {
-  height: ICON_SIZE,
-  width: ICON_SIZE,
-  flexDirection: "row",
-  marginEnd: spacing.sm,
-}
+// const $iconContainer: ViewStyle = {
+//   height: ICON_SIZE,
+//   width: ICON_SIZE,
+//   flexDirection: "row",
+//   marginEnd: spacing.sm,
+// }
 
-const $metadata: TextStyle = {
-  color: colors.textDim,
-  marginTop: spacing.xs,
-  flexDirection: "row",
-}
+// const $metadata: TextStyle = {
+//   color: colors.textDim,
+//   marginTop: spacing.xs,
+//   flexDirection: "row",
+// }
 
-const $metadataText: TextStyle = {
-  color: colors.textDim,
-  marginEnd: spacing.md,
-  marginBottom: spacing.xs,
-}
+// const $metadataText: TextStyle = {
+//   color: colors.textDim,
+//   marginEnd: spacing.md,
+//   marginBottom: spacing.xs,
+// }
 
-const $favoriteButton: ViewStyle = {
-  borderRadius: 17,
-  marginTop: spacing.md,
-  justifyContent: "flex-start",
-  backgroundColor: colors.palette.neutral300,
-  borderColor: colors.palette.neutral300,
-  paddingHorizontal: spacing.md,
-  paddingTop: spacing.xxxs,
-  paddingBottom: 0,
-  minHeight: 32,
-  alignSelf: "flex-start",
-}
+// const $favoriteButton: ViewStyle = {
+//   borderRadius: 17,
+//   marginTop: spacing.md,
+//   justifyContent: "flex-start",
+//   backgroundColor: colors.palette.neutral300,
+//   borderColor: colors.palette.neutral300,
+//   paddingHorizontal: spacing.md,
+//   paddingTop: spacing.xxxs,
+//   paddingBottom: 0,
+//   minHeight: 32,
+//   alignSelf: "flex-start",
+// }
 
-const $unFavoriteButton: ViewStyle = {
-  borderColor: colors.palette.primary100,
-  backgroundColor: colors.palette.primary100,
-}
+// const $unFavoriteButton: ViewStyle = {
+//   borderColor: colors.palette.primary100,
+//   backgroundColor: colors.palette.primary100,
+// }
 
-const $emptyState: ViewStyle = {
-  marginTop: spacing.xxl,
-}
+// const $emptyState: ViewStyle = {
+//   marginTop: spacing.xxl,
+// }
 
-const $emptyStateImage: ImageStyle = {
-  transform: [{ scaleX: isRTL ? -1 : 1 }],
-}
+// const $emptyStateImage: ImageStyle = {
+//   transform: [{ scaleX: isRTL ? -1 : 1 }],
+// }
 // #endregion
 
 // @demo remove-file

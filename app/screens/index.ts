@@ -7,3 +7,8 @@ export * from "./DemoShowroomScreen/DemoShowroomScreen"
 // @demo remove-block-end
 export * from "./ErrorScreen/ErrorBoundary"
 // export other screens here
+export * from "./NustatymaiScreen"
+export * from "./RekomendacijosScreen"
+export * from "./Rekomendacijos/KonkretiRekomendacijaScreen"
+export * from "./TikslaiScreen"
+export * from "./StatistikaScreen"

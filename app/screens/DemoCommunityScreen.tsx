@@ -1,7 +1,7 @@
 import React, { FC } from "react"
 import { Image, ImageStyle, TextStyle, View, ViewStyle } from "react-native"
 import { ListItem, Screen, Text } from "../components"
-import { DemoTabScreenProps } from "../navigators/DemoNavigator"
+import { DemoTabScreenProps } from "../navigators/Navigator"
 import { spacing } from "../theme"
 import { openLinkInBrowser } from "../utils/openLinkInBrowser"
 import { isRTL } from "../i18n"
@@ -15,8 +15,8 @@ export const DemoCommunityScreen: FC<DemoTabScreenProps<"DemoCommunity">> =
   function DemoCommunityScreen(_props) {
     return (
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
-        <Text preset="heading" tx="demoCommunityScreen.title" style={$title} />
-        <Text tx="demoCommunityScreen.tagLine" style={$tagline} />
+        <Text preset="heading" text="Statistika" style={$title} />
+        {/* <Text tx="demoCommunityScreen.tagLine" style={$tagline} />
 
         <Text preset="subheading" tx="demoCommunityScreen.joinUsOnSlackTitle" />
         <Text tx="demoCommunityScreen.joinUsOnSlack" style={$description} />
@@ -95,14 +95,14 @@ export const DemoCommunityScreen: FC<DemoTabScreenProps<"DemoCommunity">> =
           leftIcon="clap"
           rightIcon={isRTL ? "caretLeft" : "caretRight"}
           onPress={() => openLinkInBrowser("https://infinite.red/contact")}
-        />
+        /> */}
       </Screen>
     )
   }
 
 const $container: ViewStyle = {
-  paddingTop: spacing.lg + spacing.xl,
-  paddingHorizontal: spacing.lg,
+  padding: spacing.lg,
+
 }
 
 const $title: TextStyle = {

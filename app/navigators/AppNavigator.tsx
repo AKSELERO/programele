@@ -17,7 +17,7 @@ import { useColorScheme } from "react-native"
 import * as Screens from "app/screens"
 import Config from "../config"
 import { useStores } from "../models" // @demo remove-current-line
-import { DemoNavigator, DemoTabParamList } from "./DemoNavigator" // @demo remove-current-line
+import { Navigator, DemoTabParamList } from "./Navigator" // @demo remove-current-line
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 import { colors } from "app/theme"
 
@@ -39,6 +39,11 @@ export type AppStackParamList = {
   Login: undefined // @demo remove-current-line
   Demo: NavigatorScreenParams<DemoTabParamList> // @demo remove-current-line
   // 🔥 Your screens go here
+  Nustatymai: undefined
+  Rekomendacijos: undefined
+  KonkretiRekomendacija: undefined
+  Statistika: undefined
+  Tikslai: undefined
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
 
@@ -74,7 +79,7 @@ const AppStack = observer(function AppStack() {
           {/* @demo remove-block-end */}
           <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
           {/* @demo remove-block-start */}
-          <Stack.Screen name="Demo" component={DemoNavigator} />
+          <Stack.Screen name="Demo" component={Navigator} />
         </>
       ) : (
         <>
@@ -83,6 +88,12 @@ const AppStack = observer(function AppStack() {
       )}
       {/* @demo remove-block-end */}
       {/** 🔥 Your screens go here */}
+      
+      <Stack.Screen name="Nustatymai" component={Screens.NustatymaiScreen} />
+      <Stack.Screen name="Rekomendacijos" component={Screens.RekomendacijosScreen} />
+      <Stack.Screen name="KonkretiRekomendacija" component={Screens.KonkretiRekomendacijaScreen} />
+      <Stack.Screen name="Statistika" component={Screens.StatistikaScreen} />
+      <Stack.Screen name="Tikslai" component={Screens.TikslaiScreen} />
       {/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}
     </Stack.Navigator>
   )

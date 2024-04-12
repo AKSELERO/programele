@@ -5,7 +5,7 @@ import { Drawer } from "react-native-drawer-layout"
 import { type ContentStyle } from "@shopify/flash-list"
 import { ListItem, ListView, ListViewRef, Screen, Text } from "../../components"
 import { isRTL } from "../../i18n"
-import { DemoTabParamList, DemoTabScreenProps } from "../../navigators/DemoNavigator"
+import { DemoTabParamList, DemoTabScreenProps } from "../../navigators/Navigator"
 import { colors, spacing } from "../../theme"
 import { useSafeAreaInsetsStyle } from "../../utils/useSafeAreaInsetsStyle"
 import * as Demos from "./demos"
@@ -173,9 +173,12 @@ export const DemoShowroomScreen: FC<DemoTabScreenProps<"DemoShowroom">> =
         )}
       >
         <Screen preset="fixed" safeAreaEdges={["top"]} contentContainerStyle={$screenContainer}>
-          <DrawerIconButton onPress={toggleDrawer} />
+          {/* <DrawerIconButton onPress={toggleDrawer} /> */}
 
-          <SectionList
+          <Text preset="heading" style={$demoItemName}>
+                    Tikslai
+          </Text>
+          {/* <SectionList
             ref={listRef}
             contentContainerStyle={$sectionListContentContainer}
             stickySectionHeadersEnabled={false}
@@ -191,14 +194,12 @@ export const DemoShowroomScreen: FC<DemoTabScreenProps<"DemoShowroom">> =
             renderSectionHeader={({ section }) => {
               return (
                 <View>
-                  <Text preset="heading" style={$demoItemName}>
-                    {section.name}
-                  </Text>
+                  
                   <Text style={$demoItemDescription}>{section.description}</Text>
                 </View>
               )
             }}
-          />
+          /> */}
         </Screen>
       </Drawer>
     )
@@ -206,6 +207,8 @@ export const DemoShowroomScreen: FC<DemoTabScreenProps<"DemoShowroom">> =
 
 const $screenContainer: ViewStyle = {
   flex: 1,
+  padding: spacing.lg,
+
 }
 
 const $drawer: ViewStyle = {
@@ -243,8 +246,6 @@ const $menuContainer: ViewStyle = {
 }
 
 const $demoItemName: TextStyle = {
-  fontSize: 24,
-  marginBottom: spacing.md,
 }
 
 const $demoItemDescription: TextStyle = {

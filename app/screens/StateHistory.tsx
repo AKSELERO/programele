@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, FlatList, StyleSheet, Button } from 'react-native';
+import { View, ActivityIndicator, FlatList, StyleSheet, ViewStyle } from 'react-native';
 import { clear, load, remove } from '../utils/storage/storage';
+import { colors, spacing } from "../theme"
+import { Button, ListItem, Screen, Text } from "../components"
 
 interface StoredData {
   content: string;
@@ -70,8 +72,9 @@ const DataDisplay: React.FC = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <Button title="Clear All" onPress={clearAllData} />
+    <Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={$screenContentContainer}>
+      <Text preset="heading" text="Debug" />
+      <Button text="Clear All" preset='reversed' onPress={clearAllData} style={$buttonStyle}/>
       {data.length === 0 ? (
         <Text>No data available</Text>
       ) : (
@@ -92,9 +95,21 @@ const DataDisplay: React.FC = () => {
           )}
         />
       )}
-    </View>
+    </Screen>
   );
 };
+
+const $screenContentContainer: ViewStyle = {
+  flex: 1,
+  padding: spacing.lg,
+  gap: spacing.md
+}
+
+const $buttonStyle: ViewStyle = {
+  flex: 1,
+  padding: spacing.xl,
+  backgroundColor: colors.palette.secondary500,
+}
 
 const styles = StyleSheet.create({
   container: {
