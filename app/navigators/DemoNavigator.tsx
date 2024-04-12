@@ -109,16 +109,6 @@ export function DemoNavigator() {
           ),
         }}
       />
-      <Tab.Screen
-        name="DemoDebug"
-        component={Setstate}
-        options={{
-          tabBarLabel: translate("demoNavigator.debugTab"),
-          tabBarIcon: ({ focused }) => (
-            <Icon icon="debug" color={focused ? colors.tint : undefined} size={30} />
-          ),
-        }}
-      />
     </Tab.Navigator>
   )
 }
