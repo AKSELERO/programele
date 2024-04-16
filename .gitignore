@@ -71,7 +71,7 @@ buck-out/
 # Expo
 .expo/*
 bin/Exponent.app
-/android
+/android/app/build
 /ios
 
 ## Secrets
