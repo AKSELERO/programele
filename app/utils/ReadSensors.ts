@@ -13,6 +13,8 @@ import { Tensor } from 'onnxruntime-react-native';
 import { InferenceSession } from 'onnxruntime-react-native';
 import { appendDataToCSV } from './WriteToCSV';
 import BackgroundService from 'react-native-background-actions';
+import { DeviceEventEmitter, EventSubscription } from 'react-native';
+
 
 interface SensorData {
   x: number;
@@ -83,15 +85,19 @@ export default class SensorDataManager {
   private static instance: SensorDataManager;
   private accelerometerData: SensorData[] = [];
   private gyroscopeData: SensorData[] = [];
-  private accelerometerSubscription: any;
-  private gyroscopeSubscription: any;
+  // private accelerometerSubscription: any;
+  // private gyroscopeSubscription: any;
+  private accelerometerSubscription: EventSubscription | null = null;
+  private gyroscopeSubscription: EventSubscription | null = null;
   private modelLoaded: Boolean;
   private modelUrl: string;
+  private startTime : number;
 
   private constructor() {
     this.modelLoaded = false;
     this.modelUrl = 'https://drive.google.com/uc?export=download&id=1j8t-4VPG4s-ow4TvWzo5zr1CYVxRrJF8'; //onnx
     //const modelUrl = 'https://drive.google.com/uc?export=download&id=1_pTQnQgPkpj89kH9HePESt1ansr7HsPV'; //ort
+    this.startTime = Date.now();
   }
 
   public static getInstance(): SensorDataManager {
@@ -105,25 +111,57 @@ export default class SensorDataManager {
 
   }
 
-  public startSubscriptions(): void {
-    const startTime = Date.now();
+  // public startSubscriptions(): void {
+  //   const startTime = Date.now();
 
-    this.accelerometerSubscription = Accelerometer.addListener(data => {
-      const currentTime = Date.now();
-      const elapsedTime = (currentTime - startTime) / 1000;
-      this.accelerometerData.push({ ...data, timestamp: currentTime, elapsedTime });
-    });
+  //   this.accelerometerSubscription = Accelerometer.addListener(data => {
+  //     const currentTime = Date.now();
+  //     const elapsedTime = (currentTime - startTime) / 1000;
+  //     this.accelerometerData.push({ ...data, timestamp: currentTime, elapsedTime });
+  //   });
 
-    this.gyroscopeSubscription = Gyroscope.addListener(data => {
-      const currentTime = Date.now();
-      const elapsedTime = (currentTime - startTime) / 1000;
-      this.gyroscopeData.push({ ...data, timestamp: currentTime, elapsedTime });
-    });
-  }
+  //   this.gyroscopeSubscription = Gyroscope.addListener(data => {
+  //     const currentTime = Date.now();
+  //     const elapsedTime = (currentTime - startTime) / 1000;
+  //     this.gyroscopeData.push({ ...data, timestamp: currentTime, elapsedTime });
+  //   });
+  // }
 
-  public stopSubscriptions(): void {
+  // public stopSubscriptions(): void {
+  //   this.accelerometerSubscription?.remove();
+  //   this.gyroscopeSubscription?.remove();
+  // }
+
+  public startListeningToSensorData(): void {
+    this.accelerometerSubscription = DeviceEventEmitter.addListener(
+      'Accelerometer',
+      this.handleAccelerometerData
+    );
+
+    this.gyroscopeSubscription = DeviceEventEmitter.addListener(
+      'Gyroscope',
+      this.handleGyroscopeData
+    );
+}
+
+public stopListeningToSensorData(): void {
     this.accelerometerSubscription?.remove();
     this.gyroscopeSubscription?.remove();
+
+    // Reset subscriptions to null after removing them
+    this.accelerometerSubscription = null;
+    this.gyroscopeSubscription = null;
+}
+
+  
+  private handleAccelerometerData = (data: any) => {
+    const elapsedTime = (data.timestamp - this.startTime) / 1000; // Assuming timestamp is in milliseconds
+    this.accelerometerData.push({ ...data, timestamp: this.startTime, elapsedTime });
+  }
+  
+  private handleGyroscopeData = (data: any) => {
+    const elapsedTime = (data.timestamp - this.startTime) / 1000; // Assuming timestamp is in milliseconds
+    this.gyroscopeData.push({ ...data, timestamp: this.startTime, elapsedTime });
   }
 
   public async processSensorData(): Promise<void> {

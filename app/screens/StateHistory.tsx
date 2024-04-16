@@ -3,6 +3,11 @@ import { View, ActivityIndicator, FlatList, StyleSheet, ViewStyle } from 'react-
 import { clear, load, remove } from '../utils/storage/storage';
 import { colors, spacing } from "../theme"
 import { Button, ListItem, Screen, Text } from "../components"
+import { NativeModules } from 'react-native';
+import { stopBackgroundService } from '../utils/BackGroundTask'
+import Setstate from './SetState'
+
+const { SensorService } = NativeModules;
 
 interface StoredData {
   content: string;
@@ -57,6 +62,12 @@ const DataDisplay: React.FC = () => {
     }
   };
 
+  async function StopDataRecording(){
+    console.log(11111111);
+    SensorService.stopService();
+    await stopBackgroundService();
+  }
+
   useEffect(() => {
     fetchData();
     const intervalId = setInterval(fetchData, 15000);
@@ -74,6 +85,7 @@ const DataDisplay: React.FC = () => {
   return (
     <Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={$screenContentContainer}>
       <Text preset="heading" text="Debug" />
+      <Button text="Stop Sensor recording" preset='reversed' onPress={StopDataRecording} style={$buttonStyle}/>
       <Button text="Clear All" preset='reversed' onPress={clearAllData} style={$buttonStyle}/>
       {data.length === 0 ? (
         <Text>No data available</Text>

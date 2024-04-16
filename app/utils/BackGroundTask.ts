@@ -5,16 +5,28 @@ import SensorDataManager from './ReadSensors'
 
 const sensorDataManager = SensorDataManager.getInstance();
 
-const backgroundTask = async (): Promise<void> => {
-  sensorDataManager.startSubscriptions();
+// const backgroundTask = async (): Promise<void> => {
+//   sensorDataManager.startSubscriptions();
 
-  // Here, we replace setInterval with a loop that periodically calls processSensorData
+//   // Here, we replace setInterval with a loop that periodically calls processSensorData
+//   while (await BackgroundService.isRunning()) {
+//     await new Promise(resolve => setTimeout(resolve, 15000)); // Wait for 15 seconds
+//     await sensorDataManager.processSensorData();
+//   }
+
+//   sensorDataManager.stopSubscriptions();
+// };
+
+const backgroundTask = async (): Promise<void> => {
+  sensorDataManager.startListeningToSensorData();  // Start listening to sensor data events
+
+  // Keep the loop that periodically calls processSensorData
   while (await BackgroundService.isRunning()) {
     await new Promise(resolve => setTimeout(resolve, 15000)); // Wait for 15 seconds
-    await sensorDataManager.processSensorData();
+    await sensorDataManager.processSensorData();  // Process the accumulated data
   }
 
-  sensorDataManager.stopSubscriptions();
+  sensorDataManager.stopListeningToSensorData();  // Stop listening to sensor data events
 };
 
 interface BackgroundTaskOptions {
@@ -31,9 +43,18 @@ interface BackgroundTaskOptions {
   };
 }
 
-async function startBackgroundService(): Promise<void> {
+export const startBackgroundService = async () => {
     await BackgroundService.start(backgroundTask, options);
     console.log('Background service started');
+}
+
+export const stopBackgroundService = async () => {
+  try {
+    await BackgroundService.stop();
+    console.log('Background service stopped');
+  } catch (error) {
+    console.error('Failed to stop background service:', error);
+  }
 }
 
 const options: BackgroundTaskOptions = {
@@ -48,4 +69,4 @@ const options: BackgroundTaskOptions = {
   parameters: { delay: 1000 },
 };
 
-export default startBackgroundService;
+export default { startBackgroundService, stopBackgroundService };

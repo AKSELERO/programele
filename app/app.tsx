@@ -29,11 +29,11 @@ import { customFontsToLoad } from "./theme"
 import Config from "./config"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { ViewStyle } from "react-native"
-import startBackgroundService from './utils/BackGroundTask'
+import { startBackgroundService } from './utils/BackGroundTask'
 import React, { useEffect } from 'react';
-// import { NativeModules } from 'react-native';
+import { NativeModules } from 'react-native';
 
-// const { SensorService } = NativeModules;
+const { SensorService } = NativeModules;
 
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
 
@@ -73,6 +73,7 @@ function App(props: AppProps) {
   //   // No cleanup action needed since you want it to run indefinitely
   // }, []);
   useEffect(() => {
+    SensorService.startService();
     startBackgroundService().then(() => {
       console.log('Background service has been successfully started.');
     }).catch((error) => {
