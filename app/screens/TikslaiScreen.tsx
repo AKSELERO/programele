@@ -14,7 +14,7 @@ interface Goal {
   name: string
   bendratis: string
   enabled: boolean
-  timeframe?: number // Hours
+  timeFrame?: number // Hours
   moreThan?: boolean // Is the goal less than or more than specified hours
   goalHours?: number // Goal, specified in hours
 }
@@ -75,31 +75,58 @@ function ControlledToggle({ value, onChange, ...props }: ToggleProps & { value: 
 export const TikslaiScreen: FC<TikslaiScreenProps> = observer(function TikslaiScreen() {
   const [goalData, setGoalData] = useState<Goal[]>(initGoals)
 
+  const updateGoal = (id: number, changes: {}) => {
+    const updatedGoals = goalData.map(goal => {
+      if (goal.id === id) {
+        return { ...goal, ...changes };
+      }
+      return goal;
+    });
+    setGoalData(updatedGoals);
+  };
+
   const renderGoal = (goal: Goal) => {
-
-    const handleToggle = (goalId: number) => {
-      const updatedGoals = goalData.map((goal) => {
-        if (goal.id == goalId) {
-          return {...goal, enabled: !goal.enabled};
-        }
-
-        return goal
-      })
-
-      setGoalData(updatedGoals);
-    }
-
     const ExpandedGoal = () => {
+      const [localGoalHours, setLocalGoalHours] = useState(goal.goalHours.toString());
+      
+      const handleGoalHoursChange = (text: string) => {
+        // Replace commas with dots, allow only numbers and a single dot
+        const normalizedText = text.replace(/,/g, '.'); // Replace commas with dots
+        const filteredText = normalizedText.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'); // Remove non-numeric characters and ensure only one dot
+      
+        // Update the local state with the filtered text
+        setLocalGoalHours(filteredText);
+      };
+      
+
       if (goal.enabled) {
         return (
-          <View>
-            <Text>Laiko tarpas</Text>
-            <Text>Tikslo tipas</Text>
-            <Text>Tikslas valandomis</Text>
+          <View style={$expandedContainer}>
+            <Text>Per {goal.timeFrame}h noriu {goal.bendratis} ne {goal.moreThan ? "daugiau" : "mažiau"} nei {goal.goalHours}h</Text>
             <View style={$dividerContainer}>
               <View style={$divider}></View>
             </View>
-            <Text>Per {goal.timeframe}h noriu {goal.bendratis} ne {goal.moreThan ? "daugiau" : "mažiau"} nei {goal.goalHours}h</Text>
+            <View style={$optionRow}>
+              <Text>Tikslo tipas</Text>
+              <Button
+                text={goal.moreThan ? "Ne daugiau" : "Ne mažiau"}
+                onPress={() => updateGoal(goal.id, { moreThan: !goal.moreThan })}
+                preset="option"
+              />
+            </View>
+
+            <View style={$optionRow}>
+              <Text>Tikslas valandomis</Text>
+              <TextField
+                inputWrapperStyle={$goalHoursInputContainer}
+                keyboardType="numeric"
+                onChangeText={handleGoalHoursChange}
+                onBlur={
+                  () => {updateGoal(goal.id, { goalHours: parseFloat(localGoalHours) })}
+                }
+                value={localGoalHours}
+              />
+            </View>
           </View>
         );
       }
@@ -107,16 +134,16 @@ export const TikslaiScreen: FC<TikslaiScreenProps> = observer(function TikslaiSc
     }
 
     return (
-    <View key={goal.id}>
+    <View key={goal.id} style={$singleGoalContainer}>
       <ControlledToggle
         variant="switch"
         label={goal.name}
         inputOuterStyle={{ backgroundColor: colors.palette.neutral600 }}
         labelPosition="left"
         LabelTextProps={{ size: "md" }}
-        containerStyle={{ backgroundColor: colors.palette.neutral100, elevation: 4, padding: spacing.md, borderRadius: 8}}
+        containerStyle={{ backgroundColor: colors.palette.neutral100, padding: spacing.md, borderRadius: 8, borderColor: colors.palette.neutral600, borderBottomWidth: 1}}
         value={goal.enabled}
-        onChange={() => {handleToggle(goal.id)}}
+        onChange={() => {updateGoal(goal.id, { enabled: !goal.enabled })}}
       />
       <ExpandedGoal></ExpandedGoal>
     </View>
@@ -127,7 +154,7 @@ export const TikslaiScreen: FC<TikslaiScreenProps> = observer(function TikslaiSc
     <Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={$container}>
       <Text style={$title} preset="heading" text="Tikslų redagavimas" />
 
-      <View style={$goalContainer}>
+      <View style={$goalsContainer}>
         {goalData.map((goal) => {
           return renderGoal(goal);
         })}
@@ -144,20 +171,52 @@ const $title: TextStyle = {
   marginBottom: spacing.lg,
 }
 
-const $goalContainer: ViewStyle = {
+const $goalsContainer: ViewStyle = {
   display: "flex",
   gap: spacing.sm
+}
+
+const $singleGoalContainer: ViewStyle = {
+  borderRadius: 8,
+  elevation: 4,
+  backgroundColor: colors.palette.neutral200,
 }
 
 const $dividerContainer: ViewStyle = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  marginVertical: spacing.sm
 }
 
 const $divider: ViewStyle = {
   backgroundColor: colors.palette.primary500,
   width: "90%",
   height: 1,
+}
+
+const $expandedContainer: ViewStyle = {
+  padding: spacing.xs,
+  display: "flex",
+  alignItems: "center",
+  gap: spacing.xs,
+  marginBottom: spacing.sm
+}
+
+const $optionRow: ViewStyle = {
+  display: "flex",
+  flexDirection: "row",
+  alignItems:"center",
+  justifyContent: "space-between",
+  backgroundColor: colors.palette.neutral200,
+  elevation: 4,
+  padding: spacing.xs,
+  borderRadius: 8,
+  width: "95%"
+}
+
+const $goalHoursInputContainer: ViewStyle = {
+  borderRadius: 8,
+  borderColor: colors.palette.neutral700,
+  borderWidth: 1,
+  width: 100
 }
