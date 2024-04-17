@@ -5,9 +5,22 @@ import { AppStackScreenProps } from "app/navigators"
 import { Button, Screen, Text } from "app/components"
 import { colors, spacing, typography } from "../theme"
 import DatePicker from 'react-native-date-picker'
-import { BarChart, LineChart, PieChart, PopulationPyramid } from "react-native-gifted-charts";
+import { BarChart, PieChart, } from "react-native-gifted-charts";
+import { relative } from "path"
 
-const data = [{ value: 50 }, { value: 80 }, { value: 90 }, { value: 70 }]
+// Fake duomenys stulpelinei diagramai
+// Value valandu skaicius, goalReached ar pasiektas tos dienos tikslas
+// Masyvo ilgis realiai gali but bet koks, tiesiog 1 obj per diena
+const barChartData = [
+  { value: 4.2, goalReached: true },
+  { value: 5.6, goalReached: true },
+  { value: 1.2, goalReached: false },
+  { value: 0.8, goalReached: false },
+  { value: 1.9, goalReached: false },
+  { value: 4.8, goalReached: true },
+  { value: 0.65, goalReached: false },
+  { value: 4.6, goalReached: true },
+]
 
 // Fake duomenys skritulinei diagramai
 const pieChartData = [
@@ -28,6 +41,13 @@ interface DateRange {
 
 const formatDate = (date: Date) => {
   return date.toISOString().split('T')[0];
+};
+
+const formatDateShort = (date: Date) => {
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+
+  return `${month}-${day}`
 };
 
 
@@ -133,11 +153,48 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
     );
   }
 
+  const BarChartSection = () => {
+    let formattedData = barChartData
+
+    formattedData = formattedData.map((obj, index) => {
+      const currentDate = new Date(statisticsDateRange.start.getTime());
+      currentDate.setDate(currentDate.getDate() + index - 1);
+      const dateLabel = formatDateShort(currentDate);
+      return { ...obj, label: dateLabel, frontColor: obj.goalReached ? colors.palette.primary500 : colors.palette.neutral700, }
+    })
+
+    const max = Math.ceil(barChartData.reduce((maxValue, currentItem) => {
+      return currentItem.value > maxValue ? currentItem.value : maxValue;
+    }, Number.NEGATIVE_INFINITY));
+
+    return (
+      <View style={$barChartContainer}>
+        <Text style={$barChartTitle} preset="subheading">Bėgimas</Text>
+        <View style={$barChartWithLabel}>
+          <Text style={$barChartYAxisLabel}>Valandos</Text>
+          <BarChart
+            barWidth={28}
+            data={formattedData}
+            frontColor={colors.palette.primary500}
+            barBorderTopLeftRadius={8}
+            barBorderTopRightRadius={8}
+            initialSpacing={spacing.sm}
+            spacing={spacing.md}
+            xAxisThickness={2}
+            scrollToEnd
+            maxValue={max}
+            noOfSections={Math.min(12, max)}
+          />
+        </View>
+      </View>
+    );
+  }
+
   return (
     <Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={$container}>
       <Text style={$title} preset="heading" text="Statistika" />
       <StatisticsRange></StatisticsRange>
-      {/* <BarChart data={data} /> */}
+      <BarChartSection />
       <PieChartSection />
     </Screen>
   )
@@ -145,20 +202,50 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
 
 const $container: ViewStyle = {
   padding: spacing.lg,
+  gap: spacing.sm
 }
 
 const $title: TextStyle = {
-  marginBottom: spacing.lg,
 }
 
 const $dateRangeContainer: ViewStyle = {
   display: "flex",
-  flexDirection: "row"
+  flexDirection: "row",
+  width: "100%",
+  justifyContent: "center",
 }
 
 const $datePressable: TextStyle = {
   textDecorationLine: "underline",
   color: colors.palette.primary500
+}
+
+const $barChartContainer: ViewStyle = {
+  display: "flex",
+  justifyContent: "space-around",
+  backgroundColor: colors.palette.neutral400,
+  borderRadius: 8,
+  elevation: 4,
+  padding: spacing.sm,
+  overflow: "hidden"
+}
+
+const $barChartWithLabel: ViewStyle = {
+  display: "flex",
+  flexDirection: "row",
+  paddingLeft: 5
+}
+
+const $barChartTitle: ViewStyle = {
+  marginBottom: spacing.xs
+}
+
+const $barChartYAxisLabel: TextStyle = {
+  fontSize: 12,
+  position: "absolute",
+  transform: [{ rotate: "270deg" }],
+  top: 90,
+  left: -25
 }
 
 const $pieChartContainer: ViewStyle = {
