@@ -1,6 +1,6 @@
 import React, { FC, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { ViewStyle, TextStyle } from "react-native"
+import { View, ViewStyle, TextStyle } from "react-native"
 import { AppStackScreenProps } from "app/navigators"
 import { Screen, Text, Toggle, ToggleProps } from "app/components"
 import { colors, spacing } from "../theme"
@@ -83,9 +83,17 @@ export const TikslaiScreen: FC<TikslaiScreenProps> = observer(function TikslaiSc
       setGoalData(updatedGoals);
     }
 
-    
+    const ExpandedGoal = () => {
+      if (goal.enabled) {
+        return (
+          <Text>Ayo</Text>
+        );
+      }
+      return
+    }
 
     return (
+    <>
       <ControlledToggle
         key={goal.id}
         variant="switch"
@@ -97,6 +105,8 @@ export const TikslaiScreen: FC<TikslaiScreenProps> = observer(function TikslaiSc
         value={goal.enabled}
         onChange={() => {handleToggle(goal.id)}}
       />
+      <ExpandedGoal key={goal.id}></ExpandedGoal>
+    </>
     )
   }
 
@@ -104,9 +114,11 @@ export const TikslaiScreen: FC<TikslaiScreenProps> = observer(function TikslaiSc
     <Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={$container}>
       <Text style={$title} preset="heading" text="Tikslų redagavimas" />
 
-      {goalData.map((goal) => {
-        return renderGoal(goal);
-      })}
+      <View style={$goalContainer}>
+        {goalData.map((goal) => {
+          return renderGoal(goal);
+        })}
+      </View>
     </Screen>
   )
 })
@@ -117,4 +129,9 @@ const $container: ViewStyle = {
 
 const $title: TextStyle = {
   marginBottom: spacing.lg,
+}
+
+const $goalContainer: ViewStyle = {
+  display: "flex",
+  gap: spacing.sm
 }
