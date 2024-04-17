@@ -70,9 +70,20 @@ export const TikslaiScreen: FC<TikslaiScreenProps> = observer(function TikslaiSc
   const [goalData, setGoalData] = useState<Goal[]>(initGoals)
 
   const renderGoal = (goal: Goal) => {
-    const handleToggle = () => {
-      
+
+    const handleToggle = (goalId: number) => {
+      const updatedGoals = goalData.map((goal) => {
+        if (goal.id == goalId) {
+          return {...goal, enabled: !goal.enabled};
+        }
+
+        return goal
+      })
+
+      setGoalData(updatedGoals);
     }
+
+    
 
     return (
       <ControlledToggle
@@ -84,7 +95,7 @@ export const TikslaiScreen: FC<TikslaiScreenProps> = observer(function TikslaiSc
         LabelTextProps={{ size: "md" }}
         containerStyle={{ backgroundColor: colors.palette.neutral100, elevation: 4, padding: spacing.md, borderRadius: 8}}
         value={goal.enabled}
-        onChange={handleToggle}
+        onChange={() => {handleToggle(goal.id)}}
       />
     )
   }
