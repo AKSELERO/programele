@@ -2,7 +2,7 @@ import React, { FC, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle, TextStyle } from "react-native"
 import { AppStackScreenProps } from "app/navigators"
-import { Screen, Text, Toggle, ToggleProps } from "app/components"
+import { Screen, Button, TextField, Text, Toggle, ToggleProps } from "app/components"
 import { colors, spacing } from "../theme"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "app/models"
@@ -12,6 +12,7 @@ interface TikslaiScreenProps extends AppStackScreenProps<"Tikslai"> {}
 interface Goal {
   id: number
   name: string
+  bendratis: string
   enabled: boolean
   timeframe?: number // Hours
   moreThan?: boolean // Is the goal less than or more than specified hours
@@ -21,6 +22,7 @@ interface Goal {
 const initGoals = [
   {
     name: "Vaikščiojimas",
+    bendratis: "vaikščioti",
     enabled: false,
     timeFrame: 24,
     moreThan: true,
@@ -29,6 +31,7 @@ const initGoals = [
   },
   {
     name: "Bėgiojimas",
+    bendratis: "bėgioti",
     enabled: false,
     timeFrame: 24,
     moreThan: true,
@@ -37,6 +40,7 @@ const initGoals = [
   },
   {
     name: "Sėdėjimas",
+    bendratis: "sėdėti",
     enabled: false,
     timeFrame: 24,
     moreThan: true,
@@ -45,6 +49,7 @@ const initGoals = [
   },
   {
     name: "Stovėjimas",
+    bendratis: "stovėti",
     enabled: false,
     timeFrame: 24,
     moreThan: true,
@@ -53,6 +58,7 @@ const initGoals = [
   },
   {
     name: "Gulėjimas",
+    bendratis: "gulėti",
     enabled: false,
     timeFrame: 24,
     moreThan: true,
@@ -86,16 +92,23 @@ export const TikslaiScreen: FC<TikslaiScreenProps> = observer(function TikslaiSc
     const ExpandedGoal = () => {
       if (goal.enabled) {
         return (
-          <Text>Ayo</Text>
+          <View>
+            <Text>Laiko tarpas</Text>
+            <Text>Tikslo tipas</Text>
+            <Text>Tikslas valandomis</Text>
+            <View style={$dividerContainer}>
+              <View style={$divider}></View>
+            </View>
+            <Text>Per {goal.timeframe}h noriu {goal.bendratis} ne {goal.moreThan ? "daugiau" : "mažiau"} nei {goal.goalHours}h</Text>
+          </View>
         );
       }
       return
     }
 
     return (
-    <>
+    <View key={goal.id}>
       <ControlledToggle
-        key={goal.id}
         variant="switch"
         label={goal.name}
         inputOuterStyle={{ backgroundColor: colors.palette.neutral600 }}
@@ -105,8 +118,8 @@ export const TikslaiScreen: FC<TikslaiScreenProps> = observer(function TikslaiSc
         value={goal.enabled}
         onChange={() => {handleToggle(goal.id)}}
       />
-      <ExpandedGoal key={goal.id}></ExpandedGoal>
-    </>
+      <ExpandedGoal></ExpandedGoal>
+    </View>
     )
   }
 
@@ -134,4 +147,17 @@ const $title: TextStyle = {
 const $goalContainer: ViewStyle = {
   display: "flex",
   gap: spacing.sm
+}
+
+const $dividerContainer: ViewStyle = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  marginVertical: spacing.sm
+}
+
+const $divider: ViewStyle = {
+  backgroundColor: colors.palette.primary500,
+  width: "90%",
+  height: 1,
 }
