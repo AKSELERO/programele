@@ -29,7 +29,8 @@ import { customFontsToLoad } from "./theme"
 import Config from "./config"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { ViewStyle } from "react-native"
-import { startBackgroundService } from './utils/BackGroundTask'
+//import { startBackgroundService } from './utils/BackGroundTask'
+import SensorDataRecorder from './utils/ReadSensors'
 import React, { useEffect } from 'react';
 import { NativeModules } from 'react-native';
 
@@ -72,14 +73,14 @@ function App(props: AppProps) {
   //   SensorService.startService();
   //   // No cleanup action needed since you want it to run indefinitely
   // }, []);
-  useEffect(() => {
-    SensorService.startService();
-    startBackgroundService().then(() => {
-      console.log('Background service has been successfully started.');
-    }).catch((error) => {
-      console.error('Failed to start background service:', error);
-    });
-  }, []);
+  // useEffect(() => {
+  //   SensorService.startService();
+  //   startBackgroundService().then(() => {
+  //     console.log('Background service has been successfully started.');
+  //   }).catch((error) => {
+  //     console.error('Failed to start background service:', error);
+  //   });
+  // }, []);
   const { hideSplashScreen } = props
   const {
     initialNavigationState,
@@ -117,7 +118,7 @@ function App(props: AppProps) {
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ErrorBoundary catchErrors={Config.catchErrors}>
         <GestureHandlerRootView style={$container}>
-        {/* <startBackgroundService /> */}
+        {<SensorDataRecorder/>}
           <AppNavigator
             linking={linking}
             initialState={initialNavigationState}
