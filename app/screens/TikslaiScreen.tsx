@@ -2,7 +2,7 @@ import React, { FC, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { ViewStyle, TextStyle } from "react-native"
 import { AppStackScreenProps } from "app/navigators"
-import { Screen, Text } from "app/components"
+import { Screen, Text, Toggle, ToggleProps } from "app/components"
 import { colors, spacing } from "../theme"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "app/models"
@@ -10,6 +10,7 @@ import { colors, spacing } from "../theme"
 interface TikslaiScreenProps extends AppStackScreenProps<"Tikslai"> {}
 
 interface Goal {
+  id: number
   name: string
   enabled: boolean
   timeframe?: number // Hours
@@ -23,44 +24,68 @@ const initGoals = [
     enabled: false,
     timeFrame: 24,
     moreThan: true,
-    goalHours: 2
+    goalHours: 2,
+    id: 0
   },
   {
     name: "Bėgiojimas",
     enabled: false,
     timeFrame: 24,
     moreThan: true,
-    goalHours: 2
+    goalHours: 2,
+    id: 1
   },
   {
     name: "Sėdėjimas",
     enabled: false,
     timeFrame: 24,
     moreThan: true,
-    goalHours: 2
+    goalHours: 2,
+    id: 2
   },
   {
     name: "Stovėjimas",
     enabled: false,
     timeFrame: 24,
     moreThan: true,
-    goalHours: 2
+    goalHours: 2,
+    id: 3
   },
   {
     name: "Gulėjimas",
     enabled: false,
     timeFrame: 24,
     moreThan: true,
-    goalHours: 2
+    goalHours: 2,
+    id: 4
   },
 ]
+
+// Toggle button
+function ControlledToggle({ value, onChange, ...props }: ToggleProps & { value: boolean; onChange: (newValue: boolean) => void }) {
+  return <Toggle {...props} value={value} onPress={() => onChange(!value)} />;
+}
 
 export const TikslaiScreen: FC<TikslaiScreenProps> = observer(function TikslaiScreen() {
   const [goalData, setGoalData] = useState<Goal[]>(initGoals)
 
   const renderGoal = (goal: Goal) => {
+    const handleToggle = () => {
+      
+    }
+
     return (
-      <Text key={goal.name}>{goal.name}</Text>
+      <ControlledToggle
+        key={goal.id}
+        variant="switch"
+        label={goal.name}
+        inputOuterStyle={{ backgroundColor: colors.palette.neutral600 }}
+        labelPosition="left"
+        LabelTextProps={{ size: "md" }}
+        containerStyle={{ backgroundColor: colors.palette.neutral100, elevation: 4, padding: spacing.md, borderRadius: 8}}
+        value={goal.enabled}
+        onChange={handleToggle}
+      />
     )
   }
 
