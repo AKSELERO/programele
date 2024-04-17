@@ -7,7 +7,7 @@ import { colors, spacing } from "../theme"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "app/models"
 
-interface TikslaiScreenProps extends AppStackScreenProps<"Tikslai"> {}
+interface TikslaiScreenProps extends AppStackScreenProps<"Tikslai"> { }
 
 interface Goal {
   id: number
@@ -88,16 +88,16 @@ export const TikslaiScreen: FC<TikslaiScreenProps> = observer(function TikslaiSc
   const renderGoal = (goal: Goal) => {
     const ExpandedGoal = () => {
       const [localGoalHours, setLocalGoalHours] = useState(goal.goalHours.toString());
-      
+
       const handleGoalHoursChange = (text: string) => {
         // Replace commas with dots, allow only numbers and a single dot
         const normalizedText = text.replace(/,/g, '.'); // Replace commas with dots
         const filteredText = normalizedText.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'); // Remove non-numeric characters and ensure only one dot
-      
+
         // Update the local state with the filtered text
         setLocalGoalHours(filteredText);
       };
-      
+
 
       if (goal.enabled) {
         return (
@@ -122,7 +122,7 @@ export const TikslaiScreen: FC<TikslaiScreenProps> = observer(function TikslaiSc
                 keyboardType="numeric"
                 onChangeText={handleGoalHoursChange}
                 onBlur={
-                  () => {updateGoal(goal.id, { goalHours: parseFloat(localGoalHours) })}
+                  () => { updateGoal(goal.id, { goalHours: parseFloat(localGoalHours) }) }
                 }
                 value={localGoalHours}
               />
@@ -130,23 +130,23 @@ export const TikslaiScreen: FC<TikslaiScreenProps> = observer(function TikslaiSc
           </View>
         );
       }
-      return
+
     }
 
     return (
-    <View key={goal.id} style={$singleGoalContainer}>
-      <ControlledToggle
-        variant="switch"
-        label={goal.name}
-        inputOuterStyle={{ backgroundColor: colors.palette.neutral600 }}
-        labelPosition="left"
-        LabelTextProps={{ size: "md" }}
-        containerStyle={{ backgroundColor: colors.palette.neutral100, padding: spacing.md, borderRadius: 8, borderColor: colors.palette.neutral600, borderBottomWidth: 1}}
-        value={goal.enabled}
-        onChange={() => {updateGoal(goal.id, { enabled: !goal.enabled })}}
-      />
-      <ExpandedGoal></ExpandedGoal>
-    </View>
+      <View key={goal.id} style={$singleGoalContainer}>
+        <ControlledToggle
+          variant="switch"
+          label={goal.name}
+          inputOuterStyle={{ backgroundColor: colors.palette.neutral600 }}
+          labelPosition="left"
+          LabelTextProps={{ size: "md" }}
+          containerStyle={{ backgroundColor: colors.palette.neutral100, padding: spacing.md, borderRadius: 8, borderColor: colors.palette.neutral600, borderBottomWidth: 1 }}
+          value={goal.enabled}
+          onChange={() => { updateGoal(goal.id, { enabled: !goal.enabled }) }}
+        />
+        <ExpandedGoal></ExpandedGoal>
+      </View>
     )
   }
 
@@ -205,7 +205,7 @@ const $expandedContainer: ViewStyle = {
 const $optionRow: ViewStyle = {
   display: "flex",
   flexDirection: "row",
-  alignItems:"center",
+  alignItems: "center",
   justifyContent: "space-between",
   backgroundColor: colors.palette.neutral200,
   elevation: 4,

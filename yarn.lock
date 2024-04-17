@@ -8004,6 +8004,11 @@ react-native-background-actions@^3.0.1:
   dependencies:
     eventemitter3 "^4.0.7"
 
+react-native-date-picker@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.npmjs.org/react-native-date-picker/-/react-native-date-picker-5.0.1.tgz"
+  integrity sha512-0AzGE94jugCPGQM3YOgH3lF85QDOiN1/5KAY30rgQB3c6UI1pQNoU9txyxj9UdcRdcAxc1BSy30OEekL0+3ZQw==
+
 react-native-drawer-layout@4.0.0-alpha.1:
   version "4.0.0-alpha.1"
   resolved "https://registry.npmjs.org/react-native-drawer-layout/-/react-native-drawer-layout-4.0.0-alpha.1.tgz"
@@ -8097,7 +8102,7 @@ react-native-webview@13.6.4:
     escape-string-regexp "2.0.0"
     invariant "2.2.4"
 
-react-native@*, "react-native@^0.0.0-0 || >=0.60 <1.0", "react-native@>= 0.30.0", react-native@>=0.39.0, react-native@>=0.40.0, react-native@>=0.47.0, react-native@>0.62.0, react-native@0.73.5:
+react-native@*, "react-native@^0.0.0-0 || >=0.60 <1.0", "react-native@>= 0.30.0", "react-native@>= 0.64.3", react-native@>=0.39.0, react-native@>=0.40.0, react-native@>=0.47.0, react-native@>0.62.0, react-native@0.73.5:
   version "0.73.5"
   resolved "https://registry.npmjs.org/react-native/-/react-native-0.73.5.tgz"
   integrity sha512-iHgDArmF4CrhL0qTj+Rn+CBN5pZWUL9lUGl8ub+V9Hwu/vnzQQh8rTMVSwVd2sV6N76KjpE5a4TfIAHkpIHhKg==
@@ -8163,7 +8168,7 @@ react-test-renderer@18.2.0:
     react-shallow-renderer "^16.15.0"
     scheduler "^0.23.0"
 
-react@*, "react@^16.0.0 || ^17.0.0 || ^18.0.0", "react@^16.8.0 || ^17 || ^18", "react@^16.8.0 || ^17.0.0 || ^18.0.0", react@^18.0.0, react@^18.2.0, "react@>= 15.2.1", react@>=16.8, react@>=17.0.0, react@18.2.0:
+react@*, "react@^16.0.0 || ^17.0.0 || ^18.0.0", "react@^16.8.0 || ^17 || ^18", "react@^16.8.0 || ^17.0.0 || ^18.0.0", react@^18.0.0, react@^18.2.0, "react@>= 15.2.1", "react@>= 17.0.1", react@>=16.8, react@>=17.0.0, react@18.2.0:
   version "18.2.0"
   resolved "https://registry.npmjs.org/react/-/react-18.2.0.tgz"
   integrity sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==
