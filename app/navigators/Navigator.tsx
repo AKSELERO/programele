@@ -8,6 +8,7 @@ import { NustatymaiScreen, RekomendacijosScreen, StatistikaScreen, TikslaiScreen
 import { colors, spacing, typography } from "../theme"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 import DataDisplay from '../screens/StateHistory';
+import Setstate from "app/screens/SetState"
 
 export type DemoTabParamList = {
   DemoCommunity: undefined
@@ -19,6 +20,7 @@ export type DemoTabParamList = {
   Rekomendacijos: undefined
   Tikslai: undefined
   Statistika: undefined
+  SetState: undefined
 }
 
 /**
@@ -104,6 +106,16 @@ export function Navigator() {
         component={DataDisplay}
         options={{
           tabBarLabel: "Testavimui",
+          tabBarIcon: ({ focused }) => (
+            <Icon icon="debug" color={focused ? colors.palette.primary400 : colors.palette.primary100} size={30} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="SetState"
+        component={Setstate}
+        options={{
+          tabBarLabel: "Testavimui2",
           tabBarIcon: ({ focused }) => (
             <Icon icon="debug" color={focused ? colors.palette.primary400 : colors.palette.primary100} size={30} />
           ),
