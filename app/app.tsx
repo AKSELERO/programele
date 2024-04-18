@@ -29,10 +29,11 @@ import { customFontsToLoad } from "./theme"
 import Config from "./config"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { ViewStyle } from "react-native"
-//import { startBackgroundService } from './utils/BackGroundTask'
-import SensorDataRecorder from './utils/ReadSensors'
+import { startBackgroundService } from './utils/BackGroundTask'
+// import SensorDataRecorder from './utils/ReadSensors'
 import React, { useEffect } from 'react';
-import { NativeModules } from 'react-native';
+import {PermissionsAndroid, Platform, NativeModules } from 'react-native';
+import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 
 const { SensorService } = NativeModules;
 
@@ -69,18 +70,45 @@ interface AppProps {
  * @returns {JSX.Element} The rendered `App` component.
  */
 function App(props: AppProps) {
-  // useEffect(() => {
-  //   SensorService.startService();
-  //   // No cleanup action needed since you want it to run indefinitely
-  // }, []);
-  // useEffect(() => {
-  //   SensorService.startService();
-  //   startBackgroundService().then(() => {
-  //     console.log('Background service has been successfully started.');
-  //   }).catch((error) => {
-  //     console.error('Failed to start background service:', error);
-  //   });
-  // }, []);
+  useEffect(() => {
+    //SensorService.startService();
+    // No cleanup action needed since you want it to run indefinitely
+  }, []);
+  useEffect(() => {
+    //SensorService.startService();
+    // startBackgroundService().then(() => {
+    //   console.log('Background service has been successfully started.');
+    // }).catch((error) => {
+    //   console.error('Failed to start background service:', error);
+    // });
+    const requestPermissionsAndStartService = async () => {
+      if (Platform.OS === 'android' && Platform.Version >= 33) {
+        console.log("permission requested");
+        const result = await request(PERMISSIONS.ANDROID.POST_NOTIFICATIONS);
+        if (result === RESULTS.GRANTED) {
+          console.log("permission granted");
+          SensorService.startService();
+          startBackgroundService().then(() => {
+            console.log('Background service has been successfully started.');
+          }).catch((error) => {
+            console.error('Failed to start background service:', error);
+          });   // Start the service after permission is granted
+        } else {
+          console.log('Permission denied');
+        }
+      } else {
+        console.log("No need for permissions")
+        SensorService.startService();
+        startBackgroundService().then(() => {
+          console.log('Background service has been successfully started.');
+        }).catch((error) => {
+          console.error('Failed to start background service:', error);
+        });  // Directly start the service for older versions
+      }
+    };
+    
+    requestPermissionsAndStartService();
+  }, []);
   const { hideSplashScreen } = props
   const {
     initialNavigationState,
@@ -118,7 +146,7 @@ function App(props: AppProps) {
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ErrorBoundary catchErrors={Config.catchErrors}>
         <GestureHandlerRootView style={$container}>
-        {<SensorDataRecorder/>}
+        {/* {<SensorDataRecorder/>} */}
           <AppNavigator
             linking={linking}
             initialState={initialNavigationState}

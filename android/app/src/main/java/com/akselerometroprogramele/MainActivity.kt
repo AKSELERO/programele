@@ -23,13 +23,13 @@ class MainActivity : ReactActivity() {
     // This is required for expo-splash-screen.
     setTheme(R.style.AppTheme);
     super.onCreate(savedInstanceState)
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)(
-      ActivityCompat.requestPermissions(
-        this,
-        arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-        0
-      )
-    )
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                0 // Your request code here
+            )
+    }
     
   }
 
