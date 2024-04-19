@@ -24,62 +24,62 @@ interface SensorData {
   elapsedTime: number; // Seconds elapsed since reading started
 }
 
-class ModelManager {
-  private static instance: ModelManager;
-  private modelSession: InferenceSession | null = null;
+// class ModelManager {
+//   private static instance: ModelManager;
+//   private modelSession: InferenceSession | null = null;
 
-  private constructor() { }
+//   private constructor() { }
 
-  public static getInstance(): ModelManager {
-    if (!ModelManager.instance) {
-      ModelManager.instance = new ModelManager();
+//   public static getInstance(): ModelManager {
+//     if (!ModelManager.instance) {
+//       ModelManager.instance = new ModelManager();
 
-    }
-    return ModelManager.instance;
-  }
+//     }
+//     return ModelManager.instance;
+//   }
 
-  public async loadModel(modelUrl: string): Promise<void> {
-    if (this.modelSession === null) {
-      try {
-        const session = await loadModelFromCloud(modelUrl) ?? null;
-        if (session === null) {
-          throw new Error('Failed to load the model from the cloud.');
-        }
-        console.log('Model session is ready for inference.');
-        this.modelSession = session;
-      } catch (error) {
-        console.error('Failed to load model:', error);
-        this.modelSession = null;
-      }
-    }
-  }
+//   public async loadModel(modelUrl: string): Promise<void> {
+//     if (this.modelSession === null) {
+//       try {
+//         const session = await loadModelFromCloud(modelUrl) ?? null;
+//         if (session === null) {
+//           throw new Error('Failed to load the model from the cloud.');
+//         }
+//         console.log('Model session is ready for inference.');
+//         this.modelSession = session;
+//       } catch (error) {
+//         console.error('Failed to load model:', error);
+//         this.modelSession = null;
+//       }
+//     }
+//   }
 
-  // Modified getPrediction to return prediction result
-  public async getPrediction(inputData: Float32Array): Promise<any> { // Use a more specific type than any if possible
-    if (!this.modelSession) {
-      console.error('Model session is not initialized. Please load the model first.');
-      return null; // Indicate failure or invalid session
-    }
+//   // Modified getPrediction to return prediction result
+//   public async getPrediction(inputData: Float32Array): Promise<any> { // Use a more specific type than any if possible
+//     if (!this.modelSession) {
+//       console.error('Model session is not initialized. Please load the model first.');
+//       return null; // Indicate failure or invalid session
+//     }
 
-    const inputTensor = new Tensor("float32", inputData, [1, 48]); // Adjust shape as necessary
-    const feeds = { "X": inputTensor };
+//     const inputTensor = new Tensor("float32", inputData, [1, 48]); // Adjust shape as necessary
+//     const feeds = { "X": inputTensor };
 
-    try {
-      const output = await this.modelSession.run(feeds, ["output_label"]);
-      const predictionResult = output["output_label"].data;
-      console.log("Prediction result: ", predictionResult);
+//     try {
+//       const output = await this.modelSession.run(feeds, ["output_label"]);
+//       const predictionResult = output["output_label"].data;
+//       console.log("Prediction result: ", predictionResult);
 
-      return predictionResult; // Return the prediction result
-    } catch (error) {
-      console.error('Error during inference:', error);
-      return null; // Indicate error condition
-    }
-  }
-
-  
+//       return predictionResult; // Return the prediction result
+//     } catch (error) {
+//       console.error('Error during inference:', error);
+//       return null; // Indicate error condition
+//     }
+//   }
 
   
-}
+
+  
+// }
 
 // export default class SensorDataManager {
 //   private static instance: SensorDataManager;
@@ -435,19 +435,19 @@ const SensorDataRecorder: React.FC = () => {
     //const modelUrl = 'https://drive.google.com/uc?export=download&id=1_pTQnQgPkpj89kH9HePESt1ansr7HsPV'; //ort
     const [modelLoaded, setModelLoaded] = useState(false);
 
-    useEffect(() => {
-      // Retrieve the singleton instance of ModelManager here
-      const modelManager = ModelManager.getInstance();
+    // useEffect(() => {
+    //   // Retrieve the singleton instance of ModelManager here
+    //   const modelManager = ModelManager.getInstance();
 
-      const loadModelAsync = async () => {
-          if (!modelLoaded) {
-              await modelManager.loadModel(modelUrl);
-              setModelLoaded(true); // Indicate that the model is loaded
-          }
-      };
+    //   const loadModelAsync = async () => {
+    //       if (!modelLoaded) {
+    //           await modelManager.loadModel(modelUrl);
+    //           setModelLoaded(true); // Indicate that the model is loaded
+    //       }
+    //   };
 
-      loadModelAsync();
-    }, [modelLoaded]);
+    //   // loadModelAsync();
+    // }, [modelLoaded]);
 
     useEffect(() => {
         let accelerometerSubscription: { remove: () => void };
@@ -497,10 +497,10 @@ const SensorDataRecorder: React.FC = () => {
         const intervalId = setInterval(async () => {
             await appendDataToCSV(accelerometerDataRef.current, 'accData.csv');
             await appendDataToCSV(gyroscopeDataRef.current, 'gyroData.csv');
-            const combinedData = calculateCombinedData(accelerometerDataRef.current, gyroscopeDataRef.current);
-            if (combinedData.length > 0) {
-                runInference(combinedData);
-            }
+            // const combinedData = calculateCombinedData(accelerometerDataRef.current, gyroscopeDataRef.current);
+            // if (combinedData.length > 0) {
+            //     // runInference(combinedData);
+            // }
             setAccelerometerData([]);
             setGyroscopeData([]);
         }, 15000);
@@ -518,37 +518,37 @@ const SensorDataRecorder: React.FC = () => {
   }, [accelerometerData, gyroscopeData]);
 
 
-  const runInference = async (combinedData: number[]) => {
-    try {
+//   const runInference = async (combinedData: number[]) => {
+//     try {
 
 
-        const modelManager = ModelManager.getInstance();
-        const inputData = new Float32Array(combinedData);
-        const predictionResult = await modelManager.getPrediction(inputData);
-        const valueMap: Record<string, string> = {
-          'D': 'sėdėjimas',
-          'B': 'bėgimas',
-          'A': 'ėjimas',
-          'E': 'stovėjimas',
-        };
+//         const modelManager = ModelManager.getInstance();
+//         const inputData = new Float32Array(combinedData);
+//         const predictionResult = await modelManager.getPrediction(inputData);
+//         const valueMap: Record<string, string> = {
+//           'D': 'sėdėjimas',
+//           'B': 'bėgimas',
+//           'A': 'ėjimas',
+//           'E': 'stovėjimas',
+//         };
 
-        if (predictionResult !== null) {
-          console.log('Received prediction:', predictionResult);
-          const state = valueMap[predictionResult];
-          await writeData(state);
-        } else {
-          console.log('Failed to get prediction.');
-        }
-
-        
-        
-        
+//         if (predictionResult !== null) {
+//           console.log('Received prediction:', predictionResult);
+//           const state = valueMap[predictionResult];
+//           await writeData(state);
+//         } else {
+//           console.log('Failed to get prediction.');
+//         }
 
         
-    } catch (error) {
-        console.error('Error during inference:', error);
-    }
-};
+        
+        
+
+        
+//     } catch (error) {
+//         console.error('Error during inference:', error);
+//     }
+// };
 
 const writeData = async (initialContent : string) => {
     try {
