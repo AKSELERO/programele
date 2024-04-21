@@ -1,6 +1,7 @@
 package com.akselerometroprogramele
 
 import android.app.Service
+import android.content.pm.ServiceInfo
 import android.content.Intent
 import android.os.IBinder
 import android.app.NotificationChannel
@@ -32,6 +33,12 @@ class SensorService : Service(), SensorEventListener {
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
 
+        // accelerometer?.let {
+        //     sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_UI)
+        // }
+        // gyroscope?.let {
+        //     sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_UI)
+        // }
         sensorManager.registerListener(this, accelerometer, 50000)
         sensorManager.registerListener(this, gyroscope, 50000)
         createNotificationChannel()
@@ -60,9 +67,13 @@ class SensorService : Service(), SensorEventListener {
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Sensor Service")
             .setContentText("Collecting sensor data")
-            .setSmallIcon(android.R.drawable.stat_notify_sync) // Ensure you have this icon.
+            .setSmallIcon(android.R.drawable.stat_notify_sync).build() // Ensure you have this icon.
 
-        startForeground(SERVICE_NOTIFICATION_ID, builder.build())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            startForeground(SERVICE_NOTIFICATION_ID, builder, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
+        } else {
+            startForeground(SERVICE_NOTIFICATION_ID, builder);
+        }
 
         // TODO: Add your sensor data collection logic here
 
