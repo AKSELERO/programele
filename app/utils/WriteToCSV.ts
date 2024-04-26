@@ -2,6 +2,7 @@
 import * as FileSystem from 'expo-file-system';
 import { load, save } from './storage/storage';
 
+
 interface SensorData {
     x: number;
     y: number;
@@ -10,7 +11,16 @@ interface SensorData {
     elapsedTime: number; // Seconds elapsed since reading started
 }
 
-export const appendDataToCSV = async (data: SensorData[], filename: string): Promise<void> => {
+interface RotationSensor {
+  alpha: number;
+  beta: number;
+  gamma: number;
+  timestamp: number; // Time in ticks
+  elapsedTime: number; // Seconds elapsed since reading started
+}
+
+
+export const appendDataToCSV = async (data: SensorData[] | RotationSensor[], filename: string): Promise<void> => {
 
     const state = String((await load('ReadState')));
     if (state != null){
@@ -21,20 +31,22 @@ export const appendDataToCSV = async (data: SensorData[], filename: string): Pro
     const path = `${FileSystem.documentDirectory}/${filename}`;
     let csvContent = '';
 
-    // Check if the file exists and create it if it doesn't
-    const fileInfo = await FileSystem.getInfoAsync(path);
-    const fileExists = fileInfo.exists;
-    if (!fileExists) {
-        // Adjust the CSV header to reflect your data structure
-        csvContent += 'Timestamp (ms),Elapsed Time (s),X,Y,Z\n';
-    }
-
-    // Convert each data point to a CSV string
     data.forEach((item) => {
-        const { elapsedTime, timestamp, x, y, z } = item;
-        const csvLine = `${timestamp},${elapsedTime},${x},${y},${z}\n`;
-        csvContent += csvLine;
-    });
+      if ('x' in item && 'y' in item && 'z' in item && 'timestamp' in item && 'elapsedTime' in item) {
+          // If item is SensorData
+          const { x, y, z, timestamp, elapsedTime } = item as SensorData;
+          const csvLine = `${timestamp},${elapsedTime},${x},${y},${z}\n`;
+          csvContent += csvLine;
+      } else if ('alpha' in item && 'beta' in item && 'gamma' in item && 'timestamp' in item && 'elapsedTime' in item) {
+          // If item is RotationSensor
+          const { alpha, beta, gamma, timestamp, elapsedTime } = item as RotationSensor;
+          const csvLine = `${timestamp},${elapsedTime},${alpha},${beta},${gamma}\n`;
+          csvContent += csvLine;
+      } else {
+          // Handle unknown type or log error
+          console.error('Unknown type encountered:', item);
+      }
+  });
 
     // Append the new content to the file
     // await RNFS.appendFile(path, csvContent, 'utf8').catch((err) => console.log(err.message));

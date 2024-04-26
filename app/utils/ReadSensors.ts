@@ -1,6 +1,6 @@
 import * as FileSystem from 'expo-file-system';
 import React, { useEffect, useState, useRef } from 'react';
-import { Accelerometer, Gyroscope } from 'expo-sensors';
+import { Accelerometer, Gyroscope, MagnetometerUncalibrated, DeviceMotionOrientation, DeviceMotionMeasurement, DeviceMotion, } from 'expo-sensors';
 import { gyroscope } from 'react-native-sensors';
 import { Asset } from 'expo-asset';
 
@@ -14,6 +14,7 @@ import { InferenceSession } from 'onnxruntime-react-native';
 import { appendDataToCSV } from './WriteToCSV';
 import BackgroundService from 'react-native-background-actions';
 import { DeviceEventEmitter, EventSubscription } from 'react-native';
+import { set } from 'date-fns';
 
 
 interface SensorData {
@@ -23,6 +24,15 @@ interface SensorData {
   timestamp: number; // Time in ticks
   elapsedTime: number; // Seconds elapsed since reading started
 }
+
+interface RotationSensor {
+  alpha: number;
+  beta: number;
+  gamma: number;
+  timestamp: number; // Time in ticks
+  elapsedTime: number; // Seconds elapsed since reading started
+}
+
 
 // class ModelManager {
 //   private static instance: ModelManager;
@@ -431,6 +441,13 @@ const SensorDataRecorder: React.FC = () => {
     
     const [gyroscopeData, setGyroscopeData] = useState<SensorData[]>([]);
     const gyroscopeDataRef = useRef<SensorData[]>(gyroscopeData);
+
+    const [magnetometerData, setMagnetometerData] = useState<SensorData[]>([]);
+    const magnetometerDataRef = useRef<SensorData[]>(magnetometerData);
+
+    const [rotationData, setRotationData] = useState<RotationSensor[]>([]);
+    const rotationDataRef = useRef<RotationSensor[]>(rotationData);
+
     const modelUrl = 'https://drive.google.com/uc?export=download&id=1j8t-4VPG4s-ow4TvWzo5zr1CYVxRrJF8'; //onnx
     //const modelUrl = 'https://drive.google.com/uc?export=download&id=1_pTQnQgPkpj89kH9HePESt1ansr7HsPV'; //ort
     const [modelLoaded, setModelLoaded] = useState(false);
@@ -452,6 +469,8 @@ const SensorDataRecorder: React.FC = () => {
     useEffect(() => {
         let accelerometerSubscription: { remove: () => void };
         let gyroscopeSubscription: { remove: () => void };
+        let magnetometerSubscription: { remove: () => void };
+        let rotationSubscription: { remove: () => void};
   
         const startSubscriptions = () => {
           // Reset or initialize the start time at the beginning of the session
@@ -459,10 +478,12 @@ const SensorDataRecorder: React.FC = () => {
       
           Accelerometer.setUpdateInterval(50);
           Gyroscope.setUpdateInterval(50);
+          MagnetometerUncalibrated.setUpdateInterval(50);
+          DeviceMotion.setUpdateInterval(50);
       
           accelerometerSubscription = Accelerometer.addListener((data) => {
               const currentTime = Date.now();
-              const elapsedTime = (currentTime - startTime) / 1000; // Convert to seconds
+              const elapsedTime = (currentTime - startTime)
       
               const dataWithTimestampAndElapsedTime = {
                   ...data,
@@ -474,7 +495,7 @@ const SensorDataRecorder: React.FC = () => {
       
           gyroscopeSubscription = Gyroscope.addListener((data) => {
               const currentTime = Date.now();
-              const elapsedTime = (currentTime - startTime) / 1000; // Convert to seconds
+              const elapsedTime = (currentTime - startTime)
       
               const dataWithTimestampAndElapsedTime = {
                   ...data,
@@ -483,13 +504,39 @@ const SensorDataRecorder: React.FC = () => {
               };
               setGyroscopeData((prevData) => [...prevData, dataWithTimestampAndElapsedTime]);
           });
-      };
-      
+
+          magnetometerSubscription = MagnetometerUncalibrated.addListener((data) => {
+            const currentTime = Date.now();
+            const elapsedTime = (currentTime - startTime)
+    
+            const dataWithTimestampAndElapsedTime = {
+                ...data,
+                timestamp: currentTime,
+                elapsedTime: elapsedTime,
+            };
+            setMagnetometerData((prevData) => [...prevData, dataWithTimestampAndElapsedTime]);
+        });
+
+        rotationSubscription = DeviceMotion.addListener((data) => {
+          const currentTime = Date.now();
+          const elapsedTime = (currentTime - startTime)
   
+          const dataWithTimestampAndElapsedTime = {
+              ...data.rotation,
+              timestamp: currentTime,
+              elapsedTime: elapsedTime,
+          };
+          setRotationData((prevData) => [...prevData, dataWithTimestampAndElapsedTime]);
+      });
+
+
+      };
         const stopSubscriptions = () => {
             console.log("Stopping accelerometer subscription");
             accelerometerSubscription.remove();
             gyroscopeSubscription.remove();
+            magnetometerSubscription.remove();
+            rotationSubscription.remove();
         };
   
         startSubscriptions();
@@ -497,12 +544,16 @@ const SensorDataRecorder: React.FC = () => {
         const intervalId = setInterval(async () => {
             await appendDataToCSV(accelerometerDataRef.current, 'accData.csv');
             await appendDataToCSV(gyroscopeDataRef.current, 'gyroData.csv');
+            await appendDataToCSV(magnetometerDataRef.current, 'magneData.csv')
+            await appendDataToCSV(rotationDataRef.current, 'rotationData.csv')
             // const combinedData = calculateCombinedData(accelerometerDataRef.current, gyroscopeDataRef.current);
             // if (combinedData.length > 0) {
             //     // runInference(combinedData);
             // }
             setAccelerometerData([]);
             setGyroscopeData([]);
+            setMagnetometerData([]);
+            setRotationData([]);
         }, 15000);
       
 
@@ -515,7 +566,9 @@ const SensorDataRecorder: React.FC = () => {
     useEffect(() => {
       accelerometerDataRef.current = accelerometerData;
       gyroscopeDataRef.current = gyroscopeData; // Update the ref value whenever accelerometerData changes
-  }, [accelerometerData, gyroscopeData]);
+      magnetometerDataRef.current = magnetometerData;
+      rotationDataRef.current = rotationData;
+  }, [accelerometerData, gyroscopeData, magnetometerData, rotationData]);
 
 
 //   const runInference = async (combinedData: number[]) => {
