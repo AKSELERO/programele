@@ -34,7 +34,7 @@ import { startBackgroundService } from './utils/BackGroundTask'
 import React, { useEffect } from 'react';
 import {PermissionsAndroid, Platform, NativeModules } from 'react-native';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
-import { monitorCsvFile } from './utils/ReadCSVEntries';
+import { startDataFetchingProcess } from './utils/ReadCSVEntries';
 
 const { SensorService } = NativeModules;
 const filePath = './combinedData.csv';
@@ -90,6 +90,7 @@ function App(props: AppProps) {
         if (result === RESULTS.GRANTED) {
           console.log("permission granted");
           SensorService.startService();
+          startDataFetchingProcess();
           //monitorCsvFile(filePath);
           // startBackgroundService().then(() => {
           //   console.log('Background service has been successfully started.');
@@ -102,6 +103,7 @@ function App(props: AppProps) {
       } else {
         console.log("No need for permissions")
         SensorService.startService();
+        startDataFetchingProcess();
         //monitorCsvFile(filePath);
         // startBackgroundService().then(() => {
         //   console.log('Background service has been successfully started.');

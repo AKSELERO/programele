@@ -31,6 +31,10 @@ import java.text.DecimalFormat
 import java.io.FileOutputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import android.content.SharedPreferences
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 class SensorService : Service(), SensorEventListener {
@@ -43,6 +47,7 @@ class SensorService : Service(), SensorEventListener {
     private var accelerometerData: MutableList<SensorData> = mutableListOf()
     private var gyroscopeData: MutableList<SensorData> = mutableListOf()
     private var initTime: Long = 0L
+    private lateinit var sharedPreferences: SharedPreferences
 
     data class SensorData(val x: Float, val y: Float, val z: Float, val timestamp: Long, val initTime: Double)
 
@@ -71,6 +76,7 @@ class SensorService : Service(), SensorEventListener {
         // loadModel()
         
         createNotificationChannel()
+        sharedPreferences = getSharedPreferences("MyAppData", Context.MODE_PRIVATE)
         handler = Handler(Looper.getMainLooper())
         runnable = Runnable {
             processAndResetData()
@@ -81,13 +87,15 @@ class SensorService : Service(), SensorEventListener {
     private fun processAndResetData() {
         // Call your data processing function here
         Log.d("DataLogger", "Starting data processing...")
-        writeCsvFile(this, accelerometerData, "accdata2.csv")
-        writeCsvFile(this, gyroscopeData, "gyrodata2.csv")
+        //writeCsvFile(this, accelerometerData, "accdata2.csv")
+        //writeCsvFile(this, gyroscopeData, "gyrodata2.csv")
         var combinedData = calculateCombinedData(accelerometerData, gyroscopeData)
         Log.d("DataLogger", "Combined Data: $combinedData")
-        writeCombinedData(this, combinedData)
+        //writeCombinedData(this, combinedData)
+        saveListOfDoublesWithTimestamp(sharedPreferences, "CombinedData", combinedData)
         // loadModel()
         // Reset data collections
+
         synchronized(accelerometerData) { accelerometerData.clear() }
         synchronized(gyroscopeData) { gyroscopeData.clear() }
     }
@@ -116,6 +124,37 @@ class SensorService : Service(), SensorEventListener {
         } catch (e: IOException) {
             Log.e("WriteCsvFile", "Error writing file", e)
         }
+    }
+
+    fun saveListOfDoublesWithTimestamp(sharedPrefs: SharedPreferences, baseKey: String, list: List<Double>) {
+        // Formatting the list of doubles into a comma-separated string
+        val listAsString = list.joinToString(separator = ",")
+    
+        // Creating a date format for the timestamp that will be part of the key
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        val currentDateTime = dateFormat.format(Date())
+    
+        // Generating the unique key by combining the base key with the current timestamp
+        val uniqueKey = "${baseKey}_$currentDateTime"
+    
+        // Storing the list and timestamp in SharedPreferences
+        sharedPrefs.edit().apply {
+            putString("${uniqueKey}_list", listAsString)
+            putString("${uniqueKey}_timestamp", currentDateTime)
+            apply()  // Applying changes asynchronously
+        }
+    }
+    
+
+    fun retrieveListOfDoublesWithTimestamp(sharedPrefs: SharedPreferences, key: String): Pair<List<Double>, String>? {
+        val listAsString = sharedPrefs.getString("${key}_list", null) // Corrected key usage
+        val timestamp = sharedPrefs.getString("${key}_timestamp", null) // Corrected key usage
+    
+        if (listAsString != null && timestamp != null) {
+            val list = listAsString.split(",").map { it.toDouble() }
+            return Pair(list, timestamp)
+        }
+        return null
     }
 
     fun writeCombinedData(context: Context, values: List<Double>) {
