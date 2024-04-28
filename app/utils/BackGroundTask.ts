@@ -19,7 +19,6 @@ const sensorDataManager = SensorDataManager.getInstance();
 
 const backgroundTask = async (): Promise<void> => {
   sensorDataManager.startListeningToSensorData();  // Start listening to sensor data events
-
   // Keep the loop that periodically calls processSensorData
   while (await BackgroundService.isRunning()) {
     await new Promise(resolve => setTimeout(resolve, 15000)); // Wait for 15 seconds

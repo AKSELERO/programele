@@ -14,6 +14,7 @@ import { InferenceSession } from 'onnxruntime-react-native';
 import { appendDataToCSV } from './WriteToCSV';
 import BackgroundService from 'react-native-background-actions';
 import { DeviceEventEmitter, EventSubscription } from 'react-native';
+import { Mutex } from 'async-mutex';
 
 
 interface SensorData {
@@ -92,12 +93,14 @@ export default class SensorDataManager {
   private modelLoaded: Boolean;
   private modelUrl: string;
   private startTime : number;
+  private mutex : Mutex;
 
   private constructor() {
     this.modelLoaded = false;
     this.modelUrl = 'https://drive.google.com/uc?export=download&id=1j8t-4VPG4s-ow4TvWzo5zr1CYVxRrJF8'; //onnx
     //const modelUrl = 'https://drive.google.com/uc?export=download&id=1_pTQnQgPkpj89kH9HePESt1ansr7HsPV'; //ort
     this.startTime = Date.now();
+    this.mutex = new Mutex();
   }
 
   public static getInstance(): SensorDataManager {
@@ -220,6 +223,45 @@ public stopListeningToSensorData(): void {
     }
 };
 
+public runInference2 = async (combinedData: number[], time: string) => {
+  try {
+
+
+      const modelManager = ModelManager.getInstance();
+      if (!this.modelLoaded) {
+        await modelManager.loadModel(this.modelUrl);
+        this.modelLoaded = true;
+      }
+      if (combinedData.length == 48){
+        const inputData = new Float32Array(combinedData);
+        const predictionResult = await modelManager.getPrediction(inputData);
+        const valueMap: Record<string, string> = {
+          'D': 'sėdėjimas',
+          'B': 'bėgimas',
+          'A': 'ėjimas',
+          'E': 'stovėjimas',
+        };
+
+        if (predictionResult !== null) {
+          console.log('Received prediction:', predictionResult);
+          const state = valueMap[predictionResult];
+          await this.writeData2(state, time);
+        } else {
+          console.log('Failed to get prediction.');
+        }
+      }
+      
+
+      
+      
+      
+
+      
+  } catch (error) {
+      console.error('Error during inference:', error);
+  }
+};
+
 public writeData = async (initialContent : string) => {
     try {
       // Get the current date and time
@@ -263,6 +305,56 @@ public writeData = async (initialContent : string) => {
       }
     } catch (error) {
       console.error('Error writing data to AsyncStorage:', error);
+    }
+  };
+
+  public writeData2 = async (initialContent : string, formattedDate: string) => {
+    const release = await this.mutex.acquire();
+    try {
+      // Get the current date and time
+      // const currentDate = new Date();
+      // const options: Intl.DateTimeFormatOptions = {
+      //   year: 'numeric',
+      //   month: 'numeric',
+      //   day: 'numeric',
+      //   hour: 'numeric',
+      //   minute: 'numeric',
+      //   second: 'numeric',
+      //   hour12: false,
+      //   timeZone: 'Europe/Vilnius', // Set the time zone to Lithuania
+      // };
+      
+      // const formattedDate = currentDate.toLocaleString('lt-LT', options);
+
+      // Load the current count from AsyncStorage and explicitly cast it to a number
+      const count = Number((await load('entryCount')) || 0);
+
+      // Create the key dynamically based on the count
+      const key = `dataKey${count + 1}`;
+
+      // Create the new entry
+      const newDataEntry = {
+        date: formattedDate,
+        content: initialContent,
+      };
+
+      // Save data to AsyncStorage using the dynamically generated key
+      const success = await save(key, newDataEntry);
+
+      if (success) {
+        console.log('Data successfully written to AsyncStorage:', newDataEntry, ' key: ', key);
+
+        // Increment the count and save it back to AsyncStorage
+        await save('entryCount', count + 1);
+
+      } else {
+        console.error('Failed to write data to AsyncStorage');
+      }
+    } catch (error) {
+      console.error('Error writing data to AsyncStorage:', error);
+    }
+    finally {
+      release(); // Always release the mutex
     }
   };
 

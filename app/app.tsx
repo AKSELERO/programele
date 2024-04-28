@@ -34,8 +34,10 @@ import { startBackgroundService } from './utils/BackGroundTask'
 import React, { useEffect } from 'react';
 import {PermissionsAndroid, Platform, NativeModules } from 'react-native';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
+import { startDataFetchingProcess } from './utils/ReadCSVEntries';
 
 const { SensorService } = NativeModules;
+const filePath = './combinedData.csv';
 
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
 
@@ -88,22 +90,26 @@ function App(props: AppProps) {
         if (result === RESULTS.GRANTED) {
           console.log("permission granted");
           SensorService.startService();
-          startBackgroundService().then(() => {
-            console.log('Background service has been successfully started.');
-          }).catch((error) => {
-            console.error('Failed to start background service:', error);
-          });   // Start the service after permission is granted
+          startDataFetchingProcess();
+          //monitorCsvFile(filePath);
+          // startBackgroundService().then(() => {
+          //   console.log('Background service has been successfully started.');
+          // }).catch((error) => {
+          //   console.error('Failed to start background service:', error);
+          // });   // Start the service after permission is granted
         } else {
           console.log('Permission denied');
         }
       } else {
         console.log("No need for permissions")
         SensorService.startService();
-        startBackgroundService().then(() => {
-          console.log('Background service has been successfully started.');
-        }).catch((error) => {
-          console.error('Failed to start background service:', error);
-        });  // Directly start the service for older versions
+        startDataFetchingProcess();
+        //monitorCsvFile(filePath);
+        // startBackgroundService().then(() => {
+        //   console.log('Background service has been successfully started.');
+        // }).catch((error) => {
+        //   console.error('Failed to start background service:', error);
+        // });  // Directly start the service for older versions
       }
     };
     

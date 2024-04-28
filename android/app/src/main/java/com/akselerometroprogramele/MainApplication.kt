@@ -33,7 +33,7 @@ class MainApplication : Application(), ReactApplication {
 
             // Add your custom packages here
             packages.add(SensorServicePackage()) // Corrected instantiation
-            
+            packages.add(SharedPreferencesPackage()) 
             return packages
         }
 
