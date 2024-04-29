@@ -6,7 +6,8 @@ import { Button, Screen, Text } from "app/components"
 import { colors, spacing, typography } from "../theme"
 import DatePicker from 'react-native-date-picker'
 import { BarChart, PieChart, } from "react-native-gifted-charts";
-import { relative } from "path"
+import { load, } from '../utils/storage/storage';
+import { StoredData } from "./StateHistory"
 
 // Fake duomenys stulpelinei diagramai
 // Value valandu skaicius, goalReached ar pasiektas tos dienos tikslas
@@ -52,6 +53,45 @@ const formatDateShort = (date: Date) => {
 
 
 export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function StatistikaScreen() {
+  const [data, setData] = useState<StoredData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [prevEntryCount, setPrevEntryCount] = useState(0);
+
+  const fetchData = async () => {
+    console.log("Loading data for statistics");
+    try {
+      const count = Number((await load('entryCount')) || 0);
+
+      if (count > prevEntryCount) {
+        const fetchedData: StoredData[] = [];
+        for (let i = prevEntryCount + 1; i <= count; i++) {
+          const key = `dataKey${i}`;
+          const storedData = await load(key);
+
+          if (storedData) {
+            fetchedData.push(storedData as StoredData);
+            console.log(`Read data from key ${key}:`, storedData);
+          } else {
+            console.log(`No data found for key ${key}`);
+          }
+        }
+
+        if (fetchedData.length > 0) {
+          console.log('New entries found. Updating data...');
+          setData((prevData) => [...prevData, ...fetchedData]);
+        }
+
+        setPrevEntryCount(count);
+      }
+    } catch (error) {
+      console.error('Error loading data from AsyncStorage:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+
   // Get the current date
   const currentDate = new Date();
 
@@ -117,7 +157,29 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
 
   const PieChartSection = () => {
     const chartColors = ["#d92626", "#d9a326", "#afd926", "#26cdd9", "#2656d9", "#c126d9"];
-    let formattedData = pieChartData
+
+    const calculatePieChartData = (data: StoredData[], range: DateRange) => {
+      const timePerDataPointInSeconds = 15; // each data point represents 15 seconds
+      const activityDuration = data.reduce((acc, curr) => {
+        const dataDate = new Date(curr.date);
+        if (dataDate >= range.start && dataDate <= range.end) {
+          const activity = curr.content || "Be kategorijos"; // Default category if none provided
+          acc[activity] = (acc[activity] || 0) + timePerDataPointInSeconds;
+        }
+        return acc;
+      }, {} as Record<string, number>);
+
+      const pieChartData = Object.entries(activityDuration).map(([key, value]) => {
+        // Ensure value is a number and not undefined or null
+        const hours = value ? (value / 3600).toFixed(2) : "0.00";
+        return { text: key, value: parseFloat(hours) }; // parse it back to a number if needed
+      });
+
+      return pieChartData;
+    };
+
+
+    let formattedData = calculatePieChartData(data, statisticsDateRange);
 
     formattedData = formattedData.map((obj, index) => {
       return { ...obj, color: chartColors[index % chartColors.length] }
@@ -196,6 +258,7 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
       <StatisticsRange></StatisticsRange>
       <BarChartSection />
       <PieChartSection />
+      <Text>Duomenų kiekis: {data.length}</Text>
     </Screen>
   )
 })
