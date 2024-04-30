@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react"
+import React, { FC, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle, TextStyle } from "react-native"
 import { AppStackScreenProps } from "app/navigators"
@@ -70,9 +70,9 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
 
           if (storedData) {
             fetchedData.push(storedData as StoredData);
-            console.log(`Read data from key ${key}:`, storedData);
+            // console.log(`Read data from key ${key}:`, storedData);
           } else {
-            console.log(`No data found for key ${key}`);
+            // console.log(`No data found for key ${key}`);
           }
         }
 
@@ -90,7 +90,9 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
     }
   };
 
-  fetchData();
+  useEffect(() => {
+    fetchData();
+  }, [])
 
   // Get the current date
   const currentDate = new Date();
@@ -311,15 +313,24 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
     );
   }
 
-  return (
-    <Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={$container}>
-      <Text style={$title} preset="heading" text="Statistika" />
-      <StatisticsRange></StatisticsRange>
-      <BarChartSection />
-      <PieChartSection />
+  if (!loading) {
+    return (
+      <Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={$container}>
+        <Text style={$title} preset="heading" text="Statistika" />
+        <StatisticsRange></StatisticsRange>
+        <BarChartSection />
+        <PieChartSection />
+        <Text>Duomenų kiekis: {data.length}</Text>
+      </Screen>
+    )
+  }
+  else {
+    return (<Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={$container}>
+      <Text style={$title} preset="heading" text="Loading" />
       <Text>Duomenų kiekis: {data.length}</Text>
-    </Screen>
-  )
+    </Screen>)
+  }
+
 })
 
 const $container: ViewStyle = {
