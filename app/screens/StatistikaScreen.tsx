@@ -8,6 +8,7 @@ import DatePicker from 'react-native-date-picker'
 import { BarChart, PieChart, } from "react-native-gifted-charts";
 import { load, } from '../utils/storage/storage';
 import { StoredData } from "./StateHistory"
+import { type Goal } from "./TikslaiScreen"
 
 // Fake duomenys stulpelinei diagramai
 // Value valandu skaicius, goalReached ar pasiektas tos dienos tikslas
@@ -56,6 +57,7 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
   const [data, setData] = useState<StoredData[]>([]);
   const [loading, setLoading] = useState(true);
   const [prevEntryCount, setPrevEntryCount] = useState(0);
+  const [goalData, setGoalData] = useState<Goal[]>({})
 
   const fetchData = async () => {
     console.log("Loading data for statistics");
@@ -90,8 +92,21 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
     }
   };
 
+  const loadGoals = async () => {
+    const goals: Goal[] = await load("goals");
+    if (goals) {
+      // console.log("Loaded goals: " + JSON.stringify(goals));
+      console.log("Successfully loaded goals")
+      setGoalData(goals);
+    } else {
+      console.log("Couldn't load goals");
+    }
+  }
+
   useEffect(() => {
     fetchData();
+    console.log("Loading goals");
+    loadGoals();
   }, [])
 
   // Get the current date
@@ -263,6 +278,9 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
         // console.log(`${currentDate} : (len ${dayDatapoints.length}) ${JSON.stringify(dayDatapoints)}`);
         // Each datapoint is 15 seconds of activity, turned to hours
         const hours = dayDatapoints.length > 0 ? (dayDatapoints.length * 15 / 3600).toFixed(2) : "0.01";
+
+        // - Check if goal was met
+        console.log(goalData);
         retBarChartData.push({ value: hours, goalReached: true, label })
       }
 

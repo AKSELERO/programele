@@ -10,7 +10,7 @@ import { load, save } from "app/utils/storage"
 
 interface TikslaiScreenProps extends AppStackScreenProps<"Tikslai"> { }
 
-interface Goal {
+export interface Goal {
   id: number
   name: string
   bendratis: string
