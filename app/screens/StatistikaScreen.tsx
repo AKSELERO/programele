@@ -13,16 +13,16 @@ import { type Goal } from "./TikslaiScreen"
 // Fake duomenys stulpelinei diagramai
 // Value valandu skaicius, goalReached ar pasiektas tos dienos tikslas
 // Masyvo ilgis realiai gali but bet koks, tiesiog 1 obj per diena
-const barChartData = [
-  { value: 4.2, goalReached: true },
-  { value: 5.6, goalReached: true },
-  { value: 1.2, goalReached: false },
-  { value: 0.8, goalReached: false },
-  { value: 1.9, goalReached: false },
-  { value: 4.8, goalReached: true },
-  { value: 0.65, goalReached: false },
-  { value: 4.6, goalReached: true },
-]
+// const barChartData = [
+//   { value: 4.2, goalReached: true },
+//   { value: 5.6, goalReached: true },
+//   { value: 1.2, goalReached: false },
+//   { value: 0.8, goalReached: false },
+//   { value: 1.9, goalReached: false },
+//   { value: 4.8, goalReached: true },
+//   { value: 0.65, goalReached: false },
+//   { value: 4.6, goalReached: true },
+// ]
 
 // // Fake duomenys skritulinei diagramai
 // const pieChartData = [
@@ -254,6 +254,8 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
       contentType: string
     ) => {
       const retBarChartData = [];
+      const relevantGoal = goalData.find(goal => goal.name.toLowerCase() === contentType.toLowerCase());
+      console.log("Relevant goal: " + JSON.stringify(relevantGoal))
 
       // Create a bar for each day in the range
       const firstDay = new Date(dateRange.start.getTime());
@@ -280,8 +282,19 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
         const hours = dayDatapoints.length > 0 ? (dayDatapoints.length * 15 / 3600).toFixed(2) : "0.01";
 
         // - Check if goal was met
-        console.log(goalData);
-        retBarChartData.push({ value: hours, goalReached: true, label })
+        let goalMet = false;
+
+        if (relevantGoal) {
+          if (relevantGoal.moreThan && Number(hours) > relevantGoal.goalHours!) {
+            goalMet = true;
+          }
+          if (!relevantGoal.moreThan && Number(hours) < relevantGoal.goalHours!) {
+            goalMet = true;
+          }
+        }
+
+        // console.log("Goal was met: " + goalMet);
+        retBarChartData.push({ value: hours, goalReached: goalMet, label })
       }
 
       return retBarChartData;
