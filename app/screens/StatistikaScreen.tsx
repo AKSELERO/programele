@@ -23,15 +23,15 @@ const barChartData = [
   { value: 4.6, goalReached: true },
 ]
 
-// Fake duomenys skritulinei diagramai
-const pieChartData = [
-  { text: "Gulėjimas", value: 8.5 }, // Gulėjimas
-  { text: "Sėdėjimas", value: 9 }, // Sėdėjimas
-  { text: "Bėgimas", value: 0.4 }, // Bėgimas
-  { text: "Ėjimas", value: 1.4 }, // Ėjimas
-  { text: "Stovėjimas", value: 3 }, // Stovėjimas
-  { text: "Be kategorijos", value: 1.7 } // Be kategorijos
-]
+// // Fake duomenys skritulinei diagramai
+// const pieChartData = [
+//   { text: "Gulėjimas", value: 8.5 }, // Gulėjimas
+//   { text: "Sėdėjimas", value: 9 }, // Sėdėjimas
+//   { text: "Bėgimas", value: 0.4 }, // Bėgimas
+//   { text: "Ėjimas", value: 1.4 }, // Ėjimas
+//   { text: "Stovėjimas", value: 3 }, // Stovėjimas
+//   { text: "Be kategorijos", value: 1.7 } // Be kategorijos
+// ]
 
 interface StatistikaScreenProps extends AppStackScreenProps<"Statistika"> { }
 
@@ -216,18 +216,77 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
   }
 
   const BarChartSection = () => {
-    let formattedData = barChartData
+    const filterDataPoints = (
+      dateRange: DateRange,
+      data: StoredData[],
+      contentType: string
+    ) => {
+      return data.filter(dataPoint => {
+        const dataPointDate = new Date(dataPoint.date);
+        return (
+          dataPointDate >= dateRange.start &&
+          dataPointDate <= dateRange.end &&
+          dataPoint.content === contentType
+        );
+      });
+    };
+
+    const createBarChartData = (
+      dateRange: DateRange,
+      data: StoredData[],
+      contentType: string
+    ) => {
+      const retBarChartData = [];
+
+      // Create a bar for each day in the range
+      const firstDay = new Date(dateRange.start.getTime());
+      firstDay.setDate(firstDay.getDate() - 1);
+      const currentDate = firstDay;
+      const dayStep = 1;
+      // Each loop represents a day
+      while (currentDate.getDate() < dateRange.end.getDate()) {
+        // - Create bar date label
+        currentDate.setDate(firstDay.getDate() + dayStep)
+        const label = formatDateShort(currentDate)
+
+        // - Calculate the hours spent in the position
+        // Set start and end to cover the entire current day
+        const startOfDay = new Date(currentDate);
+        startOfDay.setHours(0, 0, 0, 0);  // Set to midnight
+
+        const endOfDay = new Date(currentDate);
+        endOfDay.setHours(23, 59, 59, 999);  // Set to one millisecond before the next day
+
+        const dayDatapoints = filterDataPoints({ start: startOfDay, end: endOfDay }, data, contentType);
+        // console.log(`${currentDate} : (len ${dayDatapoints.length}) ${JSON.stringify(dayDatapoints)}`);
+        // Each datapoint is 15 seconds of activity, turned to hours
+        const hours = dayDatapoints.length > 0 ? (dayDatapoints.length * 15 / 3600).toFixed(2) : "0.01";
+        retBarChartData.push({ value: hours, goalReached: true, label })
+      }
+
+      return retBarChartData;
+    }
+
+    // console.log("Filtered data points: " + JSON.stringify(filterDataPoints(statisticsDateRange, data, "bėgimas")));
+    const activity = "sėdėjimas"
+    const prefilteredData = filterDataPoints(statisticsDateRange, data, activity)
+    const newBarChartData = createBarChartData(statisticsDateRange, prefilteredData, activity);
+    console.log(JSON.stringify(newBarChartData));
+
+    let formattedData = newBarChartData
 
     formattedData = formattedData.map((obj, index) => {
       const currentDate = new Date(statisticsDateRange.start.getTime());
-      currentDate.setDate(currentDate.getDate() + index - 1);
-      const dateLabel = formatDateShort(currentDate);
-      return { ...obj, label: dateLabel, frontColor: obj.goalReached ? colors.palette.primary500 : colors.palette.neutral700, }
+      currentDate.setDate(currentDate.getDate() + index);
+      // const dateLabel = formatDateShort(currentDate);
+      return { ...obj, frontColor: obj.goalReached ? colors.palette.primary500 : colors.palette.neutral700, }
     })
 
-    const max = Math.ceil(barChartData.reduce((maxValue, currentItem) => {
+    const max = Math.ceil(newBarChartData.reduce((maxValue, currentItem) => {
       return currentItem.value > maxValue ? currentItem.value : maxValue;
     }, Number.NEGATIVE_INFINITY));
+
+    console.log("Max: " + max);
 
     return (
       <View style={$barChartContainer}>
