@@ -297,13 +297,16 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
         retBarChartData.push({ value: hours, goalReached: goalMet, label })
       }
 
+      // Fuck off by one errors
+      retBarChartData.pop();
+
       return retBarChartData;
     }
 
     // console.log("Filtered data points: " + JSON.stringify(filterDataPoints(statisticsDateRange, data, "bėgimas")));
     const activity = "sėdėjimas"
     const prefilteredData = filterDataPoints(statisticsDateRange, data, activity)
-    console.log("Prefiltered data: " + JSON.stringify(prefilteredData))
+    // console.log("Prefiltered data: " + JSON.stringify(prefilteredData))
     const newBarChartData = createBarChartData(statisticsDateRange, prefilteredData, activity);
     console.log("New bar chart data " + JSON.stringify(newBarChartData));
 
