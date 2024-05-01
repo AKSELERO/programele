@@ -2,7 +2,7 @@ import React, { FC, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle, TextStyle } from "react-native"
 import { AppStackScreenProps } from "app/navigators"
-import { Button, Screen, Text } from "app/components"
+import { Button, Icon, Screen, Text } from "app/components"
 import { colors, spacing, typography } from "../theme"
 import DatePicker from 'react-native-date-picker'
 import { BarChart, PieChart, } from "react-native-gifted-charts";
@@ -263,7 +263,7 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
       const currentDate = firstDay;
       const dayStep = 1;
       // Each loop represents a day
-      while (currentDate.getDate() < dateRange.end.getDate()) {
+      while (currentDate < dateRange.end) {
         // - Create bar date label
         currentDate.setDate(firstDay.getDate() + dayStep)
         const label = formatDateShort(currentDate)
@@ -279,7 +279,7 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
         const dayDatapoints = filterDataPoints({ start: startOfDay, end: endOfDay }, data, contentType);
         // console.log(`${currentDate} : (len ${dayDatapoints.length}) ${JSON.stringify(dayDatapoints)}`);
         // Each datapoint is 15 seconds of activity, turned to hours
-        const hours = dayDatapoints.length > 0 ? (dayDatapoints.length * 15 / 3600).toFixed(2) : "0.01";
+        const hours = dayDatapoints.length > 0 ? (dayDatapoints.length * 15 / 3600).toFixed(2) : 0.01;
 
         // - Check if goal was met
         let goalMet = false;
@@ -303,8 +303,9 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
     // console.log("Filtered data points: " + JSON.stringify(filterDataPoints(statisticsDateRange, data, "bėgimas")));
     const activity = "sėdėjimas"
     const prefilteredData = filterDataPoints(statisticsDateRange, data, activity)
+    console.log("Prefiltered data: " + JSON.stringify(prefilteredData))
     const newBarChartData = createBarChartData(statisticsDateRange, prefilteredData, activity);
-    console.log(JSON.stringify(newBarChartData));
+    console.log("New bar chart data " + JSON.stringify(newBarChartData));
 
     let formattedData = newBarChartData
 
@@ -315,15 +316,25 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
       return { ...obj, frontColor: obj.goalReached ? colors.palette.primary500 : colors.palette.neutral700, }
     })
 
-    const max = Math.ceil(newBarChartData.reduce((maxValue, currentItem) => {
+    let max = Math.ceil(newBarChartData.reduce((maxValue, currentItem) => {
       return currentItem.value > maxValue ? currentItem.value : maxValue;
     }, Number.NEGATIVE_INFINITY));
+
+    if (max === Number.NEGATIVE_INFINITY) {
+      console.log("Max was infinite :(")
+      max = 1;
+    }
 
     console.log("Max: " + max);
 
     return (
       <View style={$barChartContainer}>
-        <Text style={$barChartTitle} preset="subheading">Bėgimas</Text>
+        <View style={$barChartTitleContainer}>
+          <Text style={$barChartTitle} preset="subheading">Sėdėjimas</Text>
+          <View style={$barChartTitleIcon}>
+            <Icon icon="caretRight"></Icon>
+          </View>
+        </View>
         <View style={$barChartWithLabel}>
           <Text style={$barChartYAxisLabel}>Valandos</Text>
           <BarChart
@@ -340,7 +351,7 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
             noOfSections={Math.min(12, max)}
           />
         </View>
-      </View>
+      </View >
     );
   }
 
@@ -351,7 +362,7 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
         <StatisticsRange></StatisticsRange>
         <BarChartSection />
         <PieChartSection />
-        <Text>Duomenų kiekis: {data.length}</Text>
+        {/* <Text>Duomenų kiekis: {data.length}</Text> */}
       </Screen>
     )
   }
@@ -400,8 +411,18 @@ const $barChartWithLabel: ViewStyle = {
   paddingLeft: 5
 }
 
+const $barChartTitleContainer: ViewStyle = {
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center"
+}
+
 const $barChartTitle: ViewStyle = {
   marginBottom: spacing.xs
+}
+
+const $barChartTitleIcon: ViewStyle = {
+  paddingBottom: spacing.xxs,
 }
 
 const $barChartYAxisLabel: TextStyle = {
