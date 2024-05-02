@@ -24,8 +24,15 @@ export function startDataFetchingProcess(): void {
 
         // Processing each entry
         Object.entries(entries).forEach(([key, { list, timestamp }]) => {
-          const dataList = list.split(',').map(Number);
-          sensorDataManager.runInference2(dataList, timestamp);
+          console.log('list data:', list);
+          if (list == 'Nejuda'){
+            sensorDataManager.writeData2(list, timestamp);
+          }
+          else {
+            const dataList = list.split(',').map(Number);
+            sensorDataManager.runInference2(dataList, timestamp);
+          }
+          
           // Example of processing each list
         //   dataList.forEach((item, index) => {
         //     console.log(`Item ${index}: ${item} at ${timestamp}`);

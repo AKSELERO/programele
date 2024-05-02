@@ -42,10 +42,12 @@ class SensorService : Service(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private var accelerometer: Sensor? = null
     private var gyroscope: Sensor? = null
+    private var motionDetection: Sensor? = null
     private lateinit var handler: Handler
     private lateinit var runnable: Runnable
     private var accelerometerData: MutableList<SensorData> = mutableListOf()
     private var gyroscopeData: MutableList<SensorData> = mutableListOf()
+    private var motionDetectionData: MutableList<Float> = mutableListOf()
     private var initTime: Long = 0L
     private lateinit var sharedPreferences: SharedPreferences
 
@@ -63,7 +65,12 @@ class SensorService : Service(), SensorEventListener {
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
-
+        motionDetection =sensorManager.getDefaultSensor(Sensor.TYPE_MOTION_DETECT)
+        if (motionDetection == null) {
+            Log.d("DataLogger", "Motion detection sensor not available")
+        } else {
+            Log.d("DataLogger", "Motion detection sensor is available")
+        }
         // accelerometer?.let {
         //     sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_UI)
         // }
@@ -72,6 +79,7 @@ class SensorService : Service(), SensorEventListener {
         // }
         sensorManager.registerListener(this, accelerometer, 50000)
         sensorManager.registerListener(this, gyroscope, 50000)
+        sensorManager.registerListener(this, motionDetection, 50000)
         // ortEnv = OrtEnvironment.getEnvironment()
         // loadModel()
         
@@ -89,15 +97,27 @@ class SensorService : Service(), SensorEventListener {
         Log.d("DataLogger", "Starting data processing...")
         //writeCsvFile(this, accelerometerData, "accdata2.csv")
         //writeCsvFile(this, gyroscopeData, "gyrodata2.csv")
+        Log.d("DataLogger", "no motion $motionDetectionData")
+        
         var combinedData = calculateCombinedData(accelerometerData, gyroscopeData)
-        Log.d("DataLogger", "Combined Data: $combinedData")
-        //writeCombinedData(this, combinedData)
-        saveListOfDoublesWithTimestamp(sharedPreferences, "CombinedData", combinedData)
+        var moved = isPhoneMoving(combinedData)
+        Log.d("DataLogger", "moved $moved")
+        if ((motionDetectionData.isEmpty() && motionDetection != null) || moved == false){
+            saveNoMotionMessageWithTimestamp(sharedPreferences, "CombinedData", "Nejuda")
+        }
+        else {
+            var combinedData = calculateCombinedData(accelerometerData, gyroscopeData)
+            Log.d("DataLogger", "Combined Data: $combinedData")
+            //writeCombinedData(this, combinedData)
+            saveListOfDoublesWithTimestamp(sharedPreferences, "CombinedData", combinedData)
+        }
+        
         // loadModel()
         // Reset data collections
 
         synchronized(accelerometerData) { accelerometerData.clear() }
         synchronized(gyroscopeData) { gyroscopeData.clear() }
+        synchronized(motionDetectionData) { motionDetectionData.clear() }
     }
 
     fun writeCsvFile(context: Context, data: List<SensorData>, fileName: String) {
@@ -140,6 +160,25 @@ class SensorService : Service(), SensorEventListener {
         // Storing the list and timestamp in SharedPreferences
         sharedPrefs.edit().apply {
             putString("${uniqueKey}_list", listAsString)
+            putString("${uniqueKey}_timestamp", currentDateTime)
+            apply()  // Applying changes asynchronously
+        }
+    }
+
+    fun saveNoMotionMessageWithTimestamp(sharedPrefs: SharedPreferences, baseKey: String, message: String) {
+        // Formatting the list of doubles into a comma-separated string
+        //val listAsString = list.joinToString(separator = ",")
+    
+        // Creating a date format for the timestamp that will be part of the key
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        val currentDateTime = dateFormat.format(Date())
+    
+        // Generating the unique key by combining the base key with the current timestamp
+        val uniqueKey = "${baseKey}_$currentDateTime"
+    
+        // Storing the list and timestamp in SharedPreferences
+        sharedPrefs.edit().apply {
+            putString("${uniqueKey}_list", message)
             putString("${uniqueKey}_timestamp", currentDateTime)
             apply()  // Applying changes asynchronously
         }
@@ -200,12 +239,35 @@ class SensorService : Service(), SensorEventListener {
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        event ?: return
+        event ?: return  // If the event is null, return immediately
+    
         val currentTime = System.currentTimeMillis()
-        val data = SensorData(event.values[0], event.values[1], event.values[2], System.currentTimeMillis(), ((currentTime  - initTime) / 1000.0))
+    
         when (event.sensor.type) {
-            Sensor.TYPE_ACCELEROMETER -> synchronized(accelerometerData) { accelerometerData.add(data) }
-            Sensor.TYPE_GYROSCOPE -> synchronized(gyroscopeData) { gyroscopeData.add(data) }
+            Sensor.TYPE_ACCELEROMETER -> {
+                // Extract data for accelerometer
+                val accelerometerData = SensorData(event.values[0], event.values[1], event.values[2], currentTime, (currentTime - initTime) / 1000.0)
+                synchronized(accelerometerData) {
+                    this.accelerometerData.add(accelerometerData)
+                }
+            }
+            Sensor.TYPE_GYROSCOPE -> {
+                // Extract data for gyroscope
+                val gyroscopeData = SensorData(event.values[0], event.values[1], event.values[2], currentTime, (currentTime - initTime) / 1000.0)
+                synchronized(gyroscopeData) {
+                    this.gyroscopeData.add(gyroscopeData)
+                }
+            }
+            Sensor.TYPE_MOTION_DETECT -> {
+                // Handle motion detect event
+                // Typically, we do not get continuous data here, just an event trigger
+                //val motionData = SensorData(1.0f, 0f, 0f, currentTime, (currentTime - initTime) / 1000.0) // 1.0f can indicate motion detected
+                Log.d("DataLogger", "Motion Detected")
+                synchronized(motionDetectionData) {
+                    this.motionDetectionData.add(1.0f)
+                }
+                // Perform action upon motion detection, e.g., alerting or changing state
+            }
         }
     }
 
@@ -335,6 +397,30 @@ class SensorService : Service(), SensorEventListener {
     private fun calculateStandardDeviation(data: List<Double>, mean: Double): Double {
         val variance = data.sumOf { (it - mean) * (it - mean) } / data.size
         return Math.sqrt(variance)
+    }
+
+    private fun isPhoneMoving(combinedData: List<Double>): Boolean {
+        // Check if the list has all required elements
+        if (combinedData.size < 48) {
+            // Log an error or handle this case appropriately
+            return false // or throw an error, depending on your error handling strategy
+        }
+    
+        // Proceed with your existing code if the list is of expected size
+        val stdDevAccZ = combinedData[22] // Standard deviation of Accelerometer Z
+        val varAccZ = combinedData[23]   // Variance of Accelerometer Z
+        
+        val stdDevGyroZ = combinedData[46] // Standard deviation of Gyroscope Z
+        val varGyroZ = combinedData[47]    // Variance of Gyroscope Z
+        
+        val stdDevThresholdAcc = 0.5/2  // Standard deviation threshold for accelerometer Z-axis
+        val varThresholdAcc = 0.25/2    // Variance threshold for accelerometer Z-axis
+        
+        val stdDevThresholdGyro = 1.0/2  // Standard deviation threshold for gyroscope Z-axis
+        val varThresholdGyro = 1.0/2     // Variance threshold for gyroscope Z-axis
+        
+        return stdDevAccZ > stdDevThresholdAcc || varAccZ > varThresholdAcc ||
+               stdDevGyroZ > stdDevThresholdGyro || varGyroZ > varThresholdGyro
     }
 }
 
