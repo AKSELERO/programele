@@ -232,7 +232,17 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
     );
   }
 
+  enum Activities {
+    BEGIMAS = "bėgimas",
+    SEDEJIMAS = "sėdėjimas",
+    VAIKSCIOJIMAS = "vaikščiojimas",
+    STOVEJIMAS = "stovėjimas",
+    GULEJIMAS = "gulėjimas"
+  }
+
   const BarChartSection = () => {
+    const [selectedActivity, setSelectedActivity] = useState(Activities.BEGIMAS)
+
     const filterDataPoints = (
       dateRange: DateRange,
       data: StoredData[],
@@ -304,11 +314,11 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
     }
 
     // console.log("Filtered data points: " + JSON.stringify(filterDataPoints(statisticsDateRange, data, "bėgimas")));
-    const activity = "sėdėjimas"
-    const prefilteredData = filterDataPoints(statisticsDateRange, data, activity)
+    // const activity = "sėdėjimas"
+    const prefilteredData = filterDataPoints(statisticsDateRange, data, selectedActivity)
     // console.log("Prefiltered data: " + JSON.stringify(prefilteredData))
-    const newBarChartData = createBarChartData(statisticsDateRange, prefilteredData, activity);
-    console.log("New bar chart data " + JSON.stringify(newBarChartData));
+    const newBarChartData = createBarChartData(statisticsDateRange, prefilteredData, selectedActivity);
+    // console.log("New bar chart data " + JSON.stringify(newBarChartData));
 
     let formattedData = newBarChartData
 
@@ -333,7 +343,7 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
     return (
       <View style={$barChartContainer}>
         <View style={$barChartTitleContainer}>
-          <Text style={$barChartTitle} preset="subheading">Sėdėjimas</Text>
+          <Text style={$barChartTitle} preset="subheading">{selectedActivity[0].toUpperCase() + selectedActivity.substring(1)}</Text>
           <View style={$barChartTitleIcon}>
             <Icon icon="caretRight"></Icon>
           </View>
