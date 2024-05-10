@@ -241,7 +241,7 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
   }
 
   const BarChartSection = () => {
-    const [selectedActivity, setSelectedActivity] = useState(Activities.BEGIMAS)
+    const [selectedActivity, setSelectedActivity] = useState(Activities.SEDEJIMAS)
 
     const filterDataPoints = (
       dateRange: DateRange,
