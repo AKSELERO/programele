@@ -20,7 +20,14 @@ const StyledCard: FC<StyledCardProps> = ({ label, image, navigation }) => {
 
   const handleClick = (label: string) => {
     console.log("Button clicked: " + label);
-    navigation.navigate('KonkretiRekomendacija'); // Navigate and pass params if needed
+    switch (label) {
+      case 'Sėdėjimas':
+        navigation.navigate('Sedejimas');
+        break
+      default:
+        navigation.navigate('KonkretiRekomendacija');
+
+    }
     // Switch to screen ("KonkretiRekomendacija")
   }
 
