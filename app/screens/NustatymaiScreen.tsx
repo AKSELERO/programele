@@ -69,7 +69,7 @@ export const NustatymaiScreen: FC<NustatymaiScreenProps> = observer(function Nus
       console.log("Successfully loaded settings")
       setSettings(settings);
     } else {
-      console.log("Couldn't load goals, initialising new ones");
+      console.log("Couldn't load settings, initialising new ones");
       saveSettings(initSettings);
     }
   }
@@ -85,9 +85,15 @@ export const NustatymaiScreen: FC<NustatymaiScreenProps> = observer(function Nus
 
   // Handler to update state
   const handleToggle = (id: number) => {
-    const updatedSettings = settings.map(setting =>
-      setting.id === id ? { ...setting, isTurnedOn: !setting.isTurnedOn } : setting
-    );
+    let updatedSettings;
+    if (id === 0 && settings[0].isTurnedOn) {
+      updatedSettings = settings.map(setting => { return { ...setting, isTurnedOn: false } })
+    } else {
+      updatedSettings = settings.map(setting =>
+        setting.id === id ? { ...setting, isTurnedOn: !setting.isTurnedOn } : setting
+      );
+    }
+
     setSettings(updatedSettings);
     saveSettings(updatedSettings);
   };
