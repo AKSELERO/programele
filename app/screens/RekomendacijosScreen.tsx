@@ -5,33 +5,33 @@ import { AppStackScreenProps } from "app/navigators"
 import { Button, Card, Screen, Text } from "app/components"
 import { colors, spacing } from "../theme"
 
-//Image imports
+// Image imports
 const Sitting = require("../../assets/images/Rekomendacijos/Sitting.png");
-const Standing = require("../../assets/images/Rekomendacijos/Standing.png"); 
-const Running = require("../../assets/images/Rekomendacijos/Running.png"); 
-const Lying = require("../../assets/images/Rekomendacijos/Lying.png"); 
-const Walking = require("../../assets/images/Rekomendacijos/Walking.png"); 
+const Standing = require("../../assets/images/Rekomendacijos/Standing.png");
+const Running = require("../../assets/images/Rekomendacijos/Running.png");
+const Lying = require("../../assets/images/Rekomendacijos/Lying.png");
+const Walking = require("../../assets/images/Rekomendacijos/Walking.png");
 
-interface RekomendacijosScreenProps extends AppStackScreenProps<"Rekomendacijos"> {}
+interface RekomendacijosScreenProps extends AppStackScreenProps<"Rekomendacijos"> { }
 
 const StyledCard: FC<{ label: string, image?: ImageProps }> = ({ label, image }) => {
   const [isPressed, setIsPressed] = useState(false);
 
-  const handleClick = () => {
-    console.log("Button clicked");
+  const handleClick = (label: string) => {
+    console.log("Button clicked: " + label);
     // Switch to screen ("KonkretiRekomendacija")
   }
 
   return (
-  <Pressable style={() => [
-    $buttonCardStyle,
-    {
-      backgroundColor: isPressed ? colors.palette.neutral300 : colors.palette.neutral100,
-    },
-    ]} onPressIn={() => {setIsPressed(true)}} onPressOut={() => {setIsPressed(false)}} onPress={handleClick}>
-    <Image source={image} style={$imageStyle}></Image>
-    <Text style={$buttonLabel} preset="formLabel">{label}</Text>
-  </Pressable>
+    <Pressable style={() => [
+      $buttonCardStyle,
+      {
+        backgroundColor: isPressed ? colors.palette.neutral300 : colors.palette.neutral100,
+      },
+    ]} onPressIn={() => { setIsPressed(true) }} onPressOut={() => { setIsPressed(false) }} onPress={() => { handleClick(label) }}>
+      <Image source={image} style={$imageStyle}></Image>
+      <Text style={$buttonLabel} preset="formLabel">{label}</Text>
+    </Pressable>
   );
 };
 
