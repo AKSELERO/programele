@@ -17,66 +17,30 @@ export const BegimasScreen: FC<BegimasScreenProps> = observer(function BegimasSc
 
         <View style={$reccomendationSection}>
           <Text preset="subheading" text="Trumpai"></Text>
-          <Text text="Vidutiniškai žmogus per dieną sėdi 8 valandas. Kad būtų išvengtos sėdėjimo keliamos sveikatos problemos, rekomenduojama bent 150 minučių per savaitę užsiimti vidutinio intensyvumo sportu."></Text>
+          <Text text="Optimalus bėgiojimo laikas yra 2.5 valandos per savaitę arba 30 minučių penkias dienas per savaitę."></Text>
         </View>
 
-        <View style={$bottomBorder}>
-
-        </View>
-
-        <View style={$imageContainer}>
-          <Image source={require("../../../assets/images/Rekomendacijos/sittingPosture.png")} style={$image}></Image>
-          <Text text="Taisyklingas sėdėjimas"></Text>
-        </View>
+        <View style={$bottomBorder}></View>
 
         <View style={$reccomendationSection}>
-          <Text preset="subheading" text="Patarimai"></Text>
-          <Text text="Išvengti ilgo sėdėjimo darbovietėse galite šių rekomendacijų pagalba:"></Text>
-
+          <Text preset="subheading" text="Faktai apie bėgiojimą"></Text>
+          <Text text="Tyrimai rodo, kad bėgiojimas vidutiniu tempu bent po 5-10 minučių kiekvieną dieną, gali sumažinti:"></Text>
           <View style={$bulletListContainer}>
-            <Text text={`\u2022 naudoti tiek sėdimus, tiek stovimus darbastalius`}></Text>
-            <Text text={`\u2022 kas 30 minučių keisti padėtį iš sėdimos į stovimą`}></Text>
-            <Text text={`\u2022 rengti darbo susitikimus vaikštant`}></Text>
-            <Text text={`\u2022 reguliariai pratempti raumenis`}></Text>
-            <Text text={`\u2022 nueiti pokalbėti su kolega gyvai vietoj elektroninio laiško siuntimo`}></Text>
+            <Text text={`\u2022 širdies smūgio riziką`}></Text>
+            <Text text={`\u2022 širdies ir kraujagyslių ligų riziką`}></Text>
+            <Text text={`\u2022 vėžio riziką`}></Text>
+            <Text text={`\u2022 neurologinių ligų, tokių kaip Parkinsono liga ir Alzheimerio liga, riziką`}></Text>
           </View>
         </View>
 
         <View style={$reccomendationSection}>
-          <Text preset="subheading" text="Sėdėjimo rizika"></Text>
-          <Text text="Ilgas laikas praleistas sėdint kelia riziką išsivystyti sveikatos problemoms."></Text>
+          <Text preset="subheading" text="Bėgiojimo trukmės pasirinkimas"></Text>
+          <Text text="Nebūtina pradėti nuo intensyvių treniruočių ir kasdieninių maratonų. Renkantis bėgimo dažnį, reikia atsižvelgti į savo fizinį pasiruošimą."></Text>
           <View style={$bulletListContainer}>
-            <Text text={`\u2022 Maža rizika - <4 valandos per parą`}></Text>
-            <Text text={`\u2022 Vidutinė rizika - 4-8 valandos per parą`}></Text>
-            <Text text={`\u2022 Didelė rizika - 8-11 valandų per parą`}></Text>
-            <Text text={`\u2022 Labai didelė rizika - daugiau nei 11 valandų per parą`}></Text>
-          </View>
-        </View>
-
-        <View style={$reccomendationSection}>
-          <Text preset="subheading" text="Ilgo sėdėjimo diskomfortas"></Text>
-          <Text text="Ilgą laiką praleidžiant vienoje pozicijoje, tam tikrose kūno dalyse gali atsirasti diskomfortas, skausmas. Diskomfortas dėl per ilgo sėdėjimo gali būti jaučiamas šiose srityse:"></Text>
-          <View style={$bulletListContainer}>
-            <Text text={`\u2022 kaklas`}></Text>
-            <Text text={`\u2022 pečiai`}></Text>
-            <Text text={`\u2022 kojos`}></Text>
-            <Text text={`\u2022 apatinė nugaros dalis`}></Text>
-            <Text text={`\u2022 šlaunys`}></Text>
-            <Text text={`\u2022 rankos ir riešai`}></Text>
-          </View>
-        </View>
-
-        <View style={$reccomendationSection}>
-          <Text preset="subheading" text="Sveikatos problemos, kurias gali sukelti per ilgas sėdėjimas"></Text>
-          <View style={$bulletListContainer}>
-            <Text text={`\u2022 širdies ligos`}></Text>
-            <Text text={`\u2022 viršsvoris`}></Text>
-            <Text text={`\u2022 vėžys`}></Text>
-            <Text text={`\u2022 miego sutrikimai`}></Text>
-            <Text text={`\u2022 demencija`}></Text>
-            <Text text={`\u2022 kraujagyslių ligos (venų varikozė)`}></Text>
-            <Text text={`\u2022 nerimas`}></Text>
-            <Text text={`\u2022 nugaros problemos`}></Text>
+            <Text text={`\u2022 1-2 kartus per savaitę - tinka pradedantiesiems, besigydantiems po traumos, ligos, žmonėms, turintiems užimtą grafiką`}></Text>
+            <Text text={`\u2022 3 kartus per savaitę - tinka bėgikams, daug sportuojantiems`}></Text>
+            <Text text={`\u2022 4-5 kartus per savaitę - ilgai bėgiojantiems bėgikams (prabėgantiems nuo 50 iki 80 km per savaitę)`}></Text>
+            <Text text={`\u2022 6-7 kartai per savaitę - patyrusiems, pažengusiems bėgikams`}></Text>
           </View>
         </View>
 
