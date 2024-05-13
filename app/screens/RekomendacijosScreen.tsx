@@ -14,11 +14,12 @@ const Walking = require("../../assets/images/Rekomendacijos/Walking.png");
 
 interface RekomendacijosScreenProps extends AppStackScreenProps<"Rekomendacijos"> { }
 
-const StyledCard: FC<{ label: string, image?: ImageProps }> = ({ label, image }) => {
+const StyledCard: FC<StyledCardProps> = ({ label, image, navigation }) => {
   const [isPressed, setIsPressed] = useState(false);
 
   const handleClick = (label: string) => {
     console.log("Button clicked: " + label);
+    navigation.navigate('KonkretiRekomendacija'); // Navigate and pass params if needed
     // Switch to screen ("KonkretiRekomendacija")
   }
 
@@ -35,16 +36,16 @@ const StyledCard: FC<{ label: string, image?: ImageProps }> = ({ label, image })
   );
 };
 
-export const RekomendacijosScreen: FC<RekomendacijosScreenProps> = observer(function RekomendacijosScreen() {
+export const RekomendacijosScreen: FC<RekomendacijosScreenProps> = observer(function RekomendacijosScreen({ navigation }) {
   return (
     <Screen safeAreaEdges={["top"]} contentContainerStyle={$container}>
       <Text style={$title} preset="heading" text="Rekomendacijos" />
       <View style={$cardsContainer}>
-        <StyledCard label="Sėdėjimas" image={Sitting}></StyledCard>
-        <StyledCard label="Vaikščiojimas" image={Walking}></StyledCard>
-        <StyledCard label="Stovėjimas" image={Standing}></StyledCard>
-        <StyledCard label="Bėgimas" image={Running}></StyledCard>
-        <StyledCard label="Gulėjimas" image={Lying}></StyledCard>
+        <StyledCard navigation={navigation} label="Sėdėjimas" image={Sitting}></StyledCard>
+        <StyledCard navigation={navigation} label="Vaikščiojimas" image={Walking}></StyledCard>
+        <StyledCard navigation={navigation} label="Stovėjimas" image={Standing}></StyledCard>
+        <StyledCard navigation={navigation} label="Bėgimas" image={Running}></StyledCard>
+        <StyledCard navigation={navigation} label="Gulėjimas" image={Lying}></StyledCard>
       </View>
     </Screen>
   )
