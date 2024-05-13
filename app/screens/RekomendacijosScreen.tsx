@@ -24,6 +24,18 @@ const StyledCard: FC<StyledCardProps> = ({ label, image, navigation }) => {
       case 'Sėdėjimas':
         navigation.navigate('Sedejimas');
         break
+      case 'Vaikščiojimas':
+        navigation.navigate('Vaiksciojimas');
+        break
+      case 'Stovėjimas':
+        navigation.navigate('Stovejimas');
+        break
+      case 'Bėgimas':
+        navigation.navigate('Begimas');
+        break
+      case 'Gulėjimas':
+        navigation.navigate('Gulejimas');
+        break
       default:
         navigation.navigate('KonkretiRekomendacija');
 
