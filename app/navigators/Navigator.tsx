@@ -4,11 +4,12 @@ import React from "react"
 import { TextStyle, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Icon } from "../components"
-import { NustatymaiScreen, RekomendacijosScreen, StatistikaScreen, TikslaiScreen } from "../screens"
+import { NustatymaiScreen, StatistikaScreen, TikslaiScreen } from "../screens"
 import { colors, spacing, typography } from "../theme"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 import DataDisplay from '../screens/StateHistory';
 import Setstate from "app/screens/SetState"
+import { RekomendacijosNavigator } from "./RekomendacijosNavigator"
 
 export type DemoTabParamList = {
   DemoCommunity: undefined
@@ -81,7 +82,7 @@ export function Navigator() {
 
       <Tab.Screen
         name="Rekomendacijos"
-        component={RekomendacijosScreen}
+        component={RekomendacijosNavigator}
         options={{
           tabBarLabel: "Rekomendacijos",
           tabBarIcon: ({ focused }) => (
