@@ -4,6 +4,7 @@ import { Image, ImageStyle, TextStyle, ViewStyle, View, Pressable, ImageProps } 
 import { AppStackScreenProps } from "app/navigators"
 import { Button, Card, Screen, Text } from "app/components"
 import { colors, spacing } from "../theme"
+import { useNavigation } from "@react-navigation/native"
 
 // Image imports
 const Sitting = require("../../assets/images/Rekomendacijos/Sitting.png");
@@ -36,7 +37,8 @@ const StyledCard: FC<StyledCardProps> = ({ label, image, navigation }) => {
   );
 };
 
-export const RekomendacijosScreen: FC<RekomendacijosScreenProps> = observer(function RekomendacijosScreen({ navigation }) {
+export const RekomendacijosScreen: FC<RekomendacijosScreenProps> = observer(function RekomendacijosScreen() {
+  const navigation = useNavigation()
   return (
     <Screen safeAreaEdges={["top"]} contentContainerStyle={$container}>
       <Text style={$title} preset="heading" text="Rekomendacijos" />
