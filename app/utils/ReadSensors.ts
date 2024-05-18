@@ -386,7 +386,7 @@ public writeData = async (initialContent : string) => {
       }
 
       switch (initialContent){
-        case 'Sėdėjimas':
+        case 'sėdėjimas':
           var todaySitCount = Number((await load('todaySitCount')) || 0);
           todaySitCount++;
           await save('todaySitCount', todaySitCount);

@@ -26,7 +26,7 @@ export function startDataFetchingProcess(): void {
         Object.entries(entries).forEach(([key, { list, timestamp }]) => {
           console.log('list data:', list);
           if (list == 'Nejuda'){
-            sensorDataManager.writeData2('Sėdėjimas', timestamp);
+            sensorDataManager.writeData2('sėdėjimas', timestamp);
           }
           else {
             const dataList = list.split(',').map(Number);
