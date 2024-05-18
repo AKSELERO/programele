@@ -35,6 +35,8 @@ import React, { useEffect } from 'react';
 import {PermissionsAndroid, Platform, NativeModules } from 'react-native';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import { startDataFetchingProcess } from './utils/ReadCSVEntries';
+import startNotificationInterval from './utils/ScheduleNotifications';
+import PushNotification from 'react-native-push-notification';
 
 const { SensorService } = NativeModules;
 const filePath = './combinedData.csv';
@@ -77,6 +79,24 @@ function App(props: AppProps) {
     // No cleanup action needed since you want it to run indefinitely
   }, []);
   useEffect(() => {
+  //   PushNotification.createChannel(
+  //     {
+  //         channelId: "5", // replace with a suitable ID
+  //         channelName: "5", // replace with a suitable name
+  //         channelDescription: "5", // optional description
+  //         playSound: false, // (optional) default: true
+  //         soundName: "default", // (optional) See `soundName` parameter of `localNotification` function
+  //         importance: 4, // (optional) default: 4. Int value of the Android importance
+  //         vibrate: true, // (optional) default: true. Creates vibration pattern for notifications.
+  //     },
+  //     (created) => console.log(`CreateChannel5 returned '${created}'`) // (optional) callback returns whether the channel was created, false means it already existed.
+  //   );
+  //   PushNotification.localNotificationSchedule({
+  //     // your notification details
+  //     message: "Hello! This is a scheduled notification message!",
+  //     date: new Date(Date.now() + 10 * 1000), // Schedule for 5 seconds from now
+  //     channelId: "5", // Make sure this matches the channel ID used during channel creation
+  // });
     //SensorService.startService();
     // startBackgroundService().then(() => {
     //   console.log('Background service has been successfully started.');
@@ -91,6 +111,8 @@ function App(props: AppProps) {
           console.log("permission granted");
           SensorService.startService();
           startDataFetchingProcess();
+          startNotificationInterval();
+          //initBackgroundFetch();
           //monitorCsvFile(filePath);
           // startBackgroundService().then(() => {
           //   console.log('Background service has been successfully started.');
@@ -104,6 +126,8 @@ function App(props: AppProps) {
         console.log("No need for permissions")
         SensorService.startService();
         startDataFetchingProcess();
+        startNotificationInterval();
+        //initBackgroundFetch();
         //monitorCsvFile(filePath);
         // startBackgroundService().then(() => {
         //   console.log('Background service has been successfully started.');

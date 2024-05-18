@@ -15,7 +15,13 @@ import { appendDataToCSV } from './WriteToCSV';
 import BackgroundService from 'react-native-background-actions';
 import { DeviceEventEmitter, EventSubscription } from 'react-native';
 import { Mutex } from 'async-mutex';
+import PushNotification from 'react-native-push-notification';
+import { format } from 'date-fns'; 
 
+interface DataEntry {
+  content: string;
+  date: string;
+}
 
 interface SensorData {
   x: number;
@@ -94,13 +100,26 @@ export default class SensorDataManager {
   private modelUrl: string;
   private startTime : number;
   private mutex : Mutex;
+  private sitCount : number;
 
   private constructor() {
+    this.sitCount = 0;
     this.modelLoaded = false;
     this.modelUrl = 'https://drive.google.com/uc?export=download&id=1j8t-4VPG4s-ow4TvWzo5zr1CYVxRrJF8'; // onnx
     // const modelUrl = 'https://drive.google.com/uc?export=download&id=1_pTQnQgPkpj89kH9HePESt1ansr7HsPV'; //ort
     this.startTime = Date.now();
     this.mutex = new Mutex();
+    PushNotification.createChannel(
+      {
+        channelId: "your-channel-id", // Replace 'your-channel-id' with your channel ID
+        channelName: "Your Channel Name", // Replace 'Your Channel Name' with the name of your channel
+        channelDescription: "A channel to categorise your notifications", // Optional
+        soundName: "default", // Optional
+        importance: 4, // Default is 4
+        vibrate: true, // Default is true
+      },
+      (created) => console.log(`CreateChannelsit returned '${created}'`) // Optional callback returns whether the channel was created successfully
+    );
   }
 
   public static getInstance(): SensorDataManager {
@@ -336,6 +355,72 @@ public writeData = async (initialContent : string) => {
       // Load the current count from AsyncStorage and explicitly cast it to a number
       const count = Number((await load('entryCount')) || 0);
 
+      const prev = await load(`dataKey${count}`) as DataEntry;
+
+      var prevEntryIsSameDay = true;
+
+      if (prev){
+        prevEntryIsSameDay = !this.checkIfToday(prev)
+      }
+      console.log(prevEntryIsSameDay);
+      if (prevEntryIsSameDay){
+        var todaySitCount = Number((await load('todaySitCount')) || 0);
+        var todaySitCountNotInterupted = Number((await load('todaySitCountNotInterupted')) || 0);
+        var todayStandCount = Number((await load('todayStandCount')) || 0);
+        var todayWalkCount = Number((await load('todayWalkCount')) || 0);
+        var todayRunCount = Number((await load('todayRunCount')) || 0);
+        var todayLayCount = Number((await load('todayLayCount')) || 0);
+        todaySitCount = 0;
+        todaySitCountNotInterupted = 0;
+        todayStandCount = 0;
+        todayWalkCount = 0;
+        todayRunCount = 0;
+        todayLayCount = 0;
+        await save('todaySitCount', todaySitCount);
+        await save('todaySitCountNotInterupted', todaySitCountNotInterupted);
+        await save('todayStandCount', todayStandCount);
+        await save('todayWalkCount', todayWalkCount);
+        await save('todayRunCount', todayRunCount);
+        await save('todayLayCount', todayLayCount);
+
+      }
+
+      switch (initialContent){
+        case 'Sėdėjimas':
+          var todaySitCount = Number((await load('todaySitCount')) || 0);
+          todaySitCount++;
+          await save('todaySitCount', todaySitCount);
+          var todaySitCountNotInterupted = Number((await load('todaySitCountNotInterupted')) || 0);
+          todaySitCountNotInterupted++;
+          await save('todaySitCountNotInterupted', todaySitCountNotInterupted);
+          break;
+        case 'bėgimas':
+          var todayRunCount = Number((await load('todayRunCount')) || 0);
+          todayRunCount++;
+          await save('todayRunCount', todayRunCount);
+          var todaySitCountNotInterupted = Number((await load('todaySitCountNotInterupted')) || 0);
+          todaySitCountNotInterupted = 0;
+          await save('todaySitCountNotInterupted', todaySitCountNotInterupted);
+          break;
+        case 'ėjimas':
+          var todayWalkCount = Number((await load('todayWalkCount')) || 0);
+          todayWalkCount++;
+          await save('todayWalkCount', todayWalkCount);
+          var todaySitCountNotInterupted = Number((await load('todaySitCountNotInterupted')) || 0);
+          todaySitCountNotInterupted = 0;
+          await save('todaySitCountNotInterupted', todaySitCountNotInterupted);
+          break;
+        case 'stovėjimas':
+          var todayStandCount = Number((await load('todayStandCount')) || 0);
+          todayStandCount++;
+          await save('todayStandCount', todayStandCount);
+          var todaySitCountNotInterupted = Number((await load('todaySitCountNotInterupted')) || 0);
+          todaySitCountNotInterupted = 0;
+          await save('todaySitCountNotInterupted', todaySitCountNotInterupted);
+          break;
+
+      }
+
       // Create the key dynamically based on the count
       const key = `dataKey${count + 1}`;
 
@@ -357,6 +442,14 @@ public writeData = async (initialContent : string) => {
       } else {
         console.error('Failed to write data to AsyncStorage');
       }
+      // if (initialContent == 'sėdėjimas' || initialContent == 'Nejuda'){
+      //   this.sitCount++;
+        
+      // }
+      // else {
+      //   this.sitCount = 0;
+      // }
+      //this.checkForNotifications();
     } catch (error) {
       console.error('Error writing data to AsyncStorage:', error);
     }
@@ -364,6 +457,75 @@ public writeData = async (initialContent : string) => {
       release(); // Always release the mutex
     }
   };
+
+  private checkIfToday(entry: DataEntry): boolean {
+    const currentDate = new Date();
+    const formattedCurrentDate = format(currentDate, 'yyyy-MM-dd'); // Format today's date as "YYYY-MM-DD"
+    const entryDateOnly = entry.date.split(' ')[0]; // Extract only the date part from "YYYY-MM-DD HH:mm:ss"
+  
+    return entryDateOnly === formattedCurrentDate;
+  }
+
+  private checkForNotifications = async () => {
+    console.log(this.sitCount);
+    var walkCount = 0;
+    var sitCount = 0;
+    var sendBreakSittingNotification = false;
+    const count = Number((await load('entryCount')) || 0);
+    for (let i = count; i > 0; i--) {
+      const key = `dataKey${i}`;
+      const entry = await load(key) as DataEntry;
+      if (this.checkIfToday(entry)){
+        switch (entry.content){
+          case 'sėdėjimas':
+            sitCount++;
+            break;
+          case 'ėjimas':
+            walkCount++
+            break;
+          default: //pridėti kitom būsenom
+            break;
+        }
+        if (walkCount > 0){
+          console.log(sitCount)
+          const breakAfterSitting = 30 //min
+          if (sitCount / 4 >= breakAfterSitting){
+            sendBreakSittingNotification = true;
+          }
+        }
+      }
+      else {
+        break;
+      }
+    }
+
+    //sitting
+    if (sendBreakSittingNotification){
+      PushNotification.localNotification({
+        channelId: "your-channel-id",
+        title: "Metas Pajudėti!", // Title of the notification
+        message: Math.floor(sitCount / 4) + " minutes praleidote sėdėdami", // Message in the notification
+        playSound: true, // Sound to play on receipt of notification
+        soundName: "default", // Sound file name to play; use 'default' to play the default notification sound
+        vibration: 300, // Vibration duration in milliseconds, null to disable
+      });
+      // this.sitCount = 0;
+    }
+
+    const walkGoal = 30 //min
+
+    if (walkGoal > walkCount / 4){
+      PushNotification.localNotification({
+        channelId: "your-channel-id",
+        title: "Nepasiduokite ant savo tikslo", // Title of the notification
+        message: "Iki pasiekto tikslo jums dar trūksta " + (walkGoal-(walkCount / 4)) + " minučių ėjimo", // Message in the notification
+        playSound: true, // Sound to play on receipt of notification
+        soundName: "default", // Sound file name to play; use 'default' to play the default notification sound
+        vibration: 300, // Vibration duration in milliseconds, null to disable
+      });
+      // this.sitCount = 0;
+    }
+  }
 
   public calculateCombinedData = (accelerometerData: { x: number; y: number; z: number; }[], gyroscopeData: { x: number; y: number; z: number; }[]) => {
       console.log("Calculating combined data...");
