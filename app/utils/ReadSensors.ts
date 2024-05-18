@@ -31,6 +31,23 @@ interface SensorData {
   elapsedTime: number; // Seconds elapsed since reading started
 }
 
+interface Goal {
+  id: number
+  name: string
+  bendratis: string
+  enabled: boolean
+  timeFrame?: number // Hours
+  moreThan?: boolean // Is the goal less than or more than specified hours
+  goalHours?: number // Goal, specified in hours
+}
+
+interface Setting {
+  id: number,
+  name: string,
+  description?: string,
+  isTurnedOn: boolean
+}
+
 class ModelManager {
   private static instance: ModelManager;
   private modelSession: InferenceSession | null = null;
@@ -383,6 +400,12 @@ public writeData = async (initialContent : string) => {
         await save('todayRunCount', todayRunCount);
         await save('todayLayCount', todayLayCount);
 
+        await save('SėdėjimasGoal', false);
+        await save('StovėjimasGoal', false);
+        await save('VaikščiojimasGoal', false);
+        await save('BėgiojimasGoal', false);
+        await save('GulėjimasGoal', false);
+
       }
 
       switch (initialContent){
@@ -449,7 +472,7 @@ public writeData = async (initialContent : string) => {
       // else {
       //   this.sitCount = 0;
       // }
-      //this.checkForNotifications();
+      this.checkForNotifications();
     } catch (error) {
       console.error('Error writing data to AsyncStorage:', error);
     }
@@ -467,63 +490,55 @@ public writeData = async (initialContent : string) => {
   }
 
   private checkForNotifications = async () => {
-    console.log(this.sitCount);
-    var walkCount = 0;
-    var sitCount = 0;
-    var sendBreakSittingNotification = false;
-    const count = Number((await load('entryCount')) || 0);
-    for (let i = count; i > 0; i--) {
-      const key = `dataKey${i}`;
-      const entry = await load(key) as DataEntry;
-      if (this.checkIfToday(entry)){
-        switch (entry.content){
-          case 'sėdėjimas':
-            sitCount++;
-            break;
-          case 'ėjimas':
-            walkCount++
-            break;
-          default: //pridėti kitom būsenom
-            break;
-        }
-        if (walkCount > 0){
-          console.log(sitCount)
-          const breakAfterSitting = 30 //min
-          if (sitCount / 4 >= breakAfterSitting){
-            sendBreakSittingNotification = true;
+    const settings = await load("settings") as Setting[];
+    if (settings[0].isTurnedOn == true && settings[3].isTurnedOn == true){
+      const todaySitCount = Number((await load('todaySitCount')) || 0);
+      const todayStandCount = Number((await load('todayStandCount')) || 0);
+      const todayWalkCount = Number((await load('todayWalkCount')) || 0);
+      const todayRunCount = Number((await load('todayRunCount')) || 0);        
+      const todayLayCount = Number((await load('todayLayCount')) || 0);
+      console.log(todayRunCount);
+      const goals = await load("goals") as  Goal[];
+      goals.forEach(async element => {
+        if (element.enabled && element.moreThan){
+          const goalreached = Boolean(await load(element.name+'Goal'))
+          var goalCount = 0
+          switch (element.name){
+            case  'Sėdėjimas': 
+              goalCount = todaySitCount;
+              break;
+            case  'Vaikščiojimas': 
+              goalCount = todayWalkCount;
+              break;
+            case  'Bėgiojimas': 
+              console.log("goal reached ", goalreached);
+              goalCount = todayRunCount;            
+              break;
+            case  'Stovėjimas': 
+              goalCount = todayStandCount;
+              break;
+            case  'Gulėjimas': 
+              goalCount = todayLayCount;
+              break;
+            default:
+              break;
           }
+          if (element.goalHours as number <= goalCount / 4 && !goalreached){
+            PushNotification.localNotification({
+              channelId: "your-channel-id",
+              title: "Sveikiname", // Title of the notification
+              message: "Šiandienos Vaikščiojimo tikslas pasiektas", // Message in the notification
+              playSound: true, // Sound to play on receipt of notification
+              soundName: "default", // Sound file name to play; use 'default' to play the default notification sound
+              vibration: 300, // Vibration duration in milliseconds, null to disable
+            });
+            await save(element.name+'Goal', true);
         }
-      }
-      else {
-        break;
-      }
-    }
 
-    //sitting
-    if (sendBreakSittingNotification){
-      PushNotification.localNotification({
-        channelId: "your-channel-id",
-        title: "Metas Pajudėti!", // Title of the notification
-        message: Math.floor(sitCount / 4) + " minutes praleidote sėdėdami", // Message in the notification
-        playSound: true, // Sound to play on receipt of notification
-        soundName: "default", // Sound file name to play; use 'default' to play the default notification sound
-        vibration: 300, // Vibration duration in milliseconds, null to disable
+
+        }
       });
-      // this.sitCount = 0;
-    }
-
-    const walkGoal = 30 //min
-
-    if (walkGoal > walkCount / 4){
-      PushNotification.localNotification({
-        channelId: "your-channel-id",
-        title: "Nepasiduokite ant savo tikslo", // Title of the notification
-        message: "Iki pasiekto tikslo jums dar trūksta " + (walkGoal-(walkCount / 4)) + " minučių ėjimo", // Message in the notification
-        playSound: true, // Sound to play on receipt of notification
-        soundName: "default", // Sound file name to play; use 'default' to play the default notification sound
-        vibration: 300, // Vibration duration in milliseconds, null to disable
-      });
-      // this.sitCount = 0;
+      
     }
   }
 
