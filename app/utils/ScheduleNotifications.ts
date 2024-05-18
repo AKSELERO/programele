@@ -2,10 +2,26 @@ import PushNotification from 'react-native-push-notification';
 import { format } from 'date-fns'; 
 import { load, save } from './storage/storage';
 
+interface Goal {
+  id: number
+  name: string
+  bendratis: string
+  enabled: boolean
+  timeFrame?: number // Hours
+  moreThan?: boolean // Is the goal less than or more than specified hours
+  goalHours?: number // Goal, specified in hours
+}
+
 interface DataEntry {
     content: string;
     date: string;
-  }
+}
+  interface Setting {
+    id: number,
+    name: string,
+    description?: string,
+    isTurnedOn: boolean
+}
 
 // function checkIfToday(entry: DataEntry): boolean {
 //     const currentDate = new Date();
@@ -32,7 +48,10 @@ const sendTooMuchSittingNotification = async () => {
 
 const sendWalkingGoalNotification = async () => {
     var todayWalkCount = Number((await load('todayWalkCount')) || 0);
-    const walkGoal = 30
+    const goals = await load("goals") as  Goal[];
+    var walkGoal = goals[0].goalHours as number;
+    walkGoal = walkGoal * 60
+    //const isGoalDone = Boolean(await load('todayWalkGoal'))
     if (walkGoal > todayWalkCount / 4){
         PushNotification.localNotification({
           channelId: "your-channel-id",
@@ -43,6 +62,49 @@ const sendWalkingGoalNotification = async () => {
           vibration: 300, // Vibration duration in milliseconds, null to disable
         });
     }
+
+};
+
+const sendWalkingGoalDoneNotification = async () => {
+  var todayWalkCount = Number((await load('todayWalkCount')) || 0);
+  
+  const isGoalDone = Boolean(await load('todayWalkGoal'))
+  const goals = await load("goals") as  Goal[];
+  var walkGoal = goals[0].goalHours as number;
+  walkGoal = walkGoal * 60
+  if (walkGoal <= todayWalkCount / 4 && !isGoalDone){
+      PushNotification.localNotification({
+        channelId: "your-channel-id",
+        title: "Sveikiname", // Title of the notification
+        message: "Šiandienos Vaikščiojimo tikslas pasiektas", // Message in the notification
+        playSound: true, // Sound to play on receipt of notification
+        soundName: "default", // Sound file name to play; use 'default' to play the default notification sound
+        vibration: 300, // Vibration duration in milliseconds, null to disable
+      });
+      await save('todayWalkGoal', true);
+  }
+
+};
+
+const sendDailyStatisticsNotification = async () => {
+  const todaySitCount = Number((await load('todaySitCount')) || 0);
+  const todayStandCount = Number((await load('todayStandCount')) || 0);
+  const todayWalkCount = Number((await load('todayWalkCount')) || 0);
+  const todayRunCount = Number((await load('todayRunCount')) || 0);
+  const todayLayCount = Number((await load('todayLayCount')) || 0);
+  const total = todaySitCount + todayStandCount + todayWalkCount + todayRunCount + todayLayCount;
+  if (total != 0) {
+    PushNotification.localNotification({
+      channelId: "your-channel-id",
+      title: "Šiandienos statistika", // Title of the notification
+      message: "Sėdėjote - " + (todaySitCount*100/total).toFixed(2) + " %, Stovėjote - "  + (todayStandCount*100/total).toFixed(2) + " %, Vaikščiojote - "
+      + (todayWalkCount*100/total).toFixed(2) + " %, Bėgote - " +  (todayRunCount*100/total).toFixed(2) +  " %, Gulėjote - " +  (todayLayCount*100/total).toFixed(2) +  " %",// Message in the notification
+      playSound: true, // Sound to play on receipt of notification
+      soundName: "default", // Sound file name to play; use 'default' to play the default notification sound
+      vibration: 300, // Vibration duration in milliseconds, null to disable
+    });
+  }
+  
 
 };
 
@@ -69,15 +131,34 @@ const configurePushNotifications = () => {
 };
 
 // Function to start the notification interval
-const startNotificationInterval = () => {
+const startNotificationInterval = async () => {
   configurePushNotifications();
-
+  
   // Set the interval to send notification every 15 minutes (900,000 milliseconds)
-  setInterval(() => {
-    sendTooMuchSittingNotification();
+  setInterval(async () =>  {
+    const settings = await load("settings") as Setting[];
+    if (settings[0].isTurnedOn == true && settings[4].isTurnedOn == true){
+      sendTooMuchSittingNotification();
+    }
+    
   }, 180000);
-  setInterval(() => {
-    sendWalkingGoalNotification();
+  setInterval(async () => {
+    const settings = await load("settings") as Setting[];
+    if (settings[0].isTurnedOn == true && settings[2].isTurnedOn == true){
+      sendWalkingGoalNotification();
+    }
+  }, 180000);
+  // setInterval(async () => {
+  //   const settings = await load("settings") as Setting[];
+  //   if (settings[0].isTurnedOn == true && settings[3].isTurnedOn == true){
+  //     sendWalkingGoalDoneNotification();
+  //   }
+  // }, 180000);
+  setInterval(async () => {
+    const settings = await load("settings") as Setting[];
+    if (settings[0].isTurnedOn == true && settings[1].isTurnedOn == true){
+      sendDailyStatisticsNotification();
+    }
   }, 180000);
 };
 
