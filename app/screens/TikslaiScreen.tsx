@@ -1,15 +1,16 @@
-import React, { FC, useState } from "react"
+import React, { FC, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle, TextStyle } from "react-native"
 import { AppStackScreenProps } from "app/navigators"
 import { Screen, Button, TextField, Text, Toggle, ToggleProps } from "app/components"
 import { colors, spacing } from "../theme"
+import { load, save } from "app/utils/storage"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "app/models"
 
 interface TikslaiScreenProps extends AppStackScreenProps<"Tikslai"> { }
 
-interface Goal {
+export interface Goal {
   id: number
   name: string
   bendratis: string
@@ -23,46 +24,46 @@ const initGoals = [
   {
     name: "Vaikščiojimas",
     bendratis: "vaikščioti",
-    enabled: false,
+    enabled: true,
     timeFrame: 24,
     moreThan: true,
-    goalHours: 2,
+    goalHours: 3,
     id: 0
   },
   {
     name: "Bėgiojimas",
     bendratis: "bėgioti",
-    enabled: false,
+    enabled: true,
     timeFrame: 24,
     moreThan: true,
-    goalHours: 2,
+    goalHours: 1,
     id: 1
   },
   {
     name: "Sėdėjimas",
     bendratis: "sėdėti",
-    enabled: false,
+    enabled: true,
     timeFrame: 24,
-    moreThan: true,
-    goalHours: 2,
+    moreThan: false,
+    goalHours: 4,
     id: 2
   },
   {
     name: "Stovėjimas",
     bendratis: "stovėti",
-    enabled: false,
+    enabled: true,
     timeFrame: 24,
     moreThan: true,
-    goalHours: 2,
+    goalHours: 4,
     id: 3
   },
   {
     name: "Gulėjimas",
     bendratis: "gulėti",
-    enabled: false,
+    enabled: true,
     timeFrame: 24,
-    moreThan: true,
-    goalHours: 2,
+    moreThan: false,
+    goalHours: 12,
     id: 4
   },
 ]
@@ -75,6 +76,28 @@ function ControlledToggle({ value, onChange, ...props }: ToggleProps & { value: 
 export const TikslaiScreen: FC<TikslaiScreenProps> = observer(function TikslaiScreen() {
   const [goalData, setGoalData] = useState<Goal[]>(initGoals)
 
+  const loadGoals = async () => {
+    const goals: Goal[] = await load("goals");
+    if (goals) {
+      // console.log("Loaded goals: " + JSON.stringify(goals));
+      console.log("Successfully loaded goals")
+      setGoalData(goals);
+    } else {
+      console.log("Couldn't load goals, initialising new ones");
+      saveGoals(initGoals);
+    }
+  }
+
+  const saveGoals = (goalData: Goal[]) => {
+    // console.log("Saving goals: " + JSON.stringify(goalData));
+    console.log("Saving goals");
+    save("goals", goalData)
+  }
+
+  useEffect(() => {
+    loadGoals();
+  }, [])
+
   const updateGoal = (id: number, changes: {}) => {
     const updatedGoals = goalData.map(goal => {
       if (goal.id === id) {
@@ -83,6 +106,7 @@ export const TikslaiScreen: FC<TikslaiScreenProps> = observer(function TikslaiSc
       return goal;
     });
     setGoalData(updatedGoals);
+    saveGoals(updatedGoals)
   };
 
   const renderGoal = (goal: Goal) => {
@@ -102,14 +126,14 @@ export const TikslaiScreen: FC<TikslaiScreenProps> = observer(function TikslaiSc
       if (goal.enabled) {
         return (
           <View style={$expandedContainer}>
-            <Text>Per {goal.timeFrame}h noriu {goal.bendratis} ne {goal.moreThan ? "daugiau" : "mažiau"} nei {goal.goalHours}h</Text>
+            <Text>Per {goal.timeFrame}h noriu {goal.bendratis} {goal.moreThan ? "daugiau" : "mažiau"} nei {goal.goalHours}h</Text>
             <View style={$dividerContainer}>
               <View style={$divider}></View>
             </View>
             <View style={$optionRow}>
               <Text>Tikslo tipas</Text>
               <Button
-                text={goal.moreThan ? "Ne daugiau" : "Ne mažiau"}
+                text={goal.moreThan ? "daugiau" : "mažiau"}
                 onPress={() => updateGoal(goal.id, { moreThan: !goal.moreThan })}
                 preset="option"
               />

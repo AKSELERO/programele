@@ -6,11 +6,11 @@ import { Asset } from 'expo-asset';
 
   import AsyncStorageUpdater from './StoreState';
   import { load, save } from './storage/storage';
-import { write } from 'react-native-fs';
+import RNFS, { write } from 'react-native-fs';
 import loadModelFromCloud from './loadModel'
-import RNFS from 'react-native-fs';
-import { Tensor } from 'onnxruntime-react-native';
-import { InferenceSession } from 'onnxruntime-react-native';
+
+import { Tensor , InferenceSession } from 'onnxruntime-react-native';
+
 import { appendDataToCSV } from './WriteToCSV';
 import BackgroundService from 'react-native-background-actions';
 import { DeviceEventEmitter, EventSubscription } from 'react-native';
@@ -73,7 +73,7 @@ class ModelManager {
 
     try {
       const output = await this.modelSession.run(feeds, ["output_label"]);
-      const predictionResult = output["output_label"].data;
+      const predictionResult = output.output_label.data;
       console.log("Prediction result: ", predictionResult);
 
       return predictionResult; // Return the prediction result
@@ -96,7 +96,7 @@ export default class SensorDataManager {
   // private gyroscopeSubscription: any;
   private accelerometerSubscription: EventSubscription | null = null;
   private gyroscopeSubscription: EventSubscription | null = null;
-  private modelLoaded: Boolean;
+  private modelLoaded: boolean;
   private modelUrl: string;
   private startTime : number;
   private mutex : Mutex;
@@ -105,8 +105,8 @@ export default class SensorDataManager {
   private constructor() {
     this.sitCount = 0;
     this.modelLoaded = false;
-    this.modelUrl = 'https://drive.google.com/uc?export=download&id=1j8t-4VPG4s-ow4TvWzo5zr1CYVxRrJF8'; //onnx
-    //const modelUrl = 'https://drive.google.com/uc?export=download&id=1_pTQnQgPkpj89kH9HePESt1ansr7HsPV'; //ort
+    this.modelUrl = 'https://drive.google.com/uc?export=download&id=1j8t-4VPG4s-ow4TvWzo5zr1CYVxRrJF8'; // onnx
+    // const modelUrl = 'https://drive.google.com/uc?export=download&id=1_pTQnQgPkpj89kH9HePESt1ansr7HsPV'; //ort
     this.startTime = Date.now();
     this.mutex = new Mutex();
     PushNotification.createChannel(
@@ -250,6 +250,13 @@ public runInference2 = async (combinedData: number[], time: string) => {
       if (!this.modelLoaded) {
         await modelManager.loadModel(this.modelUrl);
         this.modelLoaded = true;
+      }
+      if (combinedData.length === 24) {
+        console.log("Combined data length too short. Gyroscope is probably missing.")
+        const newCombinedData = combinedData;
+        combinedData.forEach((num) => {newCombinedData.push(num)})
+        combinedData = newCombinedData
+        
       }
       if (combinedData.length == 48){
         const inputData = new Float32Array(combinedData);
@@ -523,7 +530,7 @@ public writeData = async (initialContent : string) => {
   public calculateCombinedData = (accelerometerData: { x: number; y: number; z: number; }[], gyroscopeData: { x: number; y: number; z: number; }[]) => {
       console.log("Calculating combined data...");
       const combinedData: number[] = [];
-      //console.log("Accelerometer data: ")
+      // console.log("Accelerometer data: ")
       // accelerometerData.forEach((ob) => {
       //   console.log(`X: ${ob.x}, Y: ${ob.y}, Z: ${ob.z}`)
       // })
@@ -548,7 +555,7 @@ public writeData = async (initialContent : string) => {
       }
 
       // Calculate statistics for gyroscope data
-      //gyroscopeData = accelerometerData
+      // gyroscopeData = accelerometerData
       // gyroscopeData.forEach((ob) => {
       //   console.log(`X: ${ob.x}, Y: ${ob.y}, Z: ${ob.z}`)
       // })
@@ -593,6 +600,7 @@ public writeData = async (initialContent : string) => {
 
       return combinedData;
   };
+
   public calculateAxisStats = (data: number[]) => {
       const sum = data.reduce((acc, val) => acc + val, 0);
       const mean = sum / data.length;
@@ -678,7 +686,7 @@ public writeData = async (initialContent : string) => {
 //   }
 //   return modelLoaded;
 // }
-/////////////////////////////////////////
+/// //////////////////////////////////////
 // const SensorDataRecorder: React.FC = () => {
 //     const [accelerometerData, setAccelerometerData] = useState<SensorData[]>([]);
 //     const accelerometerDataRef = useRef<SensorData[]>(accelerometerData);

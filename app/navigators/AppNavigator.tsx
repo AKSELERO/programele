@@ -44,6 +44,11 @@ export type AppStackParamList = {
   KonkretiRekomendacija: undefined
   Statistika: undefined
   Tikslai: undefined
+  Sedejimas: undefined
+  Vaiksciojimas: undefined
+  Stovejimas: undefined
+  Begimas: undefined
+  Gulejimas: undefined
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
 
@@ -88,7 +93,7 @@ const AppStack = observer(function AppStack() {
       )}
       {/* @demo remove-block-end */}
       {/** 🔥 Your screens go here */}
-      
+
       <Stack.Screen name="Nustatymai" component={Screens.NustatymaiScreen} />
       <Stack.Screen name="Rekomendacijos" component={Screens.RekomendacijosScreen} />
       <Stack.Screen name="KonkretiRekomendacija" component={Screens.KonkretiRekomendacijaScreen} />
@@ -100,7 +105,7 @@ const AppStack = observer(function AppStack() {
 })
 
 export interface NavigationProps
-  extends Partial<React.ComponentProps<typeof NavigationContainer>> {}
+  extends Partial<React.ComponentProps<typeof NavigationContainer>> { }
 
 export const AppNavigator = observer(function AppNavigator(props: NavigationProps) {
   const colorScheme = useColorScheme()
