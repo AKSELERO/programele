@@ -6,6 +6,13 @@ Netestavau setupo nuo nulio, gali būt kad reikės kažką pasidaryt papildomai.
 
 Ignite naudoja expo, todėl galbūt nereikės viso to android studio instaliacijos proceso. Man prijungus telefoną su laidu prie kompo su `npm start` instaliavo viską ko reikėjo (į telefoną).
 
+# Buildinimas
+1. cd android
+2. ./gradlew assembleRelease
+3. Outputas: `android/app/build/outputs/apk/release/app-release.apk`
+
+"Make sure you have Android Studio installed on your machine. This includes the necessary Android SDK and build tools."
+
 # Welcome to your new ignited app!
 
 [![CircleCI](https://circleci.com/gh/infinitered/ignite.svg?style=svg)](https://circleci.com/gh/infinitered/ignite)
