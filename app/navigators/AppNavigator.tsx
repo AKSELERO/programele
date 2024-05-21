@@ -78,22 +78,8 @@ const AppStack = observer(function AppStack() {
       screenOptions={{ headerShown: false, navigationBarColor: colors.background }}
       initialRouteName={isAuthenticated ? "Welcome" : "Login"} // @demo remove-current-line
     >
-      {/* @demo remove-block-start */}
-      {isAuthenticated ? (
-        <>
-          {/* @demo remove-block-end */}
-          <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
-          {/* @demo remove-block-start */}
-          <Stack.Screen name="Demo" component={Navigator} />
-        </>
-      ) : (
-        <>
-          <Stack.Screen name="Login" component={Screens.LoginScreen} />
-        </>
-      )}
-      {/* @demo remove-block-end */}
-      {/** 🔥 Your screens go here */}
-
+      <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
+      <Stack.Screen name="Demo" component={Navigator} />
       <Stack.Screen name="Nustatymai" component={Screens.NustatymaiScreen} />
       <Stack.Screen name="Rekomendacijos" component={Screens.RekomendacijosScreen} />
       <Stack.Screen name="KonkretiRekomendacija" component={Screens.KonkretiRekomendacijaScreen} />

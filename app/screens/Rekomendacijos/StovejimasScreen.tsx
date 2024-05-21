@@ -1,6 +1,6 @@
 import React, { FC } from "react"
 import { observer } from "mobx-react-lite"
-import { Image, TextStyle, View, ViewStyle } from "react-native"
+import { Image, TextStyle, View, ViewStyle, Linking, Pressable } from "react-native"
 import { AppStackScreenProps } from "app/navigators"
 import { Screen, Text } from "app/components"
 import { colors, spacing } from "app/theme"
@@ -35,7 +35,9 @@ export const StovejimasScreen: FC<StovejimasScreenProps> = observer(function Sto
 
           </View>
         </View>
-
+        <Pressable onPress={() => Linking.openURL("https://www.sundried.com/blogs/training/is-standing-too-long-bad-for-you?currency=GBP")}>
+          <Text style={$link} text="Šaltinis"></Text>
+        </Pressable>
       </View>
 
     </Screen>
@@ -81,4 +83,11 @@ const $imageContainer: ViewStyle = {
 const $image: ViewStyle = {
   width: 300,
   height: 300
+}
+
+const $link: TextStyle = {
+  color: colors.palette.primary500,
+  marginTop: spacing.lg,
+  textAlign: "right",
+  textDecorationLine: "underline"
 }

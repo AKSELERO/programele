@@ -1,6 +1,6 @@
 import React, { FC } from "react"
 import { observer } from "mobx-react-lite"
-import { Image, TextStyle, View, ViewStyle } from "react-native"
+import { Image, TextStyle, View, ViewStyle, Linking, Pressable } from "react-native"
 import { AppStackScreenProps } from "app/navigators"
 import { Screen, Text } from "app/components"
 import { colors, spacing } from "app/theme"
@@ -84,7 +84,9 @@ export const SedejimasScreen: FC<SedejimasScreenProps> = observer(function Sedej
             <Text text={`\u2022 nugaros problemos`}></Text>
           </View>
         </View>
-
+        <Pressable onPress={() => Linking.openURL("https://www.medicalnewstoday.com/articles/sitting-down-all-day#effects")}>
+          <Text style={$link} text="Šaltinis"></Text>
+        </Pressable>
       </View>
 
     </Screen>
@@ -130,4 +132,11 @@ const $imageContainer: ViewStyle = {
 const $image: ViewStyle = {
   width: 300,
   height: 300
+}
+
+const $link: TextStyle = {
+  color: colors.palette.primary500,
+  marginTop: spacing.lg,
+  textAlign: "right",
+  textDecorationLine: "underline"
 }

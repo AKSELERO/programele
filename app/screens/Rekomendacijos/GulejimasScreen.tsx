@@ -1,6 +1,6 @@
 import React, { FC } from "react"
 import { observer } from "mobx-react-lite"
-import { Image, TextStyle, View, ViewStyle } from "react-native"
+import { Image, TextStyle, View, ViewStyle, Linking, Pressable } from "react-native"
 import { AppStackScreenProps } from "app/navigators"
 import { Screen, Text } from "app/components"
 import { colors, spacing } from "app/theme"
@@ -19,7 +19,6 @@ export const GulejimasScreen: FC<GulejimasScreenProps> = observer(function Gulej
           <Text preset="subheading" text="Trumpai"></Text>
           <Text text="Kadangi rekomenduojamas miego laikas per parą yra 8 valandos, nepertraukiamas gulėjimo laikas neturėtų būti trumpesnis. Neskaitant miego, gulint rekomenduojama praleisti kuo mažiau laiko."></Text>
         </View>
-
       </View>
     </Screen>
   )
@@ -64,4 +63,11 @@ const $imageContainer: ViewStyle = {
 const $image: ViewStyle = {
   width: 300,
   height: 300
+}
+
+const $link: TextStyle = {
+  color: colors.palette.primary500,
+  marginTop: spacing.lg,
+  textAlign: "right",
+  textDecorationLine: "underline"
 }

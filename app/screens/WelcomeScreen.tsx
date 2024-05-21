@@ -5,38 +5,24 @@ import {
   Button, // @demo remove-current-line
   Text,
 } from "app/components"
-import { isRTL } from "../i18n"
-import { useStores } from "../models" // @demo remove-current-line
 import { AppStackScreenProps } from "../navigators"
 import { colors, spacing } from "../theme"
-import { useHeader } from "../utils/useHeader" // @demo remove-current-line
 import { useSafeAreaInsetsStyle } from "../utils/useSafeAreaInsetsStyle"
 
-const welcomeLogo = require("../../assets/images/logo.png")
-const welcomeFace = require("../../assets/images/welcome-face.png")
+const welcomeLogo = require("../../assets/images/GlimLogoTransparentText.png")
 
-interface WelcomeScreenProps extends AppStackScreenProps<"Welcome"> {}
+interface WelcomeScreenProps extends AppStackScreenProps<"Welcome"> { }
 
 export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeScreen(
   _props, // @demo remove-current-line
 ) {
   // @demo remove-block-start
   const { navigation } = _props
-  const {
-    authenticationStore: { logout },
-  } = useStores()
 
   function goNext() {
     navigation.navigate("Demo", { screen: "DemoShowroom", params: {} })
   }
 
-  useHeader(
-    {
-      rightTx: "common.logOut",
-      onRightPress: logout,
-    },
-    [logout],
-  )
   // @demo remove-block-end
 
   const $bottomContainerInsets = useSafeAreaInsetsStyle(["bottom"])
@@ -45,18 +31,19 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
     <View style={$container}>
       <View style={$topContainer}>
         <Image style={$welcomeLogo} source={welcomeLogo} resizeMode="contain" />
-        <Text
-          testID="welcome-heading"
-          style={$welcomeHeading}
-          text="Programėlė pasiruošusi."
-          preset="heading"
-        />
-        <Text text="Ar pasiruošei tu?" preset="subheading" />
-        <Image style={$welcomeFace} source={welcomeFace} resizeMode="contain" />
+        <View style={$welcomeTextHeading}>
+          <Text
+            testID="welcome-heading"
+            style={$welcomeHeading}
+            text="Sveikiname atvykus!"
+            preset="heading"
+          />
+          <Text text="Tai pirmas žingsnis į geros savijautos rytojų." style={$welcomeHeading} preset="subheading" />
+        </View>
       </View>
 
       <View style={[$bottomContainer, $bottomContainerInsets]}>
-        <Text text="Tarp tavęs ir naujo gyvenimo tik vienas mygtukas." size="md" />
+        <Text text="Įvesk savo sveikatingumo tikslus, o mes tau padėsime juos įvykdyti!" size="md" />
         {/* @demo remove-block-start */}
         <Button
           style={$buttonStyle}
@@ -73,7 +60,7 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
 
 const $buttonStyle: ViewStyle = {
   backgroundColor: "#006622",
-  
+
 }
 
 const $container: ViewStyle = {
@@ -100,20 +87,19 @@ const $bottomContainer: ViewStyle = {
   justifyContent: "space-around",
 }
 const $welcomeLogo: ImageStyle = {
-  height: 88,
+  height: 150,
   width: "100%",
-  marginBottom: spacing.xxl,
+  marginBottom: spacing.xl,
 }
 
-const $welcomeFace: ImageStyle = {
-  height: 169,
-  width: 269,
-  position: "absolute",
-  bottom: -47,
-  right: -80,
-  transform: [{ scaleX: isRTL ? -1 : 1 }],
+
+const $welcomeTextHeading: ViewStyle = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center"
 }
 
 const $welcomeHeading: TextStyle = {
   marginBottom: spacing.md,
+  textAlign: "center"
 }
