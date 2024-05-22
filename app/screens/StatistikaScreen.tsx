@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { View, ViewStyle, TextStyle } from "react-native"
+import { View, ViewStyle, TextStyle, Pressable } from "react-native"
 import { AppStackScreenProps } from "app/navigators"
 import { Button, Icon, Screen, Text } from "app/components"
 import { colors, spacing, typography } from "../theme"
@@ -115,11 +115,21 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
     end: currentDate,
   });
 
+  enum Activities {
+    BEGIMAS = "bėgimas",
+    SEDEJIMAS = "sėdėjimas",
+    VAIKSCIOJIMAS = "vaikščiojimas",
+    STOVEJIMAS = "stovėjimas",
+    GULEJIMAS = "gulėjimas"
+  }
+
+  const [selectedActivity, setSelectedActivity] = useState(Activities.SEDEJIMAS)
+
   useEffect(() => {
     fetchData();
     console.log("Loading goals");
     loadGoals();
-  }, [statisticsDateRange])
+  }, [statisticsDateRange, selectedActivity])
 
 
   const StatisticsRange = () => {
@@ -234,17 +244,9 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
     );
   }
 
-  enum Activities {
-    BEGIMAS = "bėgimas",
-    SEDEJIMAS = "sėdėjimas",
-    VAIKSCIOJIMAS = "vaikščiojimas",
-    STOVEJIMAS = "stovėjimas",
-    GULEJIMAS = "gulėjimas"
-  }
+
 
   const BarChartSection = () => {
-    const [selectedActivity, setSelectedActivity] = useState(Activities.SEDEJIMAS)
-
     const filterDataPoints = (
       dateRange: DateRange,
       data: StoredData[],
@@ -350,12 +352,12 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
 
     return (
       <View style={$barChartContainer}>
-        <View style={$barChartTitleContainer}>
+        <Pressable onPress={() => { selectedActivity === Activities.BEGIMAS ? setSelectedActivity(Activities.SEDEJIMAS) : setSelectedActivity(Activities.BEGIMAS) }} style={$barChartTitleContainer}>
           <Text style={$barChartTitle} preset="subheading">{selectedActivity[0].toUpperCase() + selectedActivity.substring(1)}</Text>
           <View style={$barChartTitleIcon}>
             <Icon icon="caretRight"></Icon>
           </View>
-        </View>
+        </Pressable>
         <View style={$barChartWithLabel}>
           <Text style={$barChartYAxisLabel}>Valandos</Text>
           <BarChart
