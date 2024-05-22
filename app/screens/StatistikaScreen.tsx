@@ -122,6 +122,7 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
     STOVEJIMAS = "stovėjimas",
     GULEJIMAS = "gulėjimas"
   }
+  const activitiesArray = Object.values(Activities);
 
   const [selectedActivity, setSelectedActivity] = useState(Activities.SEDEJIMAS)
 
@@ -250,6 +251,12 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
 
 
   const BarChartSection = () => {
+    const handleChangeActivity = () => {
+      const currentIndex = activitiesArray.indexOf(selectedActivity);
+      const nextIndex = (currentIndex + 1) % activitiesArray.length;
+      setSelectedActivity(activitiesArray[nextIndex]);
+    };
+
     const filterDataPoints = (
       dateRange: DateRange,
       data: StoredData[],
@@ -355,7 +362,7 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
 
     return (
       <View style={$barChartContainer}>
-        <Pressable onPress={() => { selectedActivity === Activities.BEGIMAS ? setSelectedActivity(Activities.SEDEJIMAS) : setSelectedActivity(Activities.BEGIMAS) }} style={$barChartTitleContainer}>
+        <Pressable onPress={handleChangeActivity} style={$barChartTitleContainer}>
           <Text style={$barChartTitle} preset="subheading">{selectedActivity[0].toUpperCase() + selectedActivity.substring(1)}</Text>
           <View style={$barChartTitleIcon}>
             <Icon icon="caretRight"></Icon>
