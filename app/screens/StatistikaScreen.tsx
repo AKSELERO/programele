@@ -103,12 +103,6 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
     }
   }
 
-  useEffect(() => {
-    fetchData();
-    console.log("Loading goals");
-    loadGoals();
-  }, [])
-
   // Get the current date
   const currentDate = new Date();
 
@@ -120,6 +114,13 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
     start: sevenDaysAgo,
     end: currentDate,
   });
+
+  useEffect(() => {
+    fetchData();
+    console.log("Loading goals");
+    loadGoals();
+  }, [statisticsDateRange])
+
 
   const StatisticsRange = () => {
     const [openStartDatepicker, setOpenStartDatepicker] = useState(false)
