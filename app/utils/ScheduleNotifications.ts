@@ -242,7 +242,7 @@ const startNotificationInterval = async () => {
     if (settings[0].isTurnedOn == true && settings[2].isTurnedOn == true){
       sendUnreachedGoalNotification();
     }
-  }, 60000);
+  }, 180000);
   // setInterval(async () => {
   //   const settings = await load("settings") as Setting[];
   //   if (settings[0].isTurnedOn == true && settings[3].isTurnedOn == true){
