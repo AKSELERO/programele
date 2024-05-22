@@ -497,7 +497,6 @@ public writeData = async (initialContent : string) => {
       const todayWalkCount = Number((await load('todayWalkCount')) || 0);
       const todayRunCount = Number((await load('todayRunCount')) || 0);        
       const todayLayCount = Number((await load('todayLayCount')) || 0);
-      console.log(todayRunCount);
       const goals = await load("goals") as  Goal[];
       goals.forEach(async element => {
         if (element.enabled && element.moreThan){
@@ -511,7 +510,6 @@ public writeData = async (initialContent : string) => {
               goalCount = todayWalkCount;
               break;
             case  'Bėgiojimas': 
-              console.log("goal reached ", goalreached);
               goalCount = todayRunCount;            
               break;
             case  'Stovėjimas': 
@@ -523,7 +521,7 @@ public writeData = async (initialContent : string) => {
             default:
               break;
           }
-          if (element.goalHours as number <= goalCount / 4 && !goalreached){
+          if (element.goalHours as number * 60 as number <= goalCount / 4 && !goalreached){
             PushNotification.localNotification({
               channelId: "your-channel-id",
               title: "Sveikiname", // Title of the notification

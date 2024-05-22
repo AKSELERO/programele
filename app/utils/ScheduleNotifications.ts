@@ -34,11 +34,34 @@ interface DataEntry {
 // Function to create a local notification
 const sendTooMuchSittingNotification = async () => {
     const todaySitCountNotInterupted = Number((await load('todaySitCountNotInterupted')) || 0);
+    console.log("Sitting count uninterupted:", todaySitCountNotInterupted);
     if (todaySitCountNotInterupted / 4 >= 3){
+      var remainingMinutes = Math.floor(todaySitCountNotInterupted / 4);
+      var hours = Math.floor(remainingMinutes / 60);
+      var minutes = remainingMinutes % 60;
+
+      var hoursMessage = " valandas ir ";
+      var minutesMessage = " minutes";
+
+      if (hours == 1){
+        hoursMessage = " valandą ir ";
+      }
+      if (minutes == 1){
+        minutesMessage = " minutę";
+      }
+
+      var timeMessage;
+      if (hours > 0 && minutes > 0) {
+        timeMessage = hours + hoursMessage + minutes + minutesMessage;
+      } else if (minutes > 0 && hours <= 0) {
+        timeMessage = minutes + minutesMessage;
+      } else if (hours > 0 && minutes <= 0) {
+        timeMessage = hours + hoursMessage.substring(0, hoursMessage.length-4);
+      }
         PushNotification.localNotification({
             channelId: "reminder",
             title: "Metas Pajudėti!", // Title of the notification
-            message: Math.floor(todaySitCountNotInterupted / 4) + " minutes praleidote sėdėdami", // Message in the notification
+            message: timeMessage + " praleidote sėdėdami", // Message in the notification
             playSound: true, // Sound to play on receipt of notification
             soundName: "default", // Sound file name to play; use 'default' to play the default notification sound
             vibration: 300, // Vibration duration in milliseconds, null to disable
@@ -46,22 +69,94 @@ const sendTooMuchSittingNotification = async () => {
     }
 };
 
-const sendWalkingGoalNotification = async () => {
-    var todayWalkCount = Number((await load('todayWalkCount')) || 0);
+const sendUnreachedGoalNotification = async () => {
+    const todaySitCount = Number((await load('todaySitCount')) || 0);
+    const todayStandCount = Number((await load('todayStandCount')) || 0);
+    const todayWalkCount = Number((await load('todayWalkCount')) || 0);
+    const todayRunCount = Number((await load('todayRunCount')) || 0);
+    const todayLayCount = Number((await load('todayLayCount')) || 0);
+
+    //var todayWalkCount = Number((await load('todayWalkCount')) || 0);
     const goals = await load("goals") as  Goal[];
-    var walkGoal = goals[0].goalHours as number;
-    walkGoal = walkGoal * 60
-    //const isGoalDone = Boolean(await load('todayWalkGoal'))
-    if (walkGoal > todayWalkCount / 4){
+    var walkGoal = goals[0].goalHours as number * 60;
+    var runGoal = goals[1].goalHours as number * 60;
+    var sitGoal = goals[2].goalHours as number * 60;
+    var standGoal = goals[3].goalHours as number * 60;
+    var layGoal = goals[4].goalHours as number * 60;
+
+    var furthestGoalTime = 0;
+    var furthestGoal = null;
+
+    if (goals[0].moreThan){
+      if (walkGoal-todayWalkCount/4 > 0 && walkGoal-todayWalkCount/4>furthestGoalTime){
+        furthestGoalTime = walkGoal-todayWalkCount/4
+        furthestGoal = goals[0];
+      }
+    }
+    if (goals[1].moreThan){
+      if (runGoal-todayRunCount/4 > 0 && runGoal-todayRunCount/4>furthestGoalTime){
+        furthestGoalTime = runGoal-todayRunCount/4
+        furthestGoal = goals[1];
+      }
+    }
+    if (goals[2].moreThan){
+      if (sitGoal-todaySitCount/4 > 0 && sitGoal-todaySitCount/4>furthestGoalTime){
+        furthestGoalTime = sitGoal-todaySitCount/4
+        furthestGoal = goals[2];
+      }
+    }
+    if (goals[3].moreThan){
+      if (standGoal-todayStandCount/4 > 0 && standGoal-todayStandCount/4>furthestGoalTime){
+        furthestGoalTime = standGoal-todayStandCount/4
+        furthestGoal = goals[3];
+      }
+    }
+    if (goals[4].moreThan){
+      if (layGoal-todayLayCount/4 > 0 && layGoal-todayLayCount/4>furthestGoalTime){
+        furthestGoalTime = layGoal-todayLayCount/4
+        furthestGoal = goals[4];
+      }
+    }
+    console.log("got here");
+    console.log(furthestGoal);
+    if (furthestGoal){
+      walkGoal = furthestGoal.goalHours as number * 60
+      //const isGoalDone = Boolean(await load('todayWalkGoal'))
+      if (/*walkGoal > todayWalkCount / 4*/ true) {
+        var remainingMinutes = Math.floor(furthestGoalTime);
+        var hours = Math.floor(remainingMinutes / 60);
+        var minutes = remainingMinutes % 60;
+
+        var hoursMessage = " valandų ir ";
+        var minutesMessage = " minučių";
+
+        if (hours == 1){
+          hoursMessage = " valandos ir ";
+        }
+        if (minutes == 1){
+          minutesMessage = " minutės";
+        }
+
+        var timeMessage;
+        if (hours > 0 && minutes > 0) {
+          timeMessage = hours + hoursMessage + minutes + minutesMessage;
+        } else if (minutes > 0 && hours <= 0) {
+          timeMessage = minutes + minutesMessage;
+        } else if (hours > 0 && minutes <= 0) {
+          timeMessage = hours + hoursMessage.substring(0, hoursMessage.length-4);
+        }
+      
         PushNotification.localNotification({
           channelId: "your-channel-id",
-          title: "Nepasiduokite ant savo tikslo", // Title of the notification
-          message: "Iki pasiekto tikslo jums dar trūksta " + Math.floor(walkGoal-(todayWalkCount / 4)) + " minučių ėjimo", // Message in the notification
+          title: "Nepasiduokite ant savo " + furthestGoal.name.substring(0, furthestGoal.name.length-2)+ "o" +  " tikslo", // Title of the notification
+          message: "Iki pasiekto tikslo jums dar trūksta " + timeMessage, // Message in the notification
           playSound: true, // Sound to play on receipt of notification
           soundName: "default", // Sound file name to play; use 'default' to play the default notification sound
           vibration: 300, // Vibration duration in milliseconds, null to disable
         });
+      }
     }
+    
 
 };
 
@@ -145,7 +240,7 @@ const startNotificationInterval = async () => {
   setInterval(async () => {
     const settings = await load("settings") as Setting[];
     if (settings[0].isTurnedOn == true && settings[2].isTurnedOn == true){
-      sendWalkingGoalNotification();
+      sendUnreachedGoalNotification();
     }
   }, 180000);
   // setInterval(async () => {
