@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AkselerometroProgramele</string>
+    <string name="app_name">Glim</string>
     <string name="channel_name">Sensor Service Channel</string>
     <string name="channel_description">This channel is used for sensor service notifications.</string>
 </resources>

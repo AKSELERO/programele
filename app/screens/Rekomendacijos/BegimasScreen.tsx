@@ -1,6 +1,6 @@
 import React, { FC } from "react"
 import { observer } from "mobx-react-lite"
-import { Image, TextStyle, View, ViewStyle } from "react-native"
+import { Image, TextStyle, View, ViewStyle, Linking, Pressable } from "react-native"
 import { AppStackScreenProps } from "app/navigators"
 import { Screen, Text } from "app/components"
 import { colors, spacing } from "app/theme"
@@ -43,7 +43,9 @@ export const BegimasScreen: FC<BegimasScreenProps> = observer(function BegimasSc
             <Text text={`\u2022 6-7 kartai per savaitę - patyrusiems, pažengusiems bėgikams`}></Text>
           </View>
         </View>
-
+        <Pressable onPress={() => Linking.openURL("https://www.healthline.com/health/fitness-exercise/running-everyday")}>
+          <Text style={$link} text="Šaltinis"></Text>
+        </Pressable>
       </View>
 
     </Screen>
@@ -81,12 +83,9 @@ const $bulletListContainer: ViewStyle = {
   paddingLeft: spacing.sm
 }
 
-const $imageContainer: ViewStyle = {
-  display: "flex",
-  alignItems: "center"
-}
-
-const $image: ViewStyle = {
-  width: 300,
-  height: 300
+const $link: TextStyle = {
+  color: colors.palette.primary500,
+  marginTop: spacing.lg,
+  textAlign: "right",
+  textDecorationLine: "underline"
 }

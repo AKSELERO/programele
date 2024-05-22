@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { View, ViewStyle, TextStyle } from "react-native"
+import { View, ViewStyle, TextStyle, Pressable } from "react-native"
 import { AppStackScreenProps } from "app/navigators"
 import { Button, Icon, Screen, Text } from "app/components"
 import { colors, spacing, typography } from "../theme"
@@ -103,12 +103,6 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
     }
   }
 
-  useEffect(() => {
-    fetchData();
-    console.log("Loading goals");
-    loadGoals();
-  }, [])
-
   // Get the current date
   const currentDate = new Date();
 
@@ -120,6 +114,24 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
     start: sevenDaysAgo,
     end: currentDate,
   });
+
+  enum Activities {
+    BEGIMAS = "bėgimas",
+    SEDEJIMAS = "sėdėjimas",
+    VAIKSCIOJIMAS = "vaikščiojimas",
+    STOVEJIMAS = "stovėjimas",
+    GULEJIMAS = "gulėjimas"
+  }
+  const activitiesArray = Object.values(Activities);
+
+  const [selectedActivity, setSelectedActivity] = useState(Activities.SEDEJIMAS)
+
+  useEffect(() => {
+    fetchData();
+    console.log("Loading goals");
+    loadGoals();
+  }, [statisticsDateRange, selectedActivity])
+
 
   const StatisticsRange = () => {
     const [openStartDatepicker, setOpenStartDatepicker] = useState(false)
@@ -204,44 +216,46 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
 
     return (
       <View style={$pieChartContainer}>
-        <PieChart
-          donut
-          strokeWidth={3}
-          innerCircleBorderWidth={3}
-          innerCircleBorderColor={colors.palette.neutral400}
-          strokeColor={colors.palette.neutral400}
-          data={formattedData}
-          radius={80}
-        />
-        <View>
-          {formattedData.map((value) => {
-            return (
-              <View style={$legendItem} key={value.text}>
-                <View style={[$colorSwatch, {
-                  backgroundColor: value.color
-                }]} />
-                <View>
-                  <Text style={$legendTitle}>{value.text}</Text>
-                  <Text style={$legendSubtitle}>{value.value}h</Text>
-                </View>
-              </View>
-            )
-          })}
+        <Text style={$barChartTitle} preset="subheading">Bendra laikotarpio statistika</Text>
+        <View style={$pieChartContent}>
+          {formattedData.length > 0 ? (<><PieChart
+            donut
+            strokeWidth={3}
+            innerCircleBorderWidth={3}
+            innerCircleBorderColor={colors.palette.neutral400}
+            strokeColor={colors.palette.neutral400}
+            data={formattedData}
+            radius={80}
+          />
+            <View>
+              {formattedData.map((value) => {
+                return (
+                  <View style={$legendItem} key={value.text}>
+                    <View style={[$colorSwatch, {
+                      backgroundColor: value.color
+                    }]} />
+                    <View>
+                      <Text style={$legendTitle}>{value.text}</Text>
+                      <Text style={$legendSubtitle}>{value.value}h</Text>
+                    </View>
+                  </View>
+                )
+              })}
+            </View></>) : <Text>Duomenų šiame laikotarpyje nerasta</Text>}
         </View>
+
       </View>
     );
   }
 
-  enum Activities {
-    BEGIMAS = "bėgimas",
-    SEDEJIMAS = "sėdėjimas",
-    VAIKSCIOJIMAS = "vaikščiojimas",
-    STOVEJIMAS = "stovėjimas",
-    GULEJIMAS = "gulėjimas"
-  }
+
 
   const BarChartSection = () => {
-    const [selectedActivity, setSelectedActivity] = useState(Activities.SEDEJIMAS)
+    const handleChangeActivity = () => {
+      const currentIndex = activitiesArray.indexOf(selectedActivity);
+      const nextIndex = (currentIndex + 1) % activitiesArray.length;
+      setSelectedActivity(activitiesArray[nextIndex]);
+    };
 
     const filterDataPoints = (
       dateRange: DateRange,
@@ -264,7 +278,13 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
       contentType: string
     ) => {
       const retBarChartData = [];
-      const relevantGoal = goalData.find(goal => goal.name.toLowerCase() === contentType.toLowerCase());
+      let relevantGoal;
+      try {
+        relevantGoal = goalData.find(goal => goal.name.toLowerCase() === contentType.toLowerCase());
+      } catch {
+        console.log("Error while loading goal, going with fallback")
+        relevantGoal = { "name": "Sėdėjimas", "bendratis": "sėdėti", "enabled": true, "timeFrame": 24, "moreThan": false, "goalHours": 4, "id": 2 }
+      }
       console.log("Relevant goal: " + JSON.stringify(relevantGoal))
 
       // Create a bar for each day in the range
@@ -307,8 +327,8 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
         retBarChartData.push({ value: hours, goalReached: goalMet, label })
       }
 
-      // Fuck off by one errors
-      retBarChartData.pop();
+      // // Fuck off by one errors
+      // retBarChartData.pop();
 
       return retBarChartData;
     }
@@ -342,12 +362,12 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
 
     return (
       <View style={$barChartContainer}>
-        <View style={$barChartTitleContainer}>
+        <Pressable onPress={handleChangeActivity} style={$barChartTitleContainer}>
           <Text style={$barChartTitle} preset="subheading">{selectedActivity[0].toUpperCase() + selectedActivity.substring(1)}</Text>
           <View style={$barChartTitleIcon}>
             <Icon icon="caretRight"></Icon>
           </View>
-        </View>
+        </Pressable>
         <View style={$barChartWithLabel}>
           <Text style={$barChartYAxisLabel}>Valandos</Text>
           <BarChart
@@ -448,12 +468,19 @@ const $barChartYAxisLabel: TextStyle = {
 
 const $pieChartContainer: ViewStyle = {
   display: "flex",
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "space-around",
+  flexDirection: "column",
+  padding: spacing.sm,
   backgroundColor: colors.palette.neutral400,
   borderRadius: 8,
   elevation: 4,
+}
+
+const $pieChartContent: ViewStyle = {
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-around",
+  width: "100%",
   paddingVertical: spacing.sm
 }
 
