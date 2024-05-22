@@ -215,30 +215,33 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
 
     return (
       <View style={$pieChartContainer}>
-        {formattedData.length > 0 ? (<><PieChart
-          donut
-          strokeWidth={3}
-          innerCircleBorderWidth={3}
-          innerCircleBorderColor={colors.palette.neutral400}
-          strokeColor={colors.palette.neutral400}
-          data={formattedData}
-          radius={80}
-        />
-          <View>
-            {formattedData.map((value) => {
-              return (
-                <View style={$legendItem} key={value.text}>
-                  <View style={[$colorSwatch, {
-                    backgroundColor: value.color
-                  }]} />
-                  <View>
-                    <Text style={$legendTitle}>{value.text}</Text>
-                    <Text style={$legendSubtitle}>{value.value}h</Text>
+        <Text style={$barChartTitle} preset="subheading">Bendra laikotarpio statistika</Text>
+        <View style={$pieChartContent}>
+          {formattedData.length > 0 ? (<><PieChart
+            donut
+            strokeWidth={3}
+            innerCircleBorderWidth={3}
+            innerCircleBorderColor={colors.palette.neutral400}
+            strokeColor={colors.palette.neutral400}
+            data={formattedData}
+            radius={80}
+          />
+            <View>
+              {formattedData.map((value) => {
+                return (
+                  <View style={$legendItem} key={value.text}>
+                    <View style={[$colorSwatch, {
+                      backgroundColor: value.color
+                    }]} />
+                    <View>
+                      <Text style={$legendTitle}>{value.text}</Text>
+                      <Text style={$legendSubtitle}>{value.value}h</Text>
+                    </View>
                   </View>
-                </View>
-              )
-            })}
-          </View></>) : <Text>Duomenų šiame laikotarpyje nerasta</Text>}
+                )
+              })}
+            </View></>) : <Text>Duomenų šiame laikotarpyje nerasta</Text>}
+        </View>
 
       </View>
     );
@@ -458,12 +461,19 @@ const $barChartYAxisLabel: TextStyle = {
 
 const $pieChartContainer: ViewStyle = {
   display: "flex",
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "space-around",
+  flexDirection: "column",
+  padding: spacing.sm,
   backgroundColor: colors.palette.neutral400,
   borderRadius: 8,
   elevation: 4,
+}
+
+const $pieChartContent: ViewStyle = {
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-around",
+  width: "100%",
   paddingVertical: spacing.sm
 }
 
