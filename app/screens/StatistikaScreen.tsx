@@ -264,7 +264,13 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
       contentType: string
     ) => {
       const retBarChartData = [];
-      const relevantGoal = goalData.find(goal => goal.name.toLowerCase() === contentType.toLowerCase());
+      let relevantGoal;
+      try {
+        relevantGoal = goalData.find(goal => goal.name.toLowerCase() === contentType.toLowerCase());
+      } catch {
+        console.log("Error while loading goal, going with fallback")
+        relevantGoal = { "name": "Sėdėjimas", "bendratis": "sėdėti", "enabled": true, "timeFrame": 24, "moreThan": false, "goalHours": 4, "id": 2 }
+      }
       console.log("Relevant goal: " + JSON.stringify(relevantGoal))
 
       // Create a bar for each day in the range
@@ -307,8 +313,8 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
         retBarChartData.push({ value: hours, goalReached: goalMet, label })
       }
 
-      // Fuck off by one errors
-      retBarChartData.pop();
+      // // Fuck off by one errors
+      // retBarChartData.pop();
 
       return retBarChartData;
     }
