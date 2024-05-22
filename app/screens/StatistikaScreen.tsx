@@ -205,7 +205,7 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
 
     return (
       <View style={$pieChartContainer}>
-        <PieChart
+        {formattedData.length > 0 ? (<><PieChart
           donut
           strokeWidth={3}
           innerCircleBorderWidth={3}
@@ -214,21 +214,22 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
           data={formattedData}
           radius={80}
         />
-        <View>
-          {formattedData.map((value) => {
-            return (
-              <View style={$legendItem} key={value.text}>
-                <View style={[$colorSwatch, {
-                  backgroundColor: value.color
-                }]} />
-                <View>
-                  <Text style={$legendTitle}>{value.text}</Text>
-                  <Text style={$legendSubtitle}>{value.value}h</Text>
+          <View>
+            {formattedData.map((value) => {
+              return (
+                <View style={$legendItem} key={value.text}>
+                  <View style={[$colorSwatch, {
+                    backgroundColor: value.color
+                  }]} />
+                  <View>
+                    <Text style={$legendTitle}>{value.text}</Text>
+                    <Text style={$legendSubtitle}>{value.value}h</Text>
+                  </View>
                 </View>
-              </View>
-            )
-          })}
-        </View>
+              )
+            })}
+          </View></>) : <Text>Duomenų šiame laikotarpyje nerasta</Text>}
+
       </View>
     );
   }
