@@ -109,6 +109,7 @@ function App(props: AppProps) {
         const result = await request(PERMISSIONS.ANDROID.POST_NOTIFICATIONS);
         if (result === RESULTS.GRANTED) {
           console.log("permission granted");
+          SensorService.stopService();
           SensorService.startService();
           startDataFetchingProcess();
           startNotificationInterval();
@@ -124,6 +125,7 @@ function App(props: AppProps) {
         }
       } else {
         console.log("No need for permissions")
+        SensorService.stopService();
         SensorService.startService();
         startDataFetchingProcess();
         startNotificationInterval();
