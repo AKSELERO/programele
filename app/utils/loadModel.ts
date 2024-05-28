@@ -6,36 +6,28 @@ async function loadModelFromCloud(url: string): Promise<InferenceSession | undef
     // Download the model data as a Blob
     const response = await fetch(url);
     const blob = await response.blob();
-    // Convert Blob to base64
-    const reader = new FileReader();
-    reader.readAsDataURL(blob); 
-    await new Promise((resolve, reject) => {
-      reader.onloadend = resolve;
-      reader.onerror = reject;
-    });
-    const base64data = reader.result;
-    
-    // Extract base64 data part
-    if (base64data) {
-      if (typeof base64data === 'string') {
-        const base64 = base64data.split(',')[1];
-        const modelBuffer = Buffer.from(base64, 'base64');
-        // Load the model with onnxruntime-react-native
-        const session = await InferenceSession.create(modelBuffer);
-        console.log('Model loaded successfully');
-        return session;
-        // Proceed with using base64
-    } else {
-        // Handle the case where base64data is not a string
-    }
-      // Proceed with using base64
-    } else {
-      // Handle the case where base64data is null
-    }
 
-    // Convert base64 to binary data
-    
-    
+    // Convert Blob to ArrayBuffer using FileReader
+    const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (reader.result) {
+          resolve(reader.result as ArrayBuffer);
+        } else {
+          reject(new Error('Failed to read blob as ArrayBuffer'));
+        }
+      };
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(blob);
+    });
+
+    // Convert ArrayBuffer to Buffer
+    const modelBuffer = Buffer.from(arrayBuffer);
+
+    // Load the model with onnxruntime-react-native
+    const session = await InferenceSession.create(modelBuffer);
+    console.log('Model loaded successfully');
+    return session;
   } catch (error) {
     console.error('Failed to load the model from cloud:', error);
     return undefined;
@@ -43,6 +35,57 @@ async function loadModelFromCloud(url: string): Promise<InferenceSession | undef
 }
 
 export default loadModelFromCloud;
+
+// import { InferenceSession } from 'onnxruntime-react-native';
+// import { Buffer } from 'buffer';
+
+// async function loadModelFromCloud(url: string): Promise<InferenceSession | undefined> {
+//   try {
+//     // Download the model data as a Blob
+//     const response = await fetch(url);
+//     const blob = await response.blob();
+//     // Convert Blob to base64
+//     const reader = new FileReader();
+//     reader.readAsDataURL(blob); 
+//     await new Promise((resolve, reject) => {
+//       reader.onloadend = resolve;
+//       reader.onerror = reject;
+//     });
+//     const base64data = reader.result;
+    
+//     // Extract base64 data part
+//     if (base64data) {
+//       if (typeof base64data === 'string') {
+//         const base64 = base64data.split(',')[1];
+//         const modelBuffer = Buffer.from(base64, 'base64');
+//         // Load the model with onnxruntime-react-native
+//         const session = await InferenceSession.create(modelBuffer);
+//         console.log('Model loaded successfully');
+//         return session;
+//         // Proceed with using base64
+//     } else {
+//         // Handle the case where base64data is not a string
+//     }
+//       // Proceed with using base64
+//     } else {
+//       // Handle the case where base64data is null
+//     }
+
+//     // Convert base64 to binary data
+    
+    
+//   } catch (error) {
+//     console.error('Failed to load the model from cloud:', error);
+//     return undefined;
+//   }
+// }
+
+// export default loadModelFromCloud;
+
+
+
+
+
 
 // import { InferenceSession } from 'onnxruntime-react-native';
 // import RNFS from 'react-native-fs';

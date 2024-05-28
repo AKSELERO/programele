@@ -35,6 +35,7 @@ import android.content.SharedPreferences
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.*
 
 
 class SensorService : Service(), SensorEventListener {
@@ -42,11 +43,13 @@ class SensorService : Service(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private var accelerometer: Sensor? = null
     private var gyroscope: Sensor? = null
+    private var uncalibratedMagnetometer: Sensor? = null
     private var motionDetection: Sensor? = null
     private lateinit var handler: Handler
     private lateinit var runnable: Runnable
     private var accelerometerData: MutableList<SensorData> = mutableListOf()
     private var gyroscopeData: MutableList<SensorData> = mutableListOf()
+    private var uncalibratedMagnetometerData: MutableList<SensorData> = mutableListOf()
     private var motionDetectionData: MutableList<Float> = mutableListOf()
     private var initTime: Long = 0L
     private lateinit var sharedPreferences: SharedPreferences
@@ -57,6 +60,7 @@ class SensorService : Service(), SensorEventListener {
         private const val SERVICE_NOTIFICATION_ID = 1
         private const val CHANNEL_ID = "ForegroundServiceChannel"
         private const val INTERVAL: Long = 15000
+        private const val ACTION_STOP_SERVICE = "com.akselerometroprogramele.STOP_SERVICE"
     }
 
     override fun onCreate() {
@@ -65,24 +69,19 @@ class SensorService : Service(), SensorEventListener {
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
-        motionDetection =sensorManager.getDefaultSensor(Sensor.TYPE_MOTION_DETECT)
+        uncalibratedMagnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED)
+        motionDetection = sensorManager.getDefaultSensor(Sensor.TYPE_MOTION_DETECT)
         if (motionDetection == null) {
             Log.d("DataLogger", "Motion detection sensor not available")
         } else {
             Log.d("DataLogger", "Motion detection sensor is available")
         }
-        // accelerometer?.let {
-        //     sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_UI)
-        // }
-        // gyroscope?.let {
-        //     sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_UI)
-        // }
+
         sensorManager.registerListener(this, accelerometer, 50000)
         sensorManager.registerListener(this, gyroscope, 50000)
+        sensorManager.registerListener(this, uncalibratedMagnetometer, 50000)
         sensorManager.registerListener(this, motionDetection, 50000)
-        // ortEnv = OrtEnvironment.getEnvironment()
-        // loadModel()
-        
+
         createNotificationChannel()
         sharedPreferences = getSharedPreferences("MyAppData", Context.MODE_PRIVATE)
         handler = Handler(Looper.getMainLooper())
@@ -93,30 +92,21 @@ class SensorService : Service(), SensorEventListener {
     }
 
     private fun processAndResetData() {
-        // Call your data processing function here
         Log.d("DataLogger", "Starting data processing...")
-        //writeCsvFile(this, accelerometerData, "accdata2.csv")
-        //writeCsvFile(this, gyroscopeData, "gyrodata2.csv")
-        Log.d("DataLogger", "no motion $motionDetectionData")
         
-        var combinedData = calculateCombinedData(accelerometerData, gyroscopeData)
+        var combinedData = calculateCombinedData(accelerometerData, gyroscopeData, uncalibratedMagnetometerData)
         var moved = isPhoneMoving(combinedData)
         Log.d("DataLogger", "moved $moved")
-        if ((motionDetectionData.isEmpty() && motionDetection != null) || moved == false){
+        if ((motionDetectionData.isEmpty() && motionDetection != null) || !moved){
             saveNoMotionMessageWithTimestamp(sharedPreferences, "CombinedData", "Nejuda")
-        }
-        else {
-            var combinedData = calculateCombinedData(accelerometerData, gyroscopeData)
+        } else {
             Log.d("DataLogger", "Combined Data: $combinedData")
-            //writeCombinedData(this, combinedData)
             saveListOfDoublesWithTimestamp(sharedPreferences, "CombinedData", combinedData)
         }
         
-        // loadModel()
-        // Reset data collections
-
         synchronized(accelerometerData) { accelerometerData.clear() }
         synchronized(gyroscopeData) { gyroscopeData.clear() }
+        synchronized(uncalibratedMagnetometerData) { uncalibratedMagnetometerData.clear() }
         synchronized(motionDetectionData) { motionDetectionData.clear() }
     }
 
@@ -239,34 +229,34 @@ class SensorService : Service(), SensorEventListener {
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        event ?: return  // If the event is null, return immediately
+        event ?: return
     
         val currentTime = System.currentTimeMillis()
     
         when (event.sensor.type) {
             Sensor.TYPE_ACCELEROMETER -> {
-                // Extract data for accelerometer
                 val accelerometerData = SensorData(event.values[0], event.values[1], event.values[2], currentTime, (currentTime - initTime) / 1000.0)
-                synchronized(accelerometerData) {
+                synchronized(this.accelerometerData) {
                     this.accelerometerData.add(accelerometerData)
                 }
             }
             Sensor.TYPE_GYROSCOPE -> {
-                // Extract data for gyroscope
                 val gyroscopeData = SensorData(event.values[0], event.values[1], event.values[2], currentTime, (currentTime - initTime) / 1000.0)
-                synchronized(gyroscopeData) {
+                synchronized(this.gyroscopeData) {
                     this.gyroscopeData.add(gyroscopeData)
                 }
             }
+            Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED -> {
+                val uncalibratedMagnetometerData = SensorData(event.values[0], event.values[1], event.values[2], currentTime, (currentTime - initTime) / 1000.0)
+                synchronized(this.uncalibratedMagnetometerData) {
+                    this.uncalibratedMagnetometerData.add(uncalibratedMagnetometerData)
+                }
+            }
             Sensor.TYPE_MOTION_DETECT -> {
-                // Handle motion detect event
-                // Typically, we do not get continuous data here, just an event trigger
-                //val motionData = SensorData(1.0f, 0f, 0f, currentTime, (currentTime - initTime) / 1000.0) // 1.0f can indicate motion detected
                 Log.d("DataLogger", "Motion Detected")
                 synchronized(motionDetectionData) {
                     this.motionDetectionData.add(1.0f)
                 }
-                // Perform action upon motion detection, e.g., alerting or changing state
             }
         }
     }
@@ -276,22 +266,21 @@ class SensorService : Service(), SensorEventListener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val intent = Intent(this, SensorService::class.java)
-        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-
-        val optionsBundle: Bundle? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val options = ActivityOptions.makeBasic().apply {
-                setPendingIntentBackgroundActivityStartMode(ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED)
-            }
-            options.toBundle()
-        } else {
-            null
+        if (intent?.action == ACTION_STOP_SERVICE) {
+            stopSelf()
+            return START_NOT_STICKY
         }
+
+        val stopIntent = Intent(this, SensorService::class.java).apply {
+            action = ACTION_STOP_SERVICE
+        }
+        val stopPendingIntent = PendingIntent.getService(this, 0, stopIntent, PendingIntent.FLAG_IMMUTABLE)
+
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentIntent(pendingIntent)
             .setContentTitle("Sensor Service")
             .setContentText("Collecting sensor data")
             .setSmallIcon(android.R.drawable.stat_notify_sync)
+            .addAction(android.R.drawable.ic_delete, "Stop", stopPendingIntent)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
         val notification = builder.build()
@@ -314,11 +303,10 @@ class SensorService : Service(), SensorEventListener {
     private fun createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = getString(R.string.channel_name)
-            val descriptionText = getString(R.string.channel_description)
+            val name = "Sensor Service Channel"
+            val descriptionText = "Channel for Sensor Service notifications"
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
-                val descriptionText = getString(R.string.channel_description)
                 description = descriptionText
             }
             // Register the channel with the system
@@ -342,85 +330,126 @@ class SensorService : Service(), SensorEventListener {
         sensorManager.unregisterListener(this)
     }
 
-    private fun calculateCombinedData(accelerometerData: List<SensorData>, gyroscopeData: List<SensorData>): List<Double> {
+    private fun calculateCombinedData(accelerometerData: List<SensorData>, gyroscopeData: List<SensorData>, uncalibratedMagnetometerData: List<SensorData>): List<Double> {
         val combinedData = mutableListOf<Double>()
-
+    
         if (accelerometerData.isNotEmpty()) {
             val accX = accelerometerData.map { it.x.toDouble() }
             val accY = accelerometerData.map { it.y.toDouble() }
             val accZ = accelerometerData.map { it.z.toDouble() }
-
+    
             combinedData += calculateAxisStats(accX)
             combinedData += calculateAxisStats(accY)
             combinedData += calculateAxisStats(accZ)
         }
-
+    
         if (gyroscopeData.isNotEmpty()) {
             val gyroX = gyroscopeData.map { it.x.toDouble() }
             val gyroY = gyroscopeData.map { it.y.toDouble() }
             val gyroZ = gyroscopeData.map { it.z.toDouble() }
-
+    
             combinedData += calculateAxisStats(gyroX)
             combinedData += calculateAxisStats(gyroY)
             combinedData += calculateAxisStats(gyroZ)
         }
 
+        if (uncalibratedMagnetometerData.isNotEmpty()) {
+            val magX = uncalibratedMagnetometerData.map { it.x.toDouble() }
+            val magY = uncalibratedMagnetometerData.map { it.y.toDouble() }
+            val magZ = uncalibratedMagnetometerData.map { it.z.toDouble() }
+    
+            combinedData += calculateAxisStats(magX)
+            combinedData += calculateAxisStats(magY)
+            combinedData += calculateAxisStats(magZ)
+        }
+    
         return combinedData
     }
 
     private fun calculateAxisStats(data: List<Double>): List<Double> {
-        val sum = data.sum()
-        val mean = sum / data.size
+        val mean = data.mean()
+        val std = data.std(mean)
+        val aad = data.meanAbsoluteDeviation(mean)
         val max = data.maxOrNull() ?: Double.NaN
         val min = data.minOrNull() ?: Double.NaN
-        val median = calculateMedian(data)
-        val skewness = calculateSkewness(data, mean)
-        val std = calculateStandardDeviation(data, mean)
-        val variance = std * std
-
-        return listOf(sum, mean, max, min, median, skewness, std, variance)
+        val maxMin = max - min
+        val median = data.median()
+        val mad = data.medianAbsoluteDeviation(median)
+        val iqr = data.interquartileRange()
+        val posCount = data.count { it > 0 }.toDouble()
+        val negCount = data.count { it < 0 }.toDouble()
+        val aboveMean = data.count { it > mean }.toDouble()
+        val skewness = data.skewness(mean, std)
+        val kurtosis = data.kurtosis(mean, std)
+        val energy = data.sumOf { it * it } / 100
+    
+        return listOf(mean, std, aad, max, min, maxMin, median, mad, iqr, posCount, negCount, aboveMean, skewness, kurtosis, energy)
     }
-
-    private fun calculateMedian(data: List<Double>): Double {
-        val sortedData = data.sorted()
+    
+    private fun List<Double>.mean(): Double = this.sum() / this.size
+    
+    private fun List<Double>.std(mean: Double): Double {
+        val variance = this.sumOf { (it - mean) * (it - mean) } / this.size
+        return sqrt(variance)
+    }
+    
+    private fun List<Double>.meanAbsoluteDeviation(mean: Double): Double {
+        return this.map { abs(it - mean) }.mean()
+    }
+    
+    private fun List<Double>.median(): Double {
+        val sortedData = this.sorted()
         val mid = sortedData.size / 2
         return if (sortedData.size % 2 != 0) sortedData[mid] else (sortedData[mid - 1] + sortedData[mid]) / 2
     }
-
-    private fun calculateSkewness(data: List<Double>, mean: Double): Double {
-        val n = data.size
-        val skewSum = data.sumOf { Math.pow(it - mean, 3.0) }
-        val std = calculateStandardDeviation(data, mean)
-        return (n / ((n - 1) * (n - 2).toDouble())) * (skewSum / Math.pow(std, 3.0))
+    
+    private fun List<Double>.medianAbsoluteDeviation(median: Double): Double {
+        return this.map { abs(it - median) }.median()
     }
-
-    private fun calculateStandardDeviation(data: List<Double>, mean: Double): Double {
-        val variance = data.sumOf { (it - mean) * (it - mean) } / data.size
-        return Math.sqrt(variance)
+    
+    private fun List<Double>.interquartileRange(): Double {
+        val sortedData = this.sorted()
+        val q75 = sortedData[(0.75 * (sortedData.size - 1)).toInt()]
+        val q25 = sortedData[(0.25 * (sortedData.size - 1)).toInt()]
+        return q75 - q25
+    }
+    
+    private fun List<Double>.skewness(mean: Double, std: Double): Double {
+        val n = this.size
+        val skewSum = this.sumOf { (it - mean).pow(3.0) }
+        return (n / ((n - 1) * (n - 2).toDouble())) * (skewSum / std.pow(3.0))
+    }
+    
+    private fun List<Double>.kurtosis(mean: Double, std: Double): Double {
+        val n = this.size
+        val kurtosisSum = this.sumOf { (it - mean).pow(4.0) }
+        return (n * (n + 1) * kurtosisSum) / ((n - 1) * (n - 2) * (n - 3) * std.pow(4.0)) - (3 * (n - 1).toDouble().pow(2.0)) / ((n - 2) * (n - 3))
     }
 
     private fun isPhoneMoving(combinedData: List<Double>): Boolean {
         // Check if the list has all required elements
-        if (combinedData.size < 48) {
-            // Log an error or handle this case appropriately
-            return false // or throw an error, depending on your error handling strategy
+        if (combinedData.size != 135) {
+            return false
         }
     
-        // Proceed with your existing code if the list is of expected size
-        val stdDevAccZ = combinedData[22] // Standard deviation of Accelerometer Z
-        val varAccZ = combinedData[23]   // Variance of Accelerometer Z
+        // Calculate indices for the standard deviation and variance of each axis for all sensors
+        val stdDevAccZ = combinedData[13]
+        val varAccZ = stdDevAccZ * stdDevAccZ
         
-        val stdDevGyroZ = combinedData[46] // Standard deviation of Gyroscope Z
-        val varGyroZ = combinedData[47]    // Variance of Gyroscope Z
+        val stdDevGyroZ = combinedData[65]
+        val varGyroZ = stdDevGyroZ * stdDevGyroZ
+
+        val stdDevMagZ = combinedData[117]
+        val varMagZ = stdDevMagZ * stdDevMagZ
         
-        val stdDevThresholdAcc = 0.5/2  // Standard deviation threshold for accelerometer Z-axis
-        val varThresholdAcc = 0.25/2    // Variance threshold for accelerometer Z-axis
+        val stdDevThresholdAcc = 0.5 / 4  // Standard deviation threshold for accelerometer Z-axis
+        val varThresholdAcc = 0.25 / 4    // Variance threshold for accelerometer Z-axis
         
-        val stdDevThresholdGyro = 1.0/2  // Standard deviation threshold for gyroscope Z-axis
-        val varThresholdGyro = 1.0/2     // Variance threshold for gyroscope Z-axis
+        val stdDevThresholdGyro = 1.0 / 4  // Standard deviation threshold for gyroscope Z-axis
+        val varThresholdGyro = 1.0 / 4     // Variance threshold for gyroscope Z-axis
         
-        return stdDevAccZ > stdDevThresholdAcc || varAccZ > varThresholdAcc ||
-               stdDevGyroZ > stdDevThresholdGyro || varGyroZ > varThresholdGyro
+        return stdDevAccZ > stdDevThresholdAcc ||
+               stdDevGyroZ > stdDevThresholdGyro
     }
 }
 
