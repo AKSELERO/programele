@@ -18,6 +18,8 @@ import { Mutex } from 'async-mutex';
 import PushNotification from 'react-native-push-notification';
 import { format } from 'date-fns'; 
 
+import { Buffer } from 'buffer';
+
 interface DataEntry {
   content: string;
   date: string;
@@ -48,61 +50,94 @@ interface Setting {
   isTurnedOn: boolean
 }
 
+
 class ModelManager {
   private static instance: ModelManager;
-  private modelSession: InferenceSession | null = null;
+  private modelSessions: Map<string, InferenceSession> = new Map();
 
   private constructor() { }
 
   public static getInstance(): ModelManager {
     if (!ModelManager.instance) {
       ModelManager.instance = new ModelManager();
-
     }
     return ModelManager.instance;
   }
 
-  public async loadModel(modelUrl: string): Promise<void> {
-    if (this.modelSession === null) {
+  public async loadModel(modelId: string, modelUrl: string): Promise<void> {
+    if (!this.modelSessions.has(modelId)) {
       try {
-        const session = await loadModelFromCloud(modelUrl) ?? null;
-        if (session === null) {
+        const session = await loadModelFromCloud(modelUrl);
+        if (session === undefined) {
           throw new Error('Failed to load the model from the cloud.');
         }
-        console.log('Model session is ready for inference.');
-        this.modelSession = session;
+        console.log(`Model session for ${modelId} is ready for inference.`);
+        this.modelSessions.set(modelId, session);
       } catch (error) {
-        console.error('Failed to load model:', error);
-        this.modelSession = null;
+        console.error(`Failed to load model ${modelId}:`, error);
       }
+    } else {
+      console.log(`Model ${modelId} is already loaded.`);
     }
   }
 
-  // Modified getPrediction to return prediction result
-  public async getPrediction(inputData: Float32Array): Promise<any> { // Use a more specific type than any if possible
-    if (!this.modelSession) {
-      console.error('Model session is not initialized. Please load the model first.');
+  public async getPredictionForNewModels(modelId: string, inputData: Float32Array): Promise<{ label: number, scores?: Float32Array } | null> {
+    const modelSession = this.modelSessions.get(modelId);
+    if (!modelSession) {
+      console.error(`Model session ${modelId} is not initialized. Please load the model first.`);
       return null; // Indicate failure or invalid session
     }
-
-    const inputTensor = new Tensor("float32", inputData, [1, 48]); // Adjust shape as necessary
+    console.log(modelSession.inputNames);
+    console.log(modelSession.outputNames);
+    const inputTensor = new Tensor("float32", inputData, [1, 135]); // Adjust shape as necessary
     const feeds = { "X": inputTensor };
-
     try {
-      const output = await this.modelSession.run(feeds, ["output_label"]);
-      const predictionResult = output.output_label.data;
-      console.log("Prediction result: ", predictionResult);
+      var output;
+      var labelTensor;
+      var predictionLabel;
+      if (modelId == 'sitting' || modelId == 'laying' || modelId == 'standing'){
+        output = await modelSession.run(feeds);
+        console.log(modelId + " Model output:", output);
+        // Handling ONNX sequence outputs
+        labelTensor = output.label; // Adjust key as necessary
+        predictionLabel = labelTensor.data[0]; // Assuming single label
+      }
+      else {
+        output = await modelSession.run(feeds, ["output_label"]);
+        console.log(modelId + " Model output:", output);
+        // Handling ONNX sequence outputs
+        labelTensor = output.output_label; // Adjust key as necessary
+        predictionLabel = labelTensor.data[0]; // Assuming single label
+      }
+      
 
-      return predictionResult; // Return the prediction result
+      // Log the entire output for debugging
+      
+
+      let predictionScores: Float32Array | undefined;
+
+      if (output.probabilities) {
+        const scoresTensor = output.probabilities; // Adjust key as necessary
+        if (Array.isArray(scoresTensor.data)) {
+          // Assuming scoresTensor.data is an array of BigInt
+          predictionScores = Float32Array.from(scoresTensor.data.map(Number));
+        } else {
+          predictionScores = scoresTensor.data as Float32Array;
+        }
+      }
+
+      console.log("Prediction label:", predictionLabel);
+      console.log("Prediction scores:", predictionScores);
+
+      return {
+        label: Number(predictionLabel),
+        scores: predictionScores
+      }; // Return the label and scores if available
     } catch (error) {
       console.error('Error during inference:', error);
       return null; // Indicate error condition
     }
   }
-
-  
-
-  
 }
 
 export default class SensorDataManager {
@@ -114,7 +149,17 @@ export default class SensorDataManager {
   private accelerometerSubscription: EventSubscription | null = null;
   private gyroscopeSubscription: EventSubscription | null = null;
   private modelLoaded: boolean;
+  private activePassiveModelLoaded: boolean;
+  private layingModelLoaded: boolean;
+  private sittingModelLoaded: boolean;
+  private standingModelLoaded: boolean;
+  private walkingRunningModelLoaded: boolean;
   private modelUrl: string;
+  private activePassiveModelUrl;
+  private layingModelUrl;
+  private sittingModelUrl;
+  private standingModelUrl;
+  private walkingRunningModelUrl;
   private startTime : number;
   private mutex : Mutex;
   private sitCount : number;
@@ -122,7 +167,17 @@ export default class SensorDataManager {
   private constructor() {
     this.sitCount = 0;
     this.modelLoaded = false;
+    this.activePassiveModelLoaded = false;
+    this.layingModelLoaded = false;
+    this.sittingModelLoaded = false;
+    this.standingModelLoaded = false;
+    this.walkingRunningModelLoaded = false;
     this.modelUrl = 'https://drive.google.com/uc?export=download&id=1j8t-4VPG4s-ow4TvWzo5zr1CYVxRrJF8'; // onnx
+    this.activePassiveModelUrl = 'https://drive.google.com/uc?export=download&id=1FvAfyDRjxRDICab5bpNu9fDAG83HrXJb';// 'https://drive.google.com/uc?export=download&id=12QOJ0EM_cLzjVUXa0imsyS0hsSMPvkz_'; //active_passive onnx
+    this.layingModelUrl = 'https://drive.google.com/uc?export=download&id=1ej5vi_XSMmkIOtiOtx0zQzhNHV1Gb6CS'; //laying onnx
+    this.sittingModelUrl = 'https://drive.google.com/uc?export=download&id=1UU6josBAB6yvBNwyWVtPnbSQGzgUETps';
+    this.standingModelUrl = 'https://drive.google.com/uc?export=download&id=16LoFy51bsZkWdkhlOBED5tnsEAeSRDB2';
+    this.walkingRunningModelUrl = 'https://drive.google.com/uc?export=download&id=1a7zCA3r_5YLNzHrOJKDMoEUyZgHh0YRb';
     // const modelUrl = 'https://drive.google.com/uc?export=download&id=1_pTQnQgPkpj89kH9HePESt1ansr7HsPV'; //ort
     this.startTime = Date.now();
     this.mutex = new Mutex();
@@ -227,27 +282,27 @@ public stopListeningToSensorData(): void {
     try {
 
 
-        const modelManager = ModelManager.getInstance();
-        if (!this.modelLoaded) {
-          await modelManager.loadModel(this.modelUrl);
-          this.modelLoaded = true;
-        }
-        const inputData = new Float32Array(combinedData);
-        const predictionResult = await modelManager.getPrediction(inputData);
-        const valueMap: Record<string, string> = {
-          'D': 'sėdėjimas',
-          'B': 'bėgimas',
-          'A': 'ėjimas',
-          'E': 'stovėjimas',
-        };
+        // const modelManager = ModelManager.getInstance();
+        // if (!this.modelLoaded) {
+        //   await modelManager.loadModel(this.modelUrl);
+        //   this.modelLoaded = true;
+        // }
+        // const inputData = new Float32Array(combinedData);
+        // const predictionResult = await modelManager.getPrediction(inputData);
+        // const valueMap: Record<string, string> = {
+        //   'D': 'sėdėjimas',
+        //   'B': 'bėgimas',
+        //   'A': 'ėjimas',
+        //   'E': 'stovėjimas',
+        // };
 
-        if (predictionResult !== null) {
-          console.log('Received prediction:', predictionResult);
-          const state = valueMap[predictionResult];
-          await this.writeData(state);
-        } else {
-          console.log('Failed to get prediction.');
-        }
+        // if (predictionResult !== null) {
+        //   console.log('Received prediction:', predictionResult);
+        //   const state = valueMap[predictionResult];
+        //   await this.writeData(state);
+        // } else {
+        //   console.log('Failed to get prediction.');
+        // }
 
         
         
@@ -262,37 +317,123 @@ public stopListeningToSensorData(): void {
 public runInference2 = async (combinedData: number[], time: string) => {
   try {
 
+    
+      // const modelManager = ModelManager.getInstance();
+      // if (!this.modelLoaded) {
+      //   await modelManager.loadModel(this.modelUrl);
+      //   this.modelLoaded = true;
+      // }
+
+      
 
       const modelManager = ModelManager.getInstance();
-      if (!this.modelLoaded) {
-        await modelManager.loadModel(this.modelUrl);
-        this.modelLoaded = true;
+      if (!this.activePassiveModelLoaded){
+        await modelManager.loadModel("activePassive", this.activePassiveModelUrl);
+        this.activePassiveModelLoaded = true;
       }
-      if (combinedData.length === 24) {
-        console.log("Combined data length too short. Gyroscope is probably missing.")
-        const newCombinedData = combinedData;
-        combinedData.forEach((num) => {newCombinedData.push(num)})
-        combinedData = newCombinedData
-        
-      }
-      if (combinedData.length == 48){
-        const inputData = new Float32Array(combinedData);
-        const predictionResult = await modelManager.getPrediction(inputData);
-        const valueMap: Record<string, string> = {
-          'D': 'sėdėjimas',
-          'B': 'bėgimas',
-          'A': 'ėjimas',
-          'E': 'stovėjimas',
-        };
+      
 
-        if (predictionResult !== null) {
-          console.log('Received prediction:', predictionResult);
-          const state = valueMap[predictionResult];
-          await this.writeData2(state, time);
-        } else {
-          console.log('Failed to get prediction.');
+
+      if (!this.layingModelLoaded){
+        await modelManager.loadModel("laying", this.layingModelUrl);
+        this.layingModelLoaded = true;
+      }
+      
+
+      if (!this.sittingModelLoaded){
+        await modelManager.loadModel("sitting", this.sittingModelUrl);
+        this.sittingModelLoaded = true;
+      }
+      
+
+      if (!this.standingModelLoaded){
+        await modelManager.loadModel("standing", this.standingModelUrl);
+        this.standingModelLoaded = true;
+      }
+      
+
+
+      if (!this.walkingRunningModelLoaded){
+        await modelManager.loadModel("walkRunning", this.walkingRunningModelUrl);
+        this.walkingRunningModelLoaded = true;
+      }
+      if (combinedData.length != 135) {
+        // Fill the array until it has 135 elements
+        while (combinedData.length < 135) {
+            combinedData.push(1);
+        }
+    }
+
+      if (combinedData.length == 135){
+        const inputData = new Float32Array(combinedData);
+
+
+        const activePrediction = await modelManager.getPredictionForNewModels("activePassive", inputData);
+        const activePredictionValue = Number(activePrediction?.label);
+        
+        console.log("ActivePassive Prediction result: ", activePredictionValue);
+        if (activePredictionValue === 1){
+          const walkRunPrediction = await modelManager.getPredictionForNewModels("walkRunning", inputData);
+          const walkRunPredictionValue = Number(walkRunPrediction?.label)
+          console.log("WalkRunning Prediction result: ", walkRunPredictionValue);
+          if (walkRunPredictionValue === 1) { //4jimas
+            await this.writeData2('ėjimas', time);
+          }
+          else if (walkRunPredictionValue === 0){
+            await this.writeData2('bėgimas', time);
+          }
+        }
+        else if (activePredictionValue === 0){
+          const sittingPrediction = await modelManager.getPredictionForNewModels("sitting", inputData);
+          const layingPrediction = await modelManager.getPredictionForNewModels("laying", inputData);
+          const standingPrediction = await modelManager.getPredictionForNewModels("standing", inputData);
+          console.log("sitting output", sittingPrediction);
+          console.log("laying output", layingPrediction);
+          console.log("standing output", standingPrediction);
+          const predictions = [
+            { label: 'sėdėjimas', score: sittingPrediction?.scores ? sittingPrediction.scores[1] : 0 },
+            { label: 'gulėjimas', score: layingPrediction?.scores ? layingPrediction.scores[1] : 0 },
+            { label: 'stovėjimas', score: standingPrediction?.scores ? standingPrediction.scores[1] : 0 }
+          ];
+        
+          // Find the prediction with the highest score
+          const highestPrediction = predictions.reduce((max, prediction) => 
+            prediction.score > max.score ? prediction : max, 
+            predictions[0]
+          );
+        
+          console.log(`Highest prediction is ${highestPrediction.label} with a score of ${highestPrediction.score}`);
+          if (highestPrediction.label != null){
+            await this.writeData2(highestPrediction.label, time);
+          }
         }
       }
+
+      // if (combinedData.length === 24) {
+      //   console.log("Combined data length too short. Gyroscope is probably missing.")
+      //   const newCombinedData = combinedData;
+      //   combinedData.forEach((num) => {newCombinedData.push(num)})
+      //   combinedData = newCombinedData
+        
+      // }
+      // if (combinedData.length == 48){
+      //   const inputData = new Float32Array(combinedData);
+      //   const predictionResult = await modelManager.getPrediction(inputData);
+      //   const valueMap: Record<string, string> = {
+      //     'D': 'sėdėjimas',
+      //     'B': 'bėgimas',
+      //     'A': 'ėjimas',
+      //     'E': 'stovėjimas',
+      //   };
+
+      //   if (predictionResult !== null) {
+      //     console.log('Received prediction:', predictionResult);
+      //     const state = valueMap[predictionResult];
+      //     await this.writeData2(state, time);
+      //   } else {
+      //     console.log('Failed to get prediction.');
+      //   }
+      //}
       
 
       

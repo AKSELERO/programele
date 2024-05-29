@@ -20,11 +20,11 @@ export function startDataFetchingProcess(): void {
     SharedPreferences.getAllDataEntries()
       .then((data: string) => {
         const entries: SharedPreferencesEntries = JSON.parse(data);
-        console.log('Received data:', entries);
+        //console.log('Received data:', entries);
 
         // Processing each entry
         Object.entries(entries).forEach(([key, { list, timestamp }]) => {
-          console.log('list data:', list);
+          //console.log('list data:', list);
           if (list == 'Nejuda'){
             sensorDataManager.writeData2('sėdėjimas', timestamp);
           }

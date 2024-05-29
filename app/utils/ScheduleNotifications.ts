@@ -2,6 +2,8 @@ import PushNotification from 'react-native-push-notification';
 import { format } from 'date-fns'; 
 import { load, save } from './storage/storage';
 
+const entryTime = 15;
+
 interface Goal {
   id: number
   name: string
@@ -35,7 +37,7 @@ interface DataEntry {
 const sendTooMuchSittingNotification = async () => {
     const todaySitCountNotInterupted = Number((await load('todaySitCountNotInterupted')) || 0);
     console.log("Sitting count uninterupted:", todaySitCountNotInterupted);
-    if (todaySitCountNotInterupted / 4 >= 3){
+    if (todaySitCountNotInterupted / (60/entryTime) >= 3){
       var remainingMinutes = Math.floor(todaySitCountNotInterupted / 4);
       var hours = Math.floor(remainingMinutes / 60);
       var minutes = remainingMinutes % 60;
@@ -88,32 +90,32 @@ const sendUnreachedGoalNotification = async () => {
     var furthestGoal = null;
 
     if (goals[0].moreThan){
-      if (walkGoal-todayWalkCount/4 > 0 && walkGoal-todayWalkCount/4>furthestGoalTime){
-        furthestGoalTime = walkGoal-todayWalkCount/4
+      if (walkGoal-todayWalkCount/(60/entryTime) > 0 && walkGoal-todayWalkCount/(60/entryTime)>furthestGoalTime){
+        furthestGoalTime = walkGoal-todayWalkCount/(60/entryTime)
         furthestGoal = goals[0];
       }
     }
     if (goals[1].moreThan){
-      if (runGoal-todayRunCount/4 > 0 && runGoal-todayRunCount/4>furthestGoalTime){
-        furthestGoalTime = runGoal-todayRunCount/4
+      if (runGoal-todayRunCount/(60/entryTime) > 0 && runGoal-todayRunCount/(60/entryTime)>furthestGoalTime){
+        furthestGoalTime = runGoal-todayRunCount/(60/entryTime)
         furthestGoal = goals[1];
       }
     }
     if (goals[2].moreThan){
-      if (sitGoal-todaySitCount/4 > 0 && sitGoal-todaySitCount/4>furthestGoalTime){
-        furthestGoalTime = sitGoal-todaySitCount/4
+      if (sitGoal-todaySitCount/(60/entryTime) > 0 && sitGoal-todaySitCount/(60/entryTime)>furthestGoalTime){
+        furthestGoalTime = sitGoal-todaySitCount/(60/entryTime)
         furthestGoal = goals[2];
       }
     }
     if (goals[3].moreThan){
-      if (standGoal-todayStandCount/4 > 0 && standGoal-todayStandCount/4>furthestGoalTime){
-        furthestGoalTime = standGoal-todayStandCount/4
+      if (standGoal-todayStandCount/(60/entryTime) > 0 && standGoal-todayStandCount/(60/entryTime)>furthestGoalTime){
+        furthestGoalTime = standGoal-todayStandCount/(60/entryTime)
         furthestGoal = goals[3];
       }
     }
     if (goals[4].moreThan){
-      if (layGoal-todayLayCount/4 > 0 && layGoal-todayLayCount/4>furthestGoalTime){
-        furthestGoalTime = layGoal-todayLayCount/4
+      if (layGoal-todayLayCount/(60/entryTime) > 0 && layGoal-todayLayCount/(60/entryTime)>furthestGoalTime){
+        furthestGoalTime = layGoal-todayLayCount/(60/entryTime)
         furthestGoal = goals[4];
       }
     }
