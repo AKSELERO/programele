@@ -91,27 +91,33 @@ class ModelManager {
     console.log(modelSession.outputNames);
     const inputTensor = new Tensor("float32", inputData, [1, 135]); // Adjust shape as necessary
     const feeds = { "X": inputTensor };
-
     try {
       var output;
-      if (modelId == '111111111'){
-        output = await modelSession.run(feeds, ["output_label", "output_probability"]);
+      var labelTensor;
+      var predictionLabel;
+      if (modelId == 'sitting' || modelId == 'laying' || modelId == 'standing'){
+        output = await modelSession.run(feeds);
+        console.log(modelId + " Model output:", output);
+        // Handling ONNX sequence outputs
+        labelTensor = output.label; // Adjust key as necessary
+        predictionLabel = labelTensor.data[0]; // Assuming single label
       }
       else {
         output = await modelSession.run(feeds, ["output_label"]);
+        console.log(modelId + " Model output:", output);
+        // Handling ONNX sequence outputs
+        labelTensor = output.output_label; // Adjust key as necessary
+        predictionLabel = labelTensor.data[0]; // Assuming single label
       }
       
 
       // Log the entire output for debugging
-      console.log("Model output:", output);
-      // Handling ONNX sequence outputs
-      const labelTensor = output.output_label; // Adjust key as necessary
-      const predictionLabel = labelTensor.data[0]; // Assuming single label
+      
 
       let predictionScores: Float32Array | undefined;
 
-      if (output.output_scores) {
-        const scoresTensor = output.output_probability; // Adjust key as necessary
+      if (output.probabilities) {
+        const scoresTensor = output.probabilities; // Adjust key as necessary
         if (Array.isArray(scoresTensor.data)) {
           // Assuming scoresTensor.data is an array of BigInt
           predictionScores = Float32Array.from(scoresTensor.data.map(Number));
@@ -351,7 +357,12 @@ public runInference2 = async (combinedData: number[], time: string) => {
         await modelManager.loadModel("walkRunning", this.walkingRunningModelUrl);
         this.walkingRunningModelLoaded = true;
       }
-      
+      if (combinedData.length != 135) {
+        // Fill the array until it has 135 elements
+        while (combinedData.length < 135) {
+            combinedData.push(1);
+        }
+    }
 
       if (combinedData.length == 135){
         const inputData = new Float32Array(combinedData);
@@ -379,6 +390,22 @@ public runInference2 = async (combinedData: number[], time: string) => {
           console.log("sitting output", sittingPrediction);
           console.log("laying output", layingPrediction);
           console.log("standing output", standingPrediction);
+          const predictions = [
+            { label: 'sėdėjimas', score: sittingPrediction?.scores ? sittingPrediction.scores[1] : 0 },
+            { label: 'gulėjimas', score: layingPrediction?.scores ? layingPrediction.scores[1] : 0 },
+            { label: 'stovėjimas', score: standingPrediction?.scores ? standingPrediction.scores[1] : 0 }
+          ];
+        
+          // Find the prediction with the highest score
+          const highestPrediction = predictions.reduce((max, prediction) => 
+            prediction.score > max.score ? prediction : max, 
+            predictions[0]
+          );
+        
+          console.log(`Highest prediction is ${highestPrediction.label} with a score of ${highestPrediction.score}`);
+          if (highestPrediction.label != null){
+            await this.writeData2(highestPrediction.label, time);
+          }
         }
       }
 
