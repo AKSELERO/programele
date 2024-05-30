@@ -35,7 +35,8 @@ interface DataEntry {
 
 // Function to create a local notification
 const sendTooMuchSittingNotification = async () => {
-    const todaySitCountNotInterupted = Number((await load('todaySitCountNotInterupted')) || 0);
+    try {
+      const todaySitCountNotInterupted = Number((await load('todaySitCountNotInterupted')) || 0);
     console.log("Sitting count uninterupted:", todaySitCountNotInterupted);
     if (todaySitCountNotInterupted / (60/entryTime) >= 3){
       var remainingMinutes = Math.floor(todaySitCountNotInterupted / 4);
@@ -68,6 +69,10 @@ const sendTooMuchSittingNotification = async () => {
             soundName: "default", // Sound file name to play; use 'default' to play the default notification sound
             vibration: 300, // Vibration duration in milliseconds, null to disable
           });
+    }
+    }
+    catch(error){
+      console.error('Error sending too much sitting notification:', error);
     }
 };
 
@@ -149,7 +154,7 @@ const sendUnreachedGoalNotification = async () => {
         }
       
         PushNotification.localNotification({
-          channelId: "your-channel-id",
+          channelId: "reminder",
           title: "Nepasiduokite ant savo " + furthestGoal.name.substring(0, furthestGoal.name.length-2)+ "o" +  " tikslo", // Title of the notification
           message: "Iki pasiekto tikslo jums dar trūksta " + timeMessage, // Message in the notification
           playSound: true, // Sound to play on receipt of notification
@@ -171,7 +176,7 @@ const sendWalkingGoalDoneNotification = async () => {
   walkGoal = walkGoal * 60
   if (walkGoal <= todayWalkCount / 4 && !isGoalDone){
       PushNotification.localNotification({
-        channelId: "your-channel-id",
+        channelId: "reminder",
         title: "Sveikiname", // Title of the notification
         message: "Šiandienos Vaikščiojimo tikslas pasiektas", // Message in the notification
         playSound: true, // Sound to play on receipt of notification
@@ -184,22 +189,27 @@ const sendWalkingGoalDoneNotification = async () => {
 };
 
 const sendDailyStatisticsNotification = async () => {
-  const todaySitCount = Number((await load('todaySitCount')) || 0);
-  const todayStandCount = Number((await load('todayStandCount')) || 0);
-  const todayWalkCount = Number((await load('todayWalkCount')) || 0);
-  const todayRunCount = Number((await load('todayRunCount')) || 0);
-  const todayLayCount = Number((await load('todayLayCount')) || 0);
-  const total = todaySitCount + todayStandCount + todayWalkCount + todayRunCount + todayLayCount;
-  if (total != 0) {
-    PushNotification.localNotification({
-      channelId: "your-channel-id",
-      title: "Šiandienos statistika", // Title of the notification
-      message: "Sėdėjote - " + (todaySitCount*100/total).toFixed(2) + " %, Stovėjote - "  + (todayStandCount*100/total).toFixed(2) + " %, Vaikščiojote - "
-      + (todayWalkCount*100/total).toFixed(2) + " %, Bėgote - " +  (todayRunCount*100/total).toFixed(2) +  " %, Gulėjote - " +  (todayLayCount*100/total).toFixed(2) +  " %",// Message in the notification
-      playSound: true, // Sound to play on receipt of notification
-      soundName: "default", // Sound file name to play; use 'default' to play the default notification sound
-      vibration: 300, // Vibration duration in milliseconds, null to disable
-    });
+  try {
+    const todaySitCount = Number((await load('todaySitCount')) || 0);
+    const todayStandCount = Number((await load('todayStandCount')) || 0);
+    const todayWalkCount = Number((await load('todayWalkCount')) || 0);
+    const todayRunCount = Number((await load('todayRunCount')) || 0);
+    const todayLayCount = Number((await load('todayLayCount')) || 0);
+    const total = todaySitCount + todayStandCount + todayWalkCount + todayRunCount + todayLayCount;
+    if (total != 0) {
+      console.log("should send notification 1111111111111111111111111111111111111111111111111111111111");
+      PushNotification.localNotification({
+        channelId: "reminder",
+        title: "Šiandienos statistika", // Title of the notification
+        message: "Sėdėjote - " + (todaySitCount*100/total).toFixed(2) + " %, Stovėjote - "  + (todayStandCount*100/total).toFixed(2) + " %, Vaikščiojote - "
+        + (todayWalkCount*100/total).toFixed(2) + " %, Bėgote - " +  (todayRunCount*100/total).toFixed(2) +  " %, Gulėjote - " +  (todayLayCount*100/total).toFixed(2) +  " %",// Message in the notification
+        playSound: true, // Sound to play on receipt of notification
+        soundName: "default", // Sound file name to play; use 'default' to play the default notification sound
+        vibration: 300, // Vibration duration in milliseconds, null to disable
+      });
+    }
+  } catch(error){
+    console.error("Error sending statistics notification:", error);
   }
   
 
@@ -238,13 +248,13 @@ const startNotificationInterval = async () => {
       sendTooMuchSittingNotification();
     }
     
-  }, 180000);
+  }, 60000);
   setInterval(async () => {
     const settings = await load("settings") as Setting[];
     if (settings[0].isTurnedOn == true && settings[2].isTurnedOn == true){
       sendUnreachedGoalNotification();
     }
-  }, 180000);
+  }, 60000);
   // setInterval(async () => {
   //   const settings = await load("settings") as Setting[];
   //   if (settings[0].isTurnedOn == true && settings[3].isTurnedOn == true){
@@ -256,7 +266,7 @@ const startNotificationInterval = async () => {
     if (settings[0].isTurnedOn == true && settings[1].isTurnedOn == true){
       sendDailyStatisticsNotification();
     }
-  }, 180000);
+  }, 60000);
 };
 
 // Export the function to be used elsewhere in the app

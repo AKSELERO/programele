@@ -15,37 +15,43 @@ interface SharedPreferencesEntries {
 }
 
 // Function to start the data fetching process
+let isProcessing = false;
+
 export function startDataFetchingProcess(): void {
-  const intervalId = setInterval(() => {
-    SharedPreferences.getAllDataEntries()
-      .then((data: string) => {
-        const entries: SharedPreferencesEntries = JSON.parse(data);
-        //console.log('Received data:', entries);
+  const intervalId = setInterval(async () => {
+    if (isProcessing) {
+      return;
+    }
 
-        // Processing each entry
-        Object.entries(entries).forEach(([key, { list, timestamp }]) => {
-          //console.log('list data:', list);
-          if (list == 'Nejuda'){
-            sensorDataManager.writeData2('sėdėjimas', timestamp);
-          }
-          else {
-            const dataList = list.split(',').map(Number);
-            sensorDataManager.runInference2(dataList, timestamp);
-          }
-          
-          // Example of processing each list
-        //   dataList.forEach((item, index) => {
-        //     console.log(`Item ${index}: ${item} at ${timestamp}`);
-        //   });
-        });
-      })
-      .catch((error: Error) => {
-        console.error('Error fetching SharedPreferences data:', error);
-      });
-      SharedPreferences.clearAllPreferences();
-  }, 15000); // Fetch every 10000 milliseconds (10 seconds)
+    isProcessing = true;
 
-  
+    try {
+      const data: string = await SharedPreferences.getAllDataEntries();
+      const entries: SharedPreferencesEntries = JSON.parse(data);
+      //console.log('Received data:', entries);
+
+      // Processing each entry
+      for (const key of Object.keys(entries).sort((a, b) => {
+        return new Date(entries[a].timestamp).getTime() - new Date(entries[b].timestamp).getTime();
+      })) {
+        const { list, timestamp } = entries[key];
+
+        if (list === 'Nejuda') {
+          await sensorDataManager.writeData2('sėdėjimas', timestamp);
+        } else {
+          const dataList = list.split(',').map(Number);
+          await sensorDataManager.runInference2(dataList, timestamp);
+        }
+      }
+
+      // Clear all preferences after processing all entries
+      await SharedPreferences.clearAllPreferences();
+    } catch (error) {
+      console.error('Error fetching SharedPreferences data:', error);
+    } finally {
+      isProcessing = false;
+    }
+  }, 5000); // Fetch every 5000 milliseconds (5 seconds)
 }
 
 

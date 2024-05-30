@@ -324,8 +324,6 @@ public runInference2 = async (combinedData: number[], time: string) => {
       //   this.modelLoaded = true;
       // }
 
-      
-
       const modelManager = ModelManager.getInstance();
       if (!this.activePassiveModelLoaded){
         await modelManager.loadModel("activePassive", this.activePassiveModelUrl);
@@ -376,10 +374,10 @@ public runInference2 = async (combinedData: number[], time: string) => {
           const walkRunPrediction = await modelManager.getPredictionForNewModels("walkRunning", inputData);
           const walkRunPredictionValue = Number(walkRunPrediction?.label)
           console.log("WalkRunning Prediction result: ", walkRunPredictionValue);
-          if (walkRunPredictionValue === 1) { //4jimas
+          if (walkRunPredictionValue === 0) { //4jimas
             await this.writeData2('ėjimas', time);
           }
-          else if (walkRunPredictionValue === 0){
+          else if (walkRunPredictionValue === 1){
             await this.writeData2('bėgimas', time);
           }
         }
@@ -392,8 +390,9 @@ public runInference2 = async (combinedData: number[], time: string) => {
           console.log("standing output", standingPrediction);
           const predictions = [
             { label: 'sėdėjimas', score: sittingPrediction?.scores ? sittingPrediction.scores[1] : 0 },
-            { label: 'gulėjimas', score: layingPrediction?.scores ? layingPrediction.scores[1] : 0 },
-            { label: 'stovėjimas', score: standingPrediction?.scores ? standingPrediction.scores[1] : 0 }
+            { label: 'stovėjimas', score: standingPrediction?.scores ? standingPrediction.scores[0]-0.005 : 0 },
+            { label: 'gulėjimas', score: layingPrediction?.scores ? layingPrediction.scores[1]-0.005 : 0 }
+            
           ];
         
           // Find the prediction with the highest score

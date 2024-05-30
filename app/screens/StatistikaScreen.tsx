@@ -118,7 +118,7 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
   enum Activities {
     BEGIMAS = "bėgimas",
     SEDEJIMAS = "sėdėjimas",
-    VAIKSCIOJIMAS = "vaikščiojimas",
+    VAIKSCIOJIMAS = "ėjimas",
     STOVEJIMAS = "stovėjimas",
     GULEJIMAS = "gulėjimas"
   }
@@ -188,7 +188,7 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
     const chartColors = ["#d92626", "#d9a326", "#afd926", "#26cdd9", "#2656d9", "#c126d9"];
 
     const calculatePieChartData = (data: StoredData[], range: DateRange) => {
-      const timePerDataPointInSeconds = 15; // each data point represents 15 seconds
+      const timePerDataPointInSeconds = 5; // each data point represents 15 seconds
       const activityDuration = data.reduce((acc, curr) => {
         const dataDate = new Date(curr.date);
         if (dataDate >= range.start && dataDate <= range.end) {
@@ -200,7 +200,7 @@ export const StatistikaScreen: FC<StatistikaScreenProps> = observer(function Sta
 
       const pieChartData = Object.entries(activityDuration).map(([key, value]) => {
         // Ensure value is a number and not undefined or null
-        const hours = value ? (value / 3600).toFixed(2) : "0.00";
+        const hours = value ? ((value / 3600)*3).toFixed(2) : "0.00";
         return { text: key, value: parseFloat(hours) }; // parse it back to a number if needed
       });
 

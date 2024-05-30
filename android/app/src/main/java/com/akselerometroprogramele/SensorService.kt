@@ -59,7 +59,7 @@ class SensorService : Service(), SensorEventListener {
     companion object {
         private const val SERVICE_NOTIFICATION_ID = 1
         private const val CHANNEL_ID = "ForegroundServiceChannel"
-        private const val INTERVAL: Long = 15000
+        private const val INTERVAL: Long = 5000
         private const val ACTION_STOP_SERVICE = "com.akselerometroprogramele.STOP_SERVICE"
     }
 
@@ -442,11 +442,11 @@ class SensorService : Service(), SensorEventListener {
         val stdDevMagZ = combinedData[117]
         val varMagZ = stdDevMagZ * stdDevMagZ
         
-        val stdDevThresholdAcc = 0.5 / 4  // Standard deviation threshold for accelerometer Z-axis
-        val varThresholdAcc = 0.25 / 4    // Variance threshold for accelerometer Z-axis
+        val stdDevThresholdAcc = 0.5 / 2  // Standard deviation threshold for accelerometer Z-axis
+        val varThresholdAcc = 0.25 / 2    // Variance threshold for accelerometer Z-axis
         
-        val stdDevThresholdGyro = 1.0 / 4  // Standard deviation threshold for gyroscope Z-axis
-        val varThresholdGyro = 1.0 / 4     // Variance threshold for gyroscope Z-axis
+        val stdDevThresholdGyro = 1.0 / 2  // Standard deviation threshold for gyroscope Z-axis
+        val varThresholdGyro = 1.0 / 2     // Variance threshold for gyroscope Z-axis
         
         return stdDevAccZ > stdDevThresholdAcc ||
                stdDevGyroZ > stdDevThresholdGyro

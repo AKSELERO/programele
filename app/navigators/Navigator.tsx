@@ -106,17 +106,7 @@ export function Navigator() {
         name="DataDisplay"
         component={DataDisplay}
         options={{
-          tabBarLabel: "Testavimui",
-          tabBarIcon: ({ focused }) => (
-            <Icon icon="debug" color={focused ? colors.palette.primary400 : colors.palette.primary100} size={30} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="SetState"
-        component={Setstate}
-        options={{
-          tabBarLabel: "Testavimui2",
+          tabBarLabel: "Įrašai",
           tabBarIcon: ({ focused }) => (
             <Icon icon="debug" color={focused ? colors.palette.primary400 : colors.palette.primary100} size={30} />
           ),
