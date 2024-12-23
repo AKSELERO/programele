@@ -1,5 +1,4 @@
-# Setup'as
-Netestuotas nuo nulio
+# Setup
 1. git clone https://github.com/AKSELERO/programele.git
 2. npm install (turbūt)
 3. npm start / npm run android
