@@ -4,8 +4,6 @@ Netestuotas nuo nulio
 2. npm install (turbūt)
 3. npm start / npm run android
 
-Ignite naudoja expo, todėl galbūt nereikės viso to android studio instaliacijos proceso. Man prijungus telefoną su laidu prie kompo su `npm start` instaliavo viską ko reikėjo (į telefoną).
-
 # Building
 1. cd android
 2. ./gradlew assembleRelease
@@ -15,30 +13,43 @@ Ignite naudoja expo, todėl galbūt nereikės viso to android studio instaliacij
 
 # Overview
 
-![image](https://github.com/user-attachments/assets/87147308-73ae-4804-8f46-f142be03e99b)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/87147308-73ae-4804-8f46-f142be03e99b" alt="Glim Overview" width="300"/>
+</p>
 
 **Glim** is a wellness app that allows users to track their activity using sensors on their phone.
 
-![image](https://github.com/user-attachments/assets/50d3b2f3-b93f-4202-9ddd-7128d29206a0)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/50d3b2f3-b93f-4202-9ddd-7128d29206a0" alt="Goals Selection" width="300"/>
+</p>
 
 Users can select what goals they'd like to have and their types with a handy selection menu.
 
-![image](https://github.com/user-attachments/assets/8b6a0ccd-058c-4ee9-9ddb-fbf85fdc14eb)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/8b6a0ccd-058c-4ee9-9ddb-fbf85fdc14eb" alt="AI Model Analysis" width="300"/>
+</p>
 
 After using the app for a while, the data collected by your phone sensors is sent directly to a custom AI model running locally on your phone. This allows you to analyse your overall activity levels - all without any of your private data leaving your phone.
 
-![image](https://github.com/user-attachments/assets/b1dbeb3a-b20a-4b4a-98ec-a117ad4dcb04)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/b1dbeb3a-b20a-4b4a-98ec-a117ad4dcb04" alt="Activity Recommendations" width="300"/>
+</p>
 
-Finally, users may also read concrete reccomendations about each activity type and how they may improve their overall health.
+Finally, users may also read concrete recommendations about each activity type and how they may improve their overall health.
 
-![image](https://github.com/user-attachments/assets/2ee1374f-2aca-4e75-8c6a-e160a2a7e30f)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/2ee1374f-2aca-4e75-8c6a-e160a2a7e30f" alt="Notifications Settings" width="300"/>
+</p>
 
-![image](https://github.com/user-attachments/assets/63098b1a-667c-49d5-a6fb-f8cce5b2c3b3)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/63098b1a-667c-49d5-a6fb-f8cce5b2c3b3" alt="Notifications Settings" width="300"/>
+</p>
 
 Users may also tweak the notifications they'd like to receive.
 
-![image](https://github.com/user-attachments/assets/704314be-9719-47ef-baa9-d495ec1e9e7a)
-
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/704314be-9719-47ef-baa9-d495ec1e9e7a" alt="Notifications Settings" width="300"/>
+</p>
 
 # Boilerplate fluff
 
