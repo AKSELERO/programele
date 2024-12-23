@@ -1,23 +1,46 @@
 # Setup'as
-Netestavau setupo nuo nulio, gali būt kad reikės kažką pasidaryt papildomai.
+Netestuotas nuo nulio
 1. git clone https://github.com/AKSELERO/programele.git
 2. npm install (turbūt)
 3. npm start / npm run android
 
 Ignite naudoja expo, todėl galbūt nereikės viso to android studio instaliacijos proceso. Man prijungus telefoną su laidu prie kompo su `npm start` instaliavo viską ko reikėjo (į telefoną).
 
-# Buildinimas
+# Building
 1. cd android
 2. ./gradlew assembleRelease
-3. Outputas: `android/app/build/outputs/apk/release/app-release.apk`
+3. Output: `android/app/build/outputs/apk/release/app-release.apk`
 
 "Make sure you have Android Studio installed on your machine. This includes the necessary Android SDK and build tools."
 
-# Welcome to your new ignited app!
+# Overview
 
-[![CircleCI](https://circleci.com/gh/infinitered/ignite.svg?style=svg)](https://circleci.com/gh/infinitered/ignite)
+![image](https://github.com/user-attachments/assets/87147308-73ae-4804-8f46-f142be03e99b)
 
-## The latest and greatest boilerplate for Infinite Red opinions
+**Glim** is a wellness app that allows users to track their activity using sensors on their phone.
+
+![image](https://github.com/user-attachments/assets/50d3b2f3-b93f-4202-9ddd-7128d29206a0)
+
+Users can select what goals they'd like to have and their types with a handy selection menu.
+
+![image](https://github.com/user-attachments/assets/8b6a0ccd-058c-4ee9-9ddb-fbf85fdc14eb)
+
+After using the app for a while, the data collected by your phone sensors is sent directly to a custom AI model running locally on your phone. This allows you to analyse your overall activity levels - all without any of your private data leaving your phone.
+
+![image](https://github.com/user-attachments/assets/b1dbeb3a-b20a-4b4a-98ec-a117ad4dcb04)
+
+Finally, users may also read concrete reccomendations about each activity type and how they may improve their overall health.
+
+![image](https://github.com/user-attachments/assets/2ee1374f-2aca-4e75-8c6a-e160a2a7e30f)
+
+![image](https://github.com/user-attachments/assets/63098b1a-667c-49d5-a6fb-f8cce5b2c3b3)
+
+Users may also tweak the notifications they'd like to receive.
+
+![image](https://github.com/user-attachments/assets/704314be-9719-47ef-baa9-d495ec1e9e7a)
+
+
+# Boilerplate fluff
 
 This is the boilerplate that [Infinite Red](https://infinite.red) uses as a way to test bleeding-edge changes to our React Native stack.
 
